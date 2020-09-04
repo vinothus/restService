@@ -1,5 +1,6 @@
 package com.dynamic;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -15,6 +16,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.errorprone.annotations.concurrent.LazyInit;
 import com.howtodoinjava.demo.exception.RecordNotFoundException;
 import com.howtodoinjava.demo.model.EmployeeEntity;
@@ -73,8 +77,41 @@ return new  GenericController();
 }
 
 
-public List<Map<String ,Object>> addData()
+public  ResponseEntity<Map<String ,Object>> addData(@PathVariable("service") String service,@RequestBody String params) throws Exception
 {
-	return null;
+	ObjectMapper mapper = new ObjectMapper();
+
+    Map<String, String> jsonMap = new HashMap<String, String>();
+    jsonMap = mapper.readValue(params, new TypeReference<Map<String, String>>(){}); // converts JSON to Map
+   
+	return  new ResponseEntity<Map<String ,Object>>( employeeRepositaryImpl.insertData(service, jsonMap),new HttpHeaders(), HttpStatus.OK);
+}
+
+public   ResponseEntity<Map<String ,Object>> updateData(@PathVariable("service") String service,@RequestBody String params) throws Exception
+{
+	ObjectMapper mapper = new ObjectMapper();
+
+    Map<String, String> jsonMap = new HashMap<String, String>();
+    jsonMap = mapper.readValue(params, new TypeReference<Map<String, String>>(){}); // converts JSON to Map
+   
+	return   new ResponseEntity<Map<String ,Object>>(employeeRepositaryImpl.updateData(service, jsonMap),new HttpHeaders(), HttpStatus.OK);
+}
+
+public ResponseEntity<List< Map<String ,Object>>> getDatum(@PathVariable("service") String service,@RequestParam Map<String,String> params) throws Exception
+{
+	 
+   
+	return new ResponseEntity <List< Map<String ,Object>>>(employeeRepositaryImpl.getDataForParams(service, params),new HttpHeaders(), HttpStatus.OK);
+}
+public  ResponseEntity<Map<String ,Object>>  getData(@PathVariable("service") String service,@PathVariable String uniquekey) throws Exception
+{
+	 
+   
+	return    new ResponseEntity<Map<String ,Object>>(employeeRepositaryImpl.getData(service, uniquekey),new HttpHeaders(), HttpStatus.OK);
+}
+
+public  ResponseEntity<Map<String ,Object>> delData(@PathVariable("service") String service,@PathVariable("uniquekey") String uniquekey) throws Exception
+{
+	return  new ResponseEntity<Map<String ,Object>>(employeeRepositaryImpl.deleteData(service, uniquekey),new HttpHeaders(), HttpStatus.OK);
 }
 }

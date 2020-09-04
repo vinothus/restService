@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
@@ -30,6 +31,7 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandl
 
 import com.dynamic.ControllerBeanFactoryPostProcessor;
 import com.dynamic.GenericController;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.errorprone.annotations.concurrent.LazyInit;
 import com.healthmarketscience.sqlbuilder.dbspec.basic.DbColumn;
 import com.healthmarketscience.sqlbuilder.dbspec.basic.DbTable;
@@ -126,7 +128,8 @@ public class DemoApplication {
 			
 			  
 			  EmployeeRepositaryImpl employeeRepositaryImpl=	  app.getBean(EmployeeRepositaryImpl.class);
-				/*
+				
+			  /*
 				 * System.out.println(employeeRepositaryImpl.getMetaDatum());
 				 * Map<DbTable,List<DbColumn>> tc=employeeRepositaryImpl.getMetaDatum(); for
 				 * (Map.Entry<DbTable,List<DbColumn>> entry : tc.entrySet()) { DbTable table=
@@ -139,6 +142,56 @@ public class DemoApplication {
 				 * (DbTable) iterator.next(); employeeRepositaryImpl.createDbTable(dbTable); }
 				 */
 			  employeeRepositaryImpl.init();
+			 
+				 
+				  handlerMapping.registerMapping(
+			                RequestMappingInfo.paths("/myApp/{service}/addData")
+			                        .methods(RequestMethod.POST)
+			                        .produces(MediaType.APPLICATION_JSON_VALUE)
+			                        .build(),
+			                userController,
+			                userController.getClass()
+			                        .getMethod("addData", String.class,String.class));
+				  
+				  handlerMapping.registerMapping(
+			                RequestMappingInfo.paths("/myApp/{service}/updateData")
+			                        .methods(RequestMethod.PUT)
+			                        .produces(MediaType.APPLICATION_JSON_VALUE)
+			                        .build(),
+			                userController,
+			                userController.getClass()
+			                        .getMethod("updateData", String.class,String.class));
+				  
+				  handlerMapping.registerMapping(
+			                RequestMappingInfo.paths("/myApp/{service}/getdata")
+			                        .methods(RequestMethod.GET)
+			                        .produces(MediaType.APPLICATION_JSON_VALUE)
+			                        .build(),
+			                userController,
+			                userController.getClass()
+			                        .getMethod("getDatum",String.class, Map.class));
+				  handlerMapping.registerMapping(
+			                RequestMappingInfo.paths("/myApp/{service}/getdataForKey")
+			                        .methods(RequestMethod.GET)
+			                        .produces(MediaType.APPLICATION_JSON_VALUE)
+			                        .build(),
+			                userController,
+			                userController.getClass()
+			                        .getMethod("getData", String.class, String.class));
+				  handlerMapping.registerMapping(
+			                RequestMappingInfo.paths("/myApp/{service}/deleteData/{uniquekey}")
+			                        .methods(RequestMethod.DELETE)
+			                        .produces(MediaType.APPLICATION_JSON_VALUE)
+			                        .build(),
+			                userController,
+			                userController.getClass()
+			                        .getMethod("delData", String.class, String.class));
+				  
+				  
+				 
+			 
+			 
+			 
 			 // EmployeeRepositaryImpl.tableColumnMap=  employeeRepositaryImpl.getMetaDatum() ;
 		//System.out.println( employeeRepositaryImpl.getData("student","1"));
 		Map<String,String> params=new HashMap<String,String>();
@@ -151,11 +204,14 @@ public class DemoApplication {
 		 insertParams.put("first name","Lokeshs");
 		 insertParams.put("email","howtodoinjava@gmail.com");
 		 insertParams.put("last name","jede");
-		 insertParams.put("id", "5");
-		 System.out.println(employeeRepositaryImpl.insertData("tbl student",insertParams));
+		 //insertParams.put("id", "5");
+		 //System.out.println(employeeRepositaryImpl.insertData("tbl student",insertParams));
+		 ObjectMapper mapper = new ObjectMapper();
+		 System.out.println(mapper.writeValueAsString(insertParams));
+		 userController.addData("tbl student",mapper.writeValueAsString(insertParams));
 		 insertParams.put("last name","jeddsds");
 		 System.out.println(employeeRepositaryImpl.updateData("tbl student",insertParams));
-		 System.out.println(employeeRepositaryImpl.deleteData("tbl student","5"));
+		 //System.out.println(employeeRepositaryImpl.deleteData("tbl student","5"));
 		 return handlerMapping;
 	 }
 	/*

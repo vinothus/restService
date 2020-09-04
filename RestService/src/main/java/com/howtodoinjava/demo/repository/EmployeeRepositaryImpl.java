@@ -41,7 +41,7 @@ public class EmployeeRepositaryImpl{
     static DbTable table_name;
     static DbColumn column_1, column_2, column_3, column_4;
     static DbSpec specficationObj;
-    static Map<String,String> serviceTableMap;
+    public static Map<String,String> serviceTableMap;
     public static Map<DbTable,List<DbColumn>> tableColumnMap;
     static Map<String,Map<String,String>> serviceAttrbMap;
     public void init()
@@ -262,6 +262,7 @@ public class EmployeeRepositaryImpl{
 	String tableName=	serviceTableMap.get(service);
 	InsertQuery insertQuery;
 	String primaryKey=null;
+	boolean isUpdate=false;
 	Map<String,String> attribParamMap=serviceAttrbMap.get(service);
 	 for (Map.Entry<DbTable,List<DbColumn>> entry : tableColumnMap.entrySet())  {
 		 DbTable table= entry.getKey();
@@ -278,10 +279,22 @@ public class EmployeeRepositaryImpl{
 					DbConstraint dbConstraint = iterator2.next();
 					if(dbConstraint.getType().toString().equals(Constraint.Type.PRIMARY_KEY.toString()))
 					{
-						isPrimaryKey=true;
 					
 						if( (params.get(attribParamMap.get(dbColumn.getName())) != null) )
-						primaryKey=params.get(attribParamMap.get(dbColumn.getName()));
+						{
+							isPrimaryKey=true;
+							primaryKey=params.get(attribParamMap.get(dbColumn.getName()));
+							if(getData(service, primaryKey).size()>0)
+							{
+								isUpdate=true;	
+							}
+						}else
+						{
+							 
+								primaryKey=	FindMax(tableName);
+							params.put(dbColumn.getName(), primaryKey);
+							 
+						}
 					}
 				}
 				
@@ -295,9 +308,16 @@ public class EmployeeRepositaryImpl{
             System.out.println(insertQuery.toString());
             if(primaryKey!=null)
             {
-            	jdbcTemplate.execute(insertQuery.toString());
+            	
+            	if(!isUpdate) {
+            	jdbcTemplate.execute(insertQuery.toString());}else
+            	{
+            		updateData(service, params);
+            	}
+            	
+            	
             	}else {
-            		
+            		  
             		throw new Exception("Primary key not found");
             	}
             break;
@@ -346,7 +366,7 @@ public class EmployeeRepositaryImpl{
 	                             ", Value = " + entry.getValue()); 
 	            //params.get(attribParamMap.get(dbColumn.getName()))
 	            System.out.println(updateQuery.toString());
-	            isUpdate= jdbcTemplate.update(updateQuery.toString());
+	          try {  isUpdate= jdbcTemplate.update(updateQuery.toString());}catch(Exception e) {}
 	            break;
 			 }
 	    } 
@@ -391,7 +411,14 @@ public class EmployeeRepositaryImpl{
 			break;
 			 }
 			}
-		 Map<String ,Object> result=	jdbcTemplate.queryForMap(selectQuery.validate().toString());
+		 Map<String ,Object> result=	new HashMap<String ,Object>();
+				try { 
+					result= jdbcTemplate.queryForMap(selectQuery.validate().toString());
+				
+				}catch(Exception e) {
+					
+					System.out.println(e.getMessage());
+				}
 		return result;
 	}
 	
@@ -428,7 +455,8 @@ public class EmployeeRepositaryImpl{
 			}
 		 System.out.println(deleteQuery.validate().toString());
 		 Map<String ,Object> retValue= getData(serviceName, primaryKeyValue);
-		 int result=	jdbcTemplate.update(deleteQuery.validate().toString());
+		 int result=0;
+		 try {result=	jdbcTemplate.update(deleteQuery.validate().toString());}catch(Exception e) {}
 		 if(result>0)
 		 {
 			 return retValue;
@@ -466,7 +494,15 @@ public class EmployeeRepositaryImpl{
 			break;
 			 }
 			}
-		 List<Map<String ,Object>>  result=	jdbcTemplate.queryForList(selectQuery.validate().toString());
+		 List<Map<String ,Object>>  result=	new ArrayList<Map<String ,Object>>();
+			try { 
+				result= jdbcTemplate.queryForList(selectQuery.validate().toString());
+			
+			}catch(Exception e) {
+				
+				System.out.println(e.getMessage());
+			}
+		 
 		return result;
 	}
 	
@@ -537,10 +573,10 @@ public class EmployeeRepositaryImpl{
 					DbColumn dbColumn = iterator.next();
 					String serviceAttrid=getServiceAttrID(serviceid,dbColumn.getName());
 					String maxRecAttr= FindMax("Service_Attr");
-					if (maxRecAttr!=null) {
+					if (maxRecAttr!=null&&serviceAttrid==null) {
 						String serviceAttrQuery = " INSERT INTO Service_Attr (id, service_id , attrName, colName) values ((SELECT MAX( id )+1 FROM Service_Attr serA) ,'"+ serviceid + "','" + dbColumn.getName().toLowerCase().replace("_"," ") + "','" + dbColumn.getName() +"') ";
 						jdbcTemplate.execute(serviceAttrQuery);
-					}else
+					}else  if(maxRecAttr==null)
 					{
 						
 						 {
@@ -576,7 +612,7 @@ public class EmployeeRepositaryImpl{
 	}
 	private String getServiceAttrID(String serviceId,String attributeName) {
 
-		String selectQuery=" select id  from Service_Attr where service_id  = '"+serviceId+"' and attrName ='"+attributeName+"'";
+		String selectQuery=" select id  from Service_Attr where service_id  = '"+serviceId+"' and colName ='"+attributeName+"'";
 		List<Map<String,Object>> data=new ArrayList<Map<String,Object>>();
 		try { data=	jdbcTemplate.queryForList(selectQuery);
 		}catch(Exception e)
