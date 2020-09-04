@@ -256,11 +256,12 @@ public class EmployeeRepositaryImpl{
 		return initialTable;
 	}
 	
-	public void insertData(String service,Map<String ,String> params)
+	public  Map<String ,Object> insertData(String service,Map<String ,String> params) throws Exception
 	{
 		loadSQLBuilderSchema();
 	String tableName=	serviceTableMap.get(service);
 	InsertQuery insertQuery;
+	String primaryKey=null;
 	Map<String,String> attribParamMap=serviceAttrbMap.get(service);
 	 for (Map.Entry<DbTable,List<DbColumn>> entry : tableColumnMap.entrySet())  {
 		 DbTable table= entry.getKey();
@@ -271,6 +272,19 @@ public class EmployeeRepositaryImpl{
 			List<DbColumn> column=entry.getValue();
 			for (Iterator<DbColumn> iterator = column.iterator(); iterator.hasNext();) {
 				DbColumn dbColumn =  iterator.next();
+				List<DbConstraint> dbConstr= dbColumn.getConstraints();
+				boolean isPrimaryKey=false;
+				for (Iterator<DbConstraint> iterator2 = dbConstr.iterator(); iterator2.hasNext();) {
+					DbConstraint dbConstraint = iterator2.next();
+					if(dbConstraint.getType().toString().equals(Constraint.Type.PRIMARY_KEY.toString()))
+					{
+						isPrimaryKey=true;
+					
+						if( (params.get(attribParamMap.get(dbColumn.getName())) != null) )
+						primaryKey=params.get(attribParamMap.get(dbColumn.getName()));
+					}
+				}
+				
 				if (params.get(attribParamMap.get(dbColumn.getName())) != null) {
 					insertQuery.addColumn(dbColumn, params.get(attribParamMap.get(dbColumn.getName())));
 				}
@@ -279,17 +293,28 @@ public class EmployeeRepositaryImpl{
             System.out.println("Key = " + entry.getKey() + 
                              ", Value = " + entry.getValue()); 
             System.out.println(insertQuery.toString());
-            jdbcTemplate.execute(insertQuery.toString());
+            if(primaryKey!=null)
+            {
+            	jdbcTemplate.execute(insertQuery.toString());
+            	}else {
+            		
+            		throw new Exception("Primary key not found");
+            	}
             break;
 		 }
-    } 
+		
+		
+    }
+	 return getData(service, primaryKey); 
 		
 	}
-	public void updateData(String service,Map<String ,String> params)
+	public Map<String ,Object> updateData(String service,Map<String ,String> params) throws Exception
 	{
 		
 		String tableName=	serviceTableMap.get(service);
 		UpdateQuery updateQuery= new UpdateQuery(tableName);
+		int isUpdate = 0;
+		String primaryKey="";
 		Map<String,String> attribParamMap=serviceAttrbMap.get(service);
 		 for (Map.Entry<DbTable,List<DbColumn>> entry : tableColumnMap.entrySet())  {
 			 DbTable table= entry.getKey();
@@ -309,7 +334,7 @@ public class EmployeeRepositaryImpl{
 							isPrimaryKey=true;
 							if( (params.get(attribParamMap.get(dbColumn.getName())) != null) )
 							updateQuery.addCondition(BinaryCondition.equalTo(dbColumn, params.get(attribParamMap.get(dbColumn.getName()))));
-							
+							primaryKey=params.get(attribParamMap.get(dbColumn.getName()));
 						}
 					}
 					if( (params.get(attribParamMap.get(dbColumn.getName())) != null) )
@@ -321,11 +346,19 @@ public class EmployeeRepositaryImpl{
 	                             ", Value = " + entry.getValue()); 
 	            //params.get(attribParamMap.get(dbColumn.getName()))
 	            System.out.println(updateQuery.toString());
-	            jdbcTemplate.execute(updateQuery.toString());
+	            isUpdate= jdbcTemplate.update(updateQuery.toString());
 	            break;
 			 }
 	    } 
-			
+			if(isUpdate>0)
+			{
+				
+				return getDataForParams(service, params).get(0);
+			}else 
+			{
+				throw new Exception("update Failed");
+			}
+			 
 		
 	}
 	
@@ -363,10 +396,11 @@ public class EmployeeRepositaryImpl{
 	}
 	
 	
-	public int deleteData(String serviceName, String primaryKeyValue)
+	public  Map<String ,Object> deleteData(String serviceName, String primaryKeyValue) throws Exception
 	{
 		 
 		 DeleteQuery deleteQuery=null;
+		 Map<String ,Object> deletingVal;
 		 String tableName=	serviceTableMap.get(serviceName);
 		 Map<String,String> attribParamMap=serviceAttrbMap.get(serviceName);
 		 for (Map.Entry<DbTable,List<DbColumn>> entry : tableColumnMap.entrySet())  {
@@ -393,8 +427,16 @@ public class EmployeeRepositaryImpl{
 			 }
 			}
 		 System.out.println(deleteQuery.validate().toString());
-		 //int result=	jdbcTemplate.update(deleteQuery.validate().toString());
-		return 0;
+		 Map<String ,Object> retValue= getData(serviceName, primaryKeyValue);
+		 int result=	jdbcTemplate.update(deleteQuery.validate().toString());
+		 if(result>0)
+		 {
+			 return retValue;
+		 }else
+		 {
+			 throw new Exception("Deletion Failed ");
+		 }
+		 
 	}
 	
 	public List<Map<String ,Object>> getDataForParams(String serviceName,Map<String,String> params) throws Exception

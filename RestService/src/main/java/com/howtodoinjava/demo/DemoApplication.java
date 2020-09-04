@@ -145,17 +145,17 @@ public class DemoApplication {
 		params.put("id", "1");
 		params.put("first name","Lokesh");
 		
-		employeeRepositaryImpl.getDataForParams("tbl student",params);
+		//employeeRepositaryImpl.getDataForParams("tbl student",params);
 		 System.out.println(employeeRepositaryImpl.getDataForParams("tbl student",params));
 		 Map<String,String> insertParams=new HashMap<String,String>();
 		 insertParams.put("first name","Lokeshs");
 		 insertParams.put("email","howtodoinjava@gmail.com");
 		 insertParams.put("last name","jede");
 		 insertParams.put("id", "5");
-		 //employeeRepositaryImpl.insertData("tbl student",insertParams);
+		 System.out.println(employeeRepositaryImpl.insertData("tbl student",insertParams));
 		 insertParams.put("last name","jeddsds");
-		 employeeRepositaryImpl.updateData("tbl student",insertParams);
-		 employeeRepositaryImpl.deleteData("tbl student","5");
+		 System.out.println(employeeRepositaryImpl.updateData("tbl student",insertParams));
+		 System.out.println(employeeRepositaryImpl.deleteData("tbl student","5"));
 		 return handlerMapping;
 	 }
 	/*

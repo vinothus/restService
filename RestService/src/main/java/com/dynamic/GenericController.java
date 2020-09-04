@@ -71,4 +71,10 @@ public GenericController getObject()
 	
 return new  GenericController();
 }
+
+
+public List<Map<String ,Object>> addData()
+{
+	return null;
+}
 }
