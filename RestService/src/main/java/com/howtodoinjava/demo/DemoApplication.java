@@ -139,6 +139,7 @@ public class DemoApplication {
 				 * (DbTable) iterator.next(); employeeRepositaryImpl.createDbTable(dbTable); }
 				 */
 			  employeeRepositaryImpl.init();
+			 // EmployeeRepositaryImpl.tableColumnMap=  employeeRepositaryImpl.getMetaDatum() ;
 		//System.out.println( employeeRepositaryImpl.getData("student","1"));
 		Map<String,String> params=new HashMap<String,String>();
 		params.put("id", "1");
@@ -147,11 +148,12 @@ public class DemoApplication {
 		employeeRepositaryImpl.getDataForParams("tbl student",params);
 		 System.out.println(employeeRepositaryImpl.getDataForParams("tbl student",params));
 		 Map<String,String> insertParams=new HashMap<String,String>();
-		 insertParams.put("First Name","Lokeshs");
-		 insertParams.put("Email Id","howtodoinjava@gmail.com");
-		 insertParams.put("Last Name","jede");
+		 insertParams.put("first name","Lokeshs");
+		 insertParams.put("email","howtodoinjava@gmail.com");
+		 insertParams.put("last name","jede");
 		 insertParams.put("id", "5");
-		 employeeRepositaryImpl.insertData("tbl student",insertParams);
+		 //employeeRepositaryImpl.insertData("tbl student",insertParams);
+		 insertParams.put("last name","jeddsds");
 		 employeeRepositaryImpl.updateData("tbl student",insertParams);
 		 employeeRepositaryImpl.deleteData("tbl student","5");
 		 return handlerMapping;

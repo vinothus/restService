@@ -42,7 +42,7 @@ public class EmployeeRepositaryImpl{
     static DbColumn column_1, column_2, column_3, column_4;
     static DbSpec specficationObj;
     static Map<String,String> serviceTableMap;
-    static Map<DbTable,List<DbColumn>> tableColumnMap;
+    public static Map<DbTable,List<DbColumn>> tableColumnMap;
     static Map<String,Map<String,String>> serviceAttrbMap;
     public void init()
     {
@@ -51,7 +51,7 @@ public class EmployeeRepositaryImpl{
     	try {
 			tableColumnMap=getMetaDatum() ;
 			InitGoldenTables();
-			tableColumnMap=getMetaDatum() ;
+			
 			serviceTableMap();
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
@@ -90,7 +90,7 @@ public class EmployeeRepositaryImpl{
 		
 			 
 		}
-		
+		tableColumnMap=getMetaDatum() ;
 		insertServiceTables();
 		
 	}
@@ -279,6 +279,7 @@ public class EmployeeRepositaryImpl{
             System.out.println("Key = " + entry.getKey() + 
                              ", Value = " + entry.getValue()); 
             System.out.println(insertQuery.toString());
+            jdbcTemplate.execute(insertQuery.toString());
             break;
 		 }
     } 
@@ -320,6 +321,7 @@ public class EmployeeRepositaryImpl{
 	                             ", Value = " + entry.getValue()); 
 	            //params.get(attribParamMap.get(dbColumn.getName()))
 	            System.out.println(updateQuery.toString());
+	            jdbcTemplate.execute(updateQuery.toString());
 	            break;
 			 }
 	    } 
@@ -477,11 +479,11 @@ public class EmployeeRepositaryImpl{
 			 String serviceInsertQuery="INSERT INTO   Service (id ,tableName , serviceName )   values( (SELECT MAX( id )+1 FROM Service ser) , '"+tableName+"', '"+tableName.toLowerCase().replace("_", " ")+"'  )";
 			 String serviceid=getServiceID(tableName);
 			String maxRec= FindMax("Service");
-			 if(maxRec!=null) 
+			 if(maxRec!=null&&serviceid==null) 
 			 {
 				 jdbcTemplate.execute(serviceInsertQuery); 
 				 serviceid=getServiceID(tableName);
-			 }else
+			 }else if(maxRec==null)
 			 {
 				 serviceInsertQuery="INSERT INTO   Service (id ,tableName , serviceName )   values( 0, '"+tableName+"', '"+tableName.toLowerCase().replace("_", " ")+"'  )";
 				 jdbcTemplate.execute(serviceInsertQuery); 
