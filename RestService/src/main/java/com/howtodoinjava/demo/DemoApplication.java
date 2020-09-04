@@ -11,6 +11,7 @@ import java.util.Map.Entry;
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
@@ -39,9 +40,9 @@ import com.howtodoinjava.demo.repository.EmployeeRepositaryImpl;
 import com.vin.intercept.SimpleFilter;
 
 
-
 @SpringBootApplication
 public class DemoApplication {
+	 
 	@Autowired
 	 GenericController  userController;
 	@Autowired
@@ -96,7 +97,7 @@ public class DemoApplication {
          return new ControllerBeanFactoryPostProcessor(env);
      }
 	 @Bean
-	 RequestMappingHandlerMapping getObject(ApplicationContext app,DataSource dataSource,RequestMappingHandlerMapping handlerMapping) throws Exception
+	 RequestMappingHandlerMapping getObject(ApplicationContext app,DataSource dataSource,RequestMappingHandlerMapping handlerMapping,Environment env) throws Exception
 	 {
 		 handlerMapping=app.getBean(RequestMappingHandlerMapping.class);
 		 userController= app.getBean(GenericController.class);
@@ -142,10 +143,10 @@ public class DemoApplication {
 				 * (DbTable) iterator.next(); employeeRepositaryImpl.createDbTable(dbTable); }
 				 */
 			  employeeRepositaryImpl.init();
-			 
-				 
+			 String appName=env.getProperty("spring.application.name");
+			 System.out.println("appName :"+appName);
 				  handlerMapping.registerMapping(
-			                RequestMappingInfo.paths("/myApp/{service}/addData")
+			                RequestMappingInfo.paths("/"+appName+"/{service}/addData")
 			                        .methods(RequestMethod.POST)
 			                        .produces(MediaType.APPLICATION_JSON_VALUE)
 			                        .build(),
@@ -154,7 +155,7 @@ public class DemoApplication {
 			                        .getMethod("addData", String.class,String.class));
 				  
 				  handlerMapping.registerMapping(
-			                RequestMappingInfo.paths("/myApp/{service}/updateData")
+			                RequestMappingInfo.paths("/"+appName+"/{service}/updateData")
 			                        .methods(RequestMethod.PUT)
 			                        .produces(MediaType.APPLICATION_JSON_VALUE)
 			                        .build(),
@@ -163,7 +164,7 @@ public class DemoApplication {
 			                        .getMethod("updateData", String.class,String.class));
 				  
 				  handlerMapping.registerMapping(
-			                RequestMappingInfo.paths("/myApp/{service}/getdata")
+			                RequestMappingInfo.paths("/"+appName+"/{service}/getdata")
 			                        .methods(RequestMethod.GET)
 			                        .produces(MediaType.APPLICATION_JSON_VALUE)
 			                        .build(),
@@ -171,7 +172,7 @@ public class DemoApplication {
 			                userController.getClass()
 			                        .getMethod("getDatum",String.class, Map.class));
 				  handlerMapping.registerMapping(
-			                RequestMappingInfo.paths("/myApp/{service}/getdataForKey")
+			                RequestMappingInfo.paths("/"+appName+"/{service}/getdataForKey/{uniquekey}")
 			                        .methods(RequestMethod.GET)
 			                        .produces(MediaType.APPLICATION_JSON_VALUE)
 			                        .build(),
@@ -179,7 +180,7 @@ public class DemoApplication {
 			                userController.getClass()
 			                        .getMethod("getData", String.class, String.class));
 				  handlerMapping.registerMapping(
-			                RequestMappingInfo.paths("/myApp/{service}/deleteData/{uniquekey}")
+			                RequestMappingInfo.paths("/"+appName+"/{service}/deleteData/{uniquekey}")
 			                        .methods(RequestMethod.DELETE)
 			                        .produces(MediaType.APPLICATION_JSON_VALUE)
 			                        .build(),

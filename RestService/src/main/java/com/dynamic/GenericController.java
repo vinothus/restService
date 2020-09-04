@@ -103,7 +103,7 @@ public ResponseEntity<List< Map<String ,Object>>> getDatum(@PathVariable("servic
    
 	return new ResponseEntity <List< Map<String ,Object>>>(employeeRepositaryImpl.getDataForParams(service, params),new HttpHeaders(), HttpStatus.OK);
 }
-public  ResponseEntity<Map<String ,Object>>  getData(@PathVariable("service") String service,@PathVariable String uniquekey) throws Exception
+public  ResponseEntity<Map<String ,Object>>  getData(@PathVariable("service") String service,@PathVariable("uniquekey") String uniquekey) throws Exception
 {
 	 
    
