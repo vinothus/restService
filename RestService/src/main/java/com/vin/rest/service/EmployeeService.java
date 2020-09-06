@@ -13,7 +13,7 @@ import com.vin.rest.repository.EmployeeRepository;
  
 @Service
 public class EmployeeService {
-     
+     String recNFE="No employee record exist for given id";
     @Autowired
     EmployeeRepository repository;
      
@@ -21,10 +21,10 @@ public class EmployeeService {
     {
         List<EmployeeEntity> employeeList = repository.findAll();
          
-        if(employeeList.size() > 0) {
+        if(!employeeList.isEmpty()) {
             return employeeList;
         } else {
-            return new ArrayList<EmployeeEntity>();
+            return new ArrayList<>();
         }
     }
      
@@ -35,11 +35,11 @@ public class EmployeeService {
         if(employee.isPresent()) {
             return employee.get();
         } else {
-            throw new RecordNotFoundException("No employee record exist for given id");
+            throw new RecordNotFoundException(recNFE);
         }
     }
      
-    public EmployeeEntity createOrUpdateEmployee(EmployeeEntity entity) throws RecordNotFoundException
+    public EmployeeEntity createOrUpdateEmployee(EmployeeEntity entity)  
     {
         Optional<EmployeeEntity> employee = repository.findById(entity.getId());
          
@@ -68,21 +68,21 @@ public class EmployeeService {
         {
             repository.deleteById(id);
         } else {
-            throw new RecordNotFoundException("No employee record exist for given id");
+            throw new RecordNotFoundException(recNFE);
         }
     }
     
     
     
     
-    public EmployeeEntity getEmployeeByName(String  name) throws RecordNotFoundException
+    public EmployeeEntity getEmployeeByName() throws RecordNotFoundException
     {
-        Optional<EmployeeEntity> employee=null; //= repository.findById(id);
+        Optional<EmployeeEntity> employee=null; 
          
         if(employee.isPresent()) {
             return employee.get();
         } else {
-            throw new RecordNotFoundException("No employee record exist for given id");
+            throw new RecordNotFoundException(recNFE);
         }
     }
     

@@ -50,15 +50,15 @@ public class GenericController {
 	}
 
 	public ResponseEntity<List<EmployeeEntity>> getAll(@RequestParam Map<String, String> params)
-			throws RecordNotFoundException {
+			 {
 		log.info(params.toString());
 		List<EmployeeEntity> entity = employeeRepositaryImpl.getAll();
 
 		return new ResponseEntity<List<EmployeeEntity>>(entity, new HttpHeaders(), HttpStatus.OK);
 	}
 
-	public ResponseEntity<List<EmployeeEntity>> getAllEmp(@RequestBody String params) throws RecordNotFoundException {
-		log.info(params.toString());
+	public ResponseEntity<List<EmployeeEntity>> getAllEmp(@RequestBody String params)  {
+		log.info(params);
 		List<EmployeeEntity> entity = employeeRepositaryImpl.getAll();
 
 		return new ResponseEntity<List<EmployeeEntity>>(entity, new HttpHeaders(), HttpStatus.OK);
@@ -73,7 +73,7 @@ public class GenericController {
 			@RequestBody String params) throws Exception {
 		ObjectMapper mapper = new ObjectMapper();
 
-		Map<String, String> jsonMap = new HashMap<String, String>();
+		Map<String, String> jsonMap = new HashMap<>();
 		jsonMap = mapper.readValue(params, new TypeReference<Map<String, String>>() {
 		}); // converts JSON to Map
 
@@ -85,7 +85,7 @@ public class GenericController {
 			@RequestBody String params) throws Exception {
 		ObjectMapper mapper = new ObjectMapper();
 
-		Map<String, String> jsonMap = new HashMap<String, String>();
+		Map<String, String> jsonMap = new HashMap<>();
 		jsonMap = mapper.readValue(params, new TypeReference<Map<String, String>>() {
 		}); // converts JSON to Map
 
