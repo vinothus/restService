@@ -1,4 +1,4 @@
-package com.howtodoinjava.demo;
+package com.vin.rest.demo;
 
 import java.util.ArrayList;
 import java.util.List;

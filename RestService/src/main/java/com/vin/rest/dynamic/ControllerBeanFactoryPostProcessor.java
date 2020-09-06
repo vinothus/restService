@@ -1,4 +1,4 @@
-package com.dynamic;
+package com.vin.rest.dynamic;
 
 import java.io.File;
 import java.net.URLClassLoader;
@@ -30,7 +30,7 @@ import javassist.bytecode.annotation.Annotation;
 import javassist.bytecode.annotation.StringMemberValue;
 import javassist.util.HotSwapper;
 
-@Configuration
+//@Configuration
 public class ControllerBeanFactoryPostProcessor implements BeanDefinitionRegistryPostProcessor {
 
 	static Logger log = Logger.getLogger(ControllerBeanFactoryPostProcessor.class.getName());
@@ -160,7 +160,7 @@ public class ControllerBeanFactoryPostProcessor implements BeanDefinitionRegistr
 		return cls;
 	}
 
-	public com.dynamic.GenericController getClassGM() throws Exception {
+	public com.vin.rest.dynamic.GenericController getClassGM() throws Exception {
 		ClassPool pool = ClassPool.getDefault();
 		CtClass cc = pool.getCtClass("com.dynamic.GenericController");
 		// cc.defrost();

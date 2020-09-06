@@ -1,4 +1,4 @@
-package com.howtodoinjava.demo;
+package com.vin.rest;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -13,18 +13,17 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.env.Environment;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
-import com.dynamic.ControllerBeanFactoryPostProcessor;
-import com.dynamic.GenericController;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.howtodoinjava.demo.repository.EmployeeRepositaryImpl;
 import com.vin.intercept.SimpleFilter;
+//import com.vin.rest.dynamic.ControllerBeanFactoryPostProcessor;
+import com.vin.rest.dynamic.GenericController;
+import com.vin.rest.repository.EmployeeRepositaryImpl;
 
+ 
 @SpringBootApplication
 public class DemoApplication {
 	static Logger log = Logger.getLogger(DemoApplication.class.getName());
@@ -52,17 +51,16 @@ public class DemoApplication {
 
 	}
 
-	@Bean
-	GenericController getGC() {
+	/*
+	 * @Bean GenericController getGC() {
+	 * 
+	 * return new GenericController(); }
+	 */
 
-		return new GenericController();
-	}
-
-	@Bean
-	ControllerBeanFactoryPostProcessor myConfigBean(Environment env) {
-		return new ControllerBeanFactoryPostProcessor(env);
-	}
-
+	/*
+	 * @Bean ControllerBeanFactoryPostProcessor myConfigBean(Environment env) {
+	 * return new ControllerBeanFactoryPostProcessor(env); }
+	 */
 	@Bean
 	RequestMappingHandlerMapping getObject(ApplicationContext app, DataSource dataSource,
 			RequestMappingHandlerMapping handlerMapping, Environment env) throws Exception {

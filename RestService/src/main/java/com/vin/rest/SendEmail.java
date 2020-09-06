@@ -1,4 +1,4 @@
-package com.howtodoinjava.demo;
+package com.vin.rest;
 
 import java.util.function.Function;
 import java.util.logging.Logger;

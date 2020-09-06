@@ -1,4 +1,4 @@
-package com.howtodoinjava.demo;
+package com.vin.rest;
 
 import org.springframework.web.bind.annotation.RestController;
 

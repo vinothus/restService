@@ -1,4 +1,4 @@
-package com.howtodoinjava.demo.web;
+package com.vin.rest.web;
 
 import java.util.List;
 import java.util.Map;
@@ -17,10 +17,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.howtodoinjava.demo.exception.RecordNotFoundException;
-import com.howtodoinjava.demo.model.EmployeeEntity;
-import com.howtodoinjava.demo.repository.EmployeeRepositaryImpl;
-import com.howtodoinjava.demo.service.EmployeeService;
+import com.vin.rest.exception.RecordNotFoundException;
+import com.vin.rest.model.EmployeeEntity;
+import com.vin.rest.repository.EmployeeRepositaryImpl;
+import com.vin.rest.service.EmployeeService;
  
 @RestController
 @RequestMapping("/employees")

@@ -1,4 +1,4 @@
-package com.dynamic;
+package com.vin.rest.dynamic;
 
 import java.util.HashMap;
 import java.util.List;
@@ -18,10 +18,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.errorprone.annotations.concurrent.LazyInit;
-import com.howtodoinjava.demo.exception.RecordNotFoundException;
-import com.howtodoinjava.demo.model.EmployeeEntity;
-import com.howtodoinjava.demo.repository.EmployeeRepositaryImpl;
-import com.howtodoinjava.demo.service.EmployeeService;
+import com.vin.rest.exception.RecordNotFoundException;
+import com.vin.rest.model.EmployeeEntity;
+import com.vin.rest.repository.EmployeeRepositaryImpl;
+import com.vin.rest.service.EmployeeService;
 
 @Component
 public class GenericController {

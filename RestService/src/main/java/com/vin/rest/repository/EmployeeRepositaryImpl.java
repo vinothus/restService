@@ -1,4 +1,4 @@
-package com.howtodoinjava.demo.repository;
+package com.vin.rest.repository;
 
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
@@ -28,7 +28,7 @@ import com.healthmarketscience.sqlbuilder.dbspec.basic.DbConstraint;
 import com.healthmarketscience.sqlbuilder.dbspec.basic.DbSchema;
 import com.healthmarketscience.sqlbuilder.dbspec.basic.DbSpec;
 import com.healthmarketscience.sqlbuilder.dbspec.basic.DbTable;
-import com.howtodoinjava.demo.model.EmployeeEntity;
+import com.vin.rest.model.EmployeeEntity;
 
 @Repository
 public class EmployeeRepositaryImpl {
