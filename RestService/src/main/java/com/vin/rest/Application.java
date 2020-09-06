@@ -25,8 +25,8 @@ import com.vin.rest.repository.EmployeeRepositaryImpl;
 
  
 @SpringBootApplication
-public class DemoApplication {
-	static Logger log = Logger.getLogger(DemoApplication.class.getName());
+public class Application {
+	static Logger log = Logger.getLogger(Application.class.getName());
 	@Autowired
 	GenericController userController;
 	@Autowired
@@ -47,7 +47,7 @@ public class DemoApplication {
 
 	public static void main(String[] args) {
 
-		SpringApplication.run(DemoApplication.class, args);
+		SpringApplication.run(Application.class, args);
 
 	}
 
