@@ -122,13 +122,17 @@ public class DemoApplication {
 		// insertParams.put("id", "5");
 		// log.info(employeeRepositaryImpl.insertData("tbl
 		// student",insertParams).toString());
-		ObjectMapper mapper = new ObjectMapper();
-		log.info(mapper.writeValueAsString(insertParams).toString().toString());
-		ResponseEntity<Map<String, Object>> dataum=userController.addData("tbl student", mapper.writeValueAsString(insertParams));
-		
+		//ObjectMapper mapper = new ObjectMapper();
+		//log.info(mapper.writeValueAsString(insertParams).toString().toString());
+		//ResponseEntity<Map<String, Object>> dataum=userController.addData("tbl student", mapper.writeValueAsString(insertParams));
+		Map<String , Object> data=employeeRepositaryImpl.insertData("tbl student",insertParams);
+		System.out.println("Data :"+data);
 		insertParams.put("last name", "jeddsds");
+		
 		log.info(employeeRepositaryImpl.updateData("tbl student", insertParams).toString());
-		log.info(employeeRepositaryImpl.deleteData("tbl student",dataum.getBody().get("id").toString()).toString());
+		 
+		log.info( Integer.toString((int) data.get("id")));
+		log.info(employeeRepositaryImpl.deleteData("tbl student", Integer.toString((int) data.get("id"))).toString());
 		return handlerMapping;
 	}
 
