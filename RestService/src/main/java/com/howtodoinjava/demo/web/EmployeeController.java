@@ -2,6 +2,7 @@ package com.howtodoinjava.demo.web;
 
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 
 import javax.annotation.PostConstruct;
 
@@ -25,6 +26,7 @@ import com.howtodoinjava.demo.service.EmployeeService;
 @RequestMapping("/employees")
 public class EmployeeController
 {
+	Logger log = Logger.getLogger(EmployeeController.class.getName());
     @Autowired
     EmployeeService service;
     
@@ -79,7 +81,7 @@ public class EmployeeController
 	}
     @PostConstruct
     public void init() {
-        System.out.println("Test post construct");
+    	log.info("Test post construct");
     }	 
     
 }

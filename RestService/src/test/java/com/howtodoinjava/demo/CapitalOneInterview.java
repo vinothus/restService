@@ -21,9 +21,7 @@ public class CapitalOneInterview {
 			
 		}
 	
-	System.out.println(output);
+	 
 	}
-// select * from department where row_num between 1 and 1000;
-// select count(*) from department ;
-// 	
+ 
 }

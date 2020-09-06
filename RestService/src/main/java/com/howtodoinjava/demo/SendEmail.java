@@ -1,40 +1,29 @@
 package com.howtodoinjava.demo;
 
 import java.util.function.Function;
+import java.util.logging.Logger;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 import javax.mail.*;
 import javax.mail.internet.*;
-import javax.activation.*;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebDriver.Options;
-import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
-import org.openqa.selenium.remote.RemoteWebDriver;
-import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.Dimension;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.interactions.Actions;
-import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Wait;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.Alert;
-import org.openqa.selenium.Keys;
-import java.util.*;
-import java.net.MalformedURLException;
 import java.net.URL;
 
 public class SendEmail {
  
+	static Logger log = Logger.getLogger(SendEmail.class.getName());
+	
 	public static void main(String [] args)  {  
 		//Thread t=new Thread(()->{
 			
@@ -69,12 +58,12 @@ public class SendEmail {
 
 	            String line;
 	            while ((line = reader.readLine()) != null) {
-	                System.out.println(line);
+	            	log.info(line);
 	               
 	            }
 
 	            int exitCode = process.waitFor();
-	            System.out.println("\nExited with error code : " + exitCode);
+	            log.info("\nExited with error code : " + exitCode);
 
 	        } catch (Exception e) {
 	            e.printStackTrace();
@@ -134,7 +123,7 @@ public class SendEmail {
 
 	         // Send message
 	         Transport.send(message);
-	         System.out.println("Sent message successfully....");
+	         log.info("Sent message successfully....");
 	      } catch (MessagingException mex) {
 	         mex.printStackTrace();
 	      }
@@ -191,15 +180,15 @@ public class SendEmail {
 		  path = url.getFile().substring(0, url.getFile().lastIndexOf('/')); String
 		  base = url.getProtocol() + "://" + url.getHost() + path;
 		  //wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("root")));
-		  System.out.println(currentURL);
+		  log.info(currentURL);
 		  driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
 		  Thread.sleep(10000);
 		  driver.navigate().to(base+tunnelurl);
 		  
 		 Thread.sleep(10000);
 	    waitForPageLoad(driver);
-	    System.out.println("current url :"+driver.getCurrentUrl());
-	    System.out.println(driver.findElement(By.cssSelector(".ant-table-row > .ant-table-cell:nth-child(3)")).getText());
+	    log.info("current url :"+driver.getCurrentUrl());
+	    log.info(driver.findElement(By.cssSelector(".ant-table-row > .ant-table-cell:nth-child(3)")).getText());
 	    String ngrokServiceurl=driver.findElement(By.cssSelector(".ant-table-row > .ant-table-cell:nth-child(3)")).getText();
 	   
 	    
@@ -219,7 +208,7 @@ public class SendEmail {
 	    Wait<WebDriver> wait = new WebDriverWait(driver_, 30);
 	    wait.until(new Function<WebDriver, Boolean>() {
 	        public Boolean apply(WebDriver driver) {
-	            System.out.println("Current Window State       : "
+	        	log.info("Current Window State       : "
 	                + String.valueOf(((JavascriptExecutor) driver).executeScript("return document.readyState")));
 	            return String
 	                .valueOf(((JavascriptExecutor) driver).executeScript("return document.readyState"))

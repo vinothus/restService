@@ -1,18 +1,24 @@
 package com.vin.intercept;
 
+import java.util.logging.Logger;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
+
 @Component
 public class SignupInterceptor  extends HandlerInterceptorAdapter{
+	
+	Logger log = Logger.getLogger(SignupInterceptor.class.getName());
+	
 	@Override
     public boolean preHandle(HttpServletRequest request, 
            HttpServletResponse response, Object handler) throws Exception {
 
-	System.out.println("interceptor"+request.getParameterMap());
+	log.info("interceptor"+request.getParameterMap());
 
 
       return true;
