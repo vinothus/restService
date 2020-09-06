@@ -52,7 +52,7 @@ public class EmployeeRepositaryImpl {
 			tableColumnMap = getMetaDatum();
 			initGoldenTables();
 
-			serviceTableMap();
+			getServiceTableMap();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -105,15 +105,9 @@ public class EmployeeRepositaryImpl {
 	}
 
 	public List<EmployeeEntity> getAll() {
-		// jdbcTemplate = new JdbcTemplate(dataSource);
 		List<EmployeeEntity> listEmp = new ArrayList<EmployeeEntity>();
 		List<Map<String, Object>> result = jdbcTemplate.queryForList("select * from TBL_EMPLOYEES  ");
-		/*
-		 * Session session = this.sessionFactory.getCurrentSession();
-		 * Query<EmployeeEntity> query =
-		 * session.createQuery("from EmployeeEntity E WHERE E.first_name= :name  ");
-		 * query.setParameter("name",name);
-		 */
+		 
 		EmployeeEntity employeeEntity = null;
 		for (Iterator<Map<String, Object>> iterator = result.iterator(); iterator.hasNext();) {
 			Map<String, Object> map = iterator.next();
@@ -134,12 +128,12 @@ public class EmployeeRepositaryImpl {
 
 	public List<Map<String, Object>> getServiceDataByName(String name) throws Exception {
 		 
-		return getDataForParams(name, new HashMap<String, String>());
+		return getDataForParams(name, new HashMap<>());
 	}
 
 	public Map<DbTable, List<DbColumn>> getMetaDatum()  {
 		loadSQLBuilderSchema();
-		Map<DbTable, List<DbColumn>> metaDatum = new HashMap<DbTable, List<DbColumn>>();
+		Map<DbTable, List<DbColumn>> metaDatum = new HashMap<>();
 		DatabaseMetaData md;
 		try {
 			md = dataSource.getConnection().getMetaData();
@@ -386,12 +380,10 @@ public class EmployeeRepositaryImpl {
 	public Map<String, Object> deleteData(String serviceName, String primaryKeyValue) throws Exception {
 
 		DeleteQuery deleteQuery = null;
-		Map<String, Object> deletingVal;
 		String tableName = serviceTableMap.get(serviceName);
 		if (tableName == null) {
 			throw new ServiceNotFoundException(serviceNTFEx);
 		}
-		Map<String, String> attribParamMap = serviceAttrbMap.get(serviceName);
 		for (Map.Entry<DbTable, List<DbColumn>> entry : tableColumnMap.entrySet()) {
 			DbTable table = entry.getKey();
 			if (table.getName().equalsIgnoreCase(tableName)) {
@@ -407,7 +399,6 @@ public class EmployeeRepositaryImpl {
 
 						}
 					}
-					// selectQuery.addAliasedColumn(dbColumn,"\""+attribParamMap.get(dbColumn.getName())+"\"");
 				}
 				log.info(deleteQuery.validate().toString());
 				break;
@@ -465,7 +456,7 @@ public class EmployeeRepositaryImpl {
 		return result;
 	}
 
-	public void serviceTableMap() {
+	public void getServiceTableMap() {
 
 		serviceTableMap = new HashMap<>();
 		serviceAttrbMap = new HashMap<>();

@@ -88,26 +88,37 @@ public class ApplicationTests {
 	}
 	
 	@Test
-	public void postData() throws Exception {
+	public void insert() throws Exception {
 		
 		Map<String ,String> student=new HashMap<String ,String>();
 		student.put("first name", "Lokesh");
 		student.put("email", "howtodoinjava@gmail.com");
 		student.put("last name", "jede");
-        mvc.perform(MockMvcRequestBuilders.post("/myApps/tbl student/addData")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(new ObjectMapper().writeValueAsString(student)))
-            .andExpect(MockMvcResultMatchers.status().isOk());
-		 
-		  mvc.perform( MockMvcRequestBuilders
-			  .get("/myApps/tbl student/getdata")
-			  .accept(MediaType.APPLICATION_JSON))
-			  .andDo(MockMvcResultHandlers.print())
-			  .andExpect(MockMvcResultMatchers.status().isOk())
-			  .andExpect(MockMvcResultMatchers.jsonPath("$.[*]").exists());
-			    	      //.andExpect(MockMvcResultMatchers.jsonPath("$.[0].id").isNotEmpty()); 
-		  
 		
+		
+		MvcResult resultPost = mvc.perform(MockMvcRequestBuilders.post("/myApps/tbl student/addData")
+	            .contentType(MediaType.APPLICATION_JSON)
+	            .content(new ObjectMapper().writeValueAsString(student)))
+	            .andExpect(MockMvcResultMatchers.status().isOk())
+	            .andReturn();
+		String jsonData= resultPost.getResponse().getContentAsString();
+		ObjectMapper mapper = new ObjectMapper();
+
+		Map<String, String> jsonMap = new HashMap<>();
+		jsonMap = mapper.readValue(jsonData, new TypeReference<Map<String, String>>() {
+		}); 
+		String id=jsonMap.get("id");
+		
+		mvc.perform( MockMvcRequestBuilders
+	    	      .get("/myApps/tbl student/getdataForKey/"+id)
+	    	      .accept(MediaType.APPLICATION_JSON))
+	    	      .andDo(MockMvcResultHandlers.print())
+	    	      .andExpect(MockMvcResultMatchers.status().isOk())
+	    	      .andExpect(MockMvcResultMatchers.jsonPath("$.id").exists())
+	    	      .andExpect(MockMvcResultMatchers.jsonPath("$.id").isNotEmpty()) 
+	              .andExpect(MockMvcResultMatchers.jsonPath("$.id",is(Integer.parseInt(id))));
+		 
+		  
 		
 	}
 	@Test
