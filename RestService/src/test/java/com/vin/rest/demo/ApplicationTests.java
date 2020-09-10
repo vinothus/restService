@@ -47,7 +47,7 @@ public class ApplicationTests {
 	public void getData() throws Exception {
 		
 			      mvc.perform( MockMvcRequestBuilders
-			    	      .get("/myApps/tbl student/getdata")
+			    	      .get("/myApps/tbl student/getdata?iden=234")
 			    	      .accept(MediaType.APPLICATION_JSON))
 			    	      .andDo(MockMvcResultHandlers.print())
 			    	      .andExpect(MockMvcResultMatchers.status().isOk())

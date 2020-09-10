@@ -10,16 +10,21 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 import org.springframework.http.MediaType;
+import org.springframework.validation.beanvalidation.MethodValidationPostProcessor;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
 import com.vin.intercept.SimpleFilter;
 import com.vin.rest.dynamic.GenericController;
 import com.vin.rest.repository.EmployeeRepositaryImpl;
+import com.vin.validation.VinMap;
+import com.vin.validation.WebConfig;
 
  
 @SpringBootApplication
@@ -109,5 +114,14 @@ public class Application {
 		// set precedence
 		return registrationBean;
 	}
-
+	public WebConfig webconfig()
+	{
+		
+		return new WebConfig();
+	}
+	
+	@Bean
+	 public MethodValidationPostProcessor methodValidationPostProcessor() {
+	      return new MethodValidationPostProcessor();
+	 }
 }

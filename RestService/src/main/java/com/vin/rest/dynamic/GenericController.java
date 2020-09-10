@@ -1,15 +1,20 @@
 package com.vin.rest.dynamic;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Logger;
+
+import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -22,8 +27,13 @@ import com.vin.rest.exception.RecordNotFoundException;
 import com.vin.rest.model.EmployeeEntity;
 import com.vin.rest.repository.EmployeeRepositaryImpl;
 import com.vin.rest.service.EmployeeService;
-
+import com.vin.validation.ParamMapValidator;
+import com.vin.validation.VinMap;
+import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
+import javax.validation.Validator;
 @Component
+@Validated
 public class GenericController {
 
 	static Logger log = Logger.getLogger(GenericController.class.getName());
@@ -32,6 +42,10 @@ public class GenericController {
 	EmployeeService service;
 	@Autowired
 	EmployeeRepositaryImpl employeeRepositaryImpl;
+	
+	@Autowired
+	Validator validator;
+	
 	private String controllerPath = null;
 
 	public String getControllerPath() {
@@ -94,8 +108,24 @@ public class GenericController {
 	}
 
 	public ResponseEntity<List<Map<String, Object>>> getDatum(@PathVariable("service") String service,
-			@RequestParam Map<String, String> params) throws Exception {
+			@RequestParam   Map<String, String> params) throws Exception {
 
+
+		
+		  System.out.println("start validation"); System.out.println(validator);
+			Set<ConstraintViolation<HashMap>> constraintViolation = validator
+					.validate(new VinMap<String, String>(params));
+			for (Iterator iterator = constraintViolation.iterator(); iterator.hasNext();) {
+				ConstraintViolation<HashMap> constraintViolation2 = (ConstraintViolation<HashMap>) iterator.next();
+				System.out.println(constraintViolation2.getMessage());
+			}
+			/*
+			 * if (!constraintViolation.isEmpty()) { throw new
+			 * ConstraintViolationException(constraintViolation); }
+			 */
+		 
+		System.out.println("end validation");
+		
 		return new ResponseEntity<List<Map<String, Object>>>(employeeRepositaryImpl.getDataForParams(service, params),
 				new HttpHeaders(), HttpStatus.OK);
 	}
