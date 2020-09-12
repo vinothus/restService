@@ -161,7 +161,7 @@ public class EmployeeRepositaryImpl {
 			                             ", Value = " + entry.getValue()); 
 					DbTable tableNameT = schemaObj.addTable(entry.getValue().toString());
 					List<DbColumn> listArray = new ArrayList<>();
-					List rsmdList = (List) jdbcTemplate.query("desc "+entry.getValue(),new ResultSetExtractor() {
+					ResultSetMetaData rsmd =  (ResultSetMetaData) jdbcTemplate.query("desc "+entry.getValue(),new ResultSetExtractor() {
 				        @Override
 				        public ResultSetMetaData extractData(ResultSet rs) throws SQLException, DataAccessException {
 				            ResultSetMetaData rsmd = rs.getMetaData();
@@ -169,36 +169,34 @@ public class EmployeeRepositaryImpl {
 				        }
 				     });
 
-				    ResultSetMetaData rsmd = (ResultSetMetaData) rsmdList.get(0);
+				    //ResultSetMetaData rsmd = (ResultSetMetaData) rsmdList.get(0);
 				    int numberOfColumns = rsmd.getColumnCount();
-				    for (int i = 1; i < numberOfColumns + 1; i++) {
-				        String columnName = rsmd.getColumnName(i);
-				        String tableName = rsmd.getTableName(i);
-				        rsmd.getColumnType(numberOfColumns);
-				       // rsmd.gett
-				        System.out.println(columnName);
-				        System.out.println(tableName);
-				      }
+				    
 					List<Map<String,Object>>	colums=jdbcTemplate.queryForList("desc "+entry.getValue());
 					for (Iterator iterator2 = colums.iterator(); iterator2.hasNext();) {
 						Map<String, Object> coluMaps = (Map<String, Object>) iterator2.next();
 						coluMaps.get("Field");
 						coluMaps.get("Type");
 						coluMaps.get("Key");
+						int sqlTypes = 0;
+						for (int i = 1; i < numberOfColumns + 1; i++) {
+					        String columnName = rsmd.getColumnName(i);
+					        String tableName = rsmd.getTableName(i);
+					        rsmd.getColumnType(numberOfColumns);
+					        
+					        if(columnName.equals(coluMaps.get("Field")))
+					        {
+					        	sqlTypes=rsmd.getColumnType(i);
+					        }
+					      }
 						DbColumn column1 = tableNameT.addColumn((String)coluMaps.get("Field"),
-								getSQLType((String)coluMaps.get("Type")), getLength((String)coluMaps.get("Type")));
+								sqlTypes, getLength((String)coluMaps.get("Type")));
 						if(coluMaps.get("Key").equals("PRI"))
 							{
 							column1.primaryKey();
 							}
 						listArray.add(column1);
-						for (Entry<String, Object> entrys : coluMaps.entrySet()) 
-						{
-							
-							 System.out.println("Column Key = " + entrys.getKey() +  ", column Value = " + entrys.getValue()); 
-							 
-							 
-						}
+						 
 					}
 					metaDatum.put(tableNameT, listArray);
 			    } 
