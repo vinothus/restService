@@ -2,20 +2,29 @@ package com.vin.rest.repository;
 
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.logging.Logger;
 
+import org.hibernate.validator.internal.engine.ConstraintViolationImpl;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.stereotype.Repository;
 import javax.sql.DataSource;
+import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
 
 import com.healthmarketscience.sqlbuilder.BinaryCondition;
 import com.healthmarketscience.sqlbuilder.CreateTableQuery;
@@ -31,6 +40,8 @@ import com.healthmarketscience.sqlbuilder.dbspec.basic.DbSpec;
 import com.healthmarketscience.sqlbuilder.dbspec.basic.DbTable;
 import com.vin.rest.exception.ServiceNotFoundException;
 import com.vin.rest.model.EmployeeEntity;
+import com.vin.validation.ParamsValidator;
+import com.vin.validation.ServiceConstraintViolation;
 
 @Repository
 public class EmployeeRepositaryImpl {
@@ -121,8 +132,9 @@ public class EmployeeRepositaryImpl {
 		return listEmp;
 	}
 
-	private static void loadSQLBuilderSchema() {
+	private  void loadSQLBuilderSchema() {
 		specficationObj = new DbSpec();
+		
 		schemaObj = specficationObj.addDefaultSchema();
 	}
 
@@ -135,10 +147,66 @@ public class EmployeeRepositaryImpl {
 		loadSQLBuilderSchema();
 		Map<DbTable, List<DbColumn>> metaDatum = new HashMap<>();
 		DatabaseMetaData md;
+		ResultSet rs ;
 		try {
 			md = dataSource.getConnection().getMetaData();
-		
-		ResultSet rs = md.getTables(null, null, "%", new String[] { "TABLE",
+			if(dataSource.getConnection().getMetaData().getURL().contains("mysql"))
+			{
+			List<Map<String,Object>>	tableresult=jdbcTemplate.queryForList("show tables");
+				for (Iterator iterator = tableresult.iterator(); iterator.hasNext();) {
+					Map<String, Object> map = (Map<String, Object>) iterator.next();
+					System.out.println(map);
+					for (Entry<String, Object> entry : map.entrySet())  
+					{   System.out.println("Key = " + entry.getKey() + 
+			                             ", Value = " + entry.getValue()); 
+					DbTable tableNameT = schemaObj.addTable(entry.getValue().toString());
+					List<DbColumn> listArray = new ArrayList<>();
+					List rsmdList = (List) jdbcTemplate.query("desc "+entry.getValue(),new ResultSetExtractor() {
+				        @Override
+				        public ResultSetMetaData extractData(ResultSet rs) throws SQLException, DataAccessException {
+				            ResultSetMetaData rsmd = rs.getMetaData();
+				            return rsmd;
+				        }
+				     });
+
+				    ResultSetMetaData rsmd = (ResultSetMetaData) rsmdList.get(0);
+				    int numberOfColumns = rsmd.getColumnCount();
+				    for (int i = 1; i < numberOfColumns + 1; i++) {
+				        String columnName = rsmd.getColumnName(i);
+				        String tableName = rsmd.getTableName(i);
+				        rsmd.getColumnType(numberOfColumns);
+				       // rsmd.gett
+				        System.out.println(columnName);
+				        System.out.println(tableName);
+				      }
+					List<Map<String,Object>>	colums=jdbcTemplate.queryForList("desc "+entry.getValue());
+					for (Iterator iterator2 = colums.iterator(); iterator2.hasNext();) {
+						Map<String, Object> coluMaps = (Map<String, Object>) iterator2.next();
+						coluMaps.get("Field");
+						coluMaps.get("Type");
+						coluMaps.get("Key");
+						DbColumn column1 = tableNameT.addColumn((String)coluMaps.get("Field"),
+								getSQLType((String)coluMaps.get("Type")), getLength((String)coluMaps.get("Type")));
+						if(coluMaps.get("Key").equals("PRI"))
+							{
+							column1.primaryKey();
+							}
+						listArray.add(column1);
+						for (Entry<String, Object> entrys : coluMaps.entrySet()) 
+						{
+							
+							 System.out.println("Column Key = " + entrys.getKey() +  ", column Value = " + entrys.getValue()); 
+							 
+							 
+						}
+					}
+					metaDatum.put(tableNameT, listArray);
+			    } 
+				} 	 
+			} 
+			else {	 
+			//dataSource.getConnection().setCatalog("cameldb");
+		    rs = md.getTables(null, null, "%", new String[] { "TABLE",
 				"VIEW"/*
 						 * , "SYSTEM TABLE", "GLOBAL TEMPORARY", "LOCAL TEMPORARY", "ALIAS", "SYNONYM"
 						 */ });
@@ -173,6 +241,7 @@ public class EmployeeRepositaryImpl {
 			metaDatum.put(tableNameT, listArray);
 			
 		}
+			}
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -419,12 +488,16 @@ public class EmployeeRepositaryImpl {
 
 	}
 
-	public List<Map<String, Object>> getDataForParams(String serviceName, Map<String, String> params) throws Exception {
+	public List<Map<String, Object>> getDataForParams(String serviceName, Map<String, String> params)    {
 
 		SelectQuery selectQuery = new SelectQuery();
 		String tableName = serviceTableMap.get(serviceName);
 		if (tableName == null) {
-			throw new ServiceNotFoundException(serviceNTFEx);
+			Set<ConstraintViolation<HashMap>> constraintViolation =new HashSet<ConstraintViolation<HashMap>>();
+			Map errorMessages=new HashMap<String,String>();
+			ConstraintViolation<HashMap> cv=new ServiceConstraintViolation<String,String>("Service Not Found "," / "+serviceName); 
+			constraintViolation.add(cv);
+			throw new ConstraintViolationException(constraintViolation);
 		}
 		Map<String, String> attribParamMap = serviceAttrbMap.get(serviceName);
 		for (Map.Entry<DbTable, List<DbColumn>> entry : tableColumnMap.entrySet()) {
@@ -583,9 +656,112 @@ public class EmployeeRepositaryImpl {
 
 		String attrID = null;
 		if (data.get("ID") != null) {
-			attrID = Integer.toString((int) data.get("ID"));
+			try {attrID = Integer.toString((int) data.get("ID"));
+			}catch(Exception e) {
+				attrID = Long.toString((Long) data.get("ID"));	
+			}
 		}
 		return attrID;
 
+	}
+	public int getSQLType(String mysqlDataType)
+	{
+		if(mysqlDataType.contains("int"))
+		{
+			return  Types.INTEGER;
+		}
+		
+		return 0;
+	}
+	public int getLength(String mysqlDataType)
+	{
+		char[] lengthData=mysqlDataType.toCharArray();
+		String returnStr="";
+		for (int i = 0; i < lengthData.length; i++) {
+			char chardata= lengthData[i];
+			if (chardata >= '0' && chardata <= '9')
+			{
+				returnStr=returnStr+chardata;
+			}
+		}
+		return Integer.parseInt(returnStr);
+	}
+	public static String getSqlTypeName(int type) {
+	    switch (type) {
+	    case Types.BIT:
+	        return "BIT";
+	    case Types.TINYINT:
+	        return "TINYINT";
+	    case Types.SMALLINT:
+	        return "SMALLINT";
+	    case Types.INTEGER:
+	        return "INTEGER";
+	    case Types.BIGINT:
+	        return "BIGINT";
+	    case Types.FLOAT:
+	        return "FLOAT";
+	    case Types.REAL:
+	        return "REAL";
+	    case Types.DOUBLE:
+	        return "DOUBLE";
+	    case Types.NUMERIC:
+	        return "NUMERIC";
+	    case Types.DECIMAL:
+	        return "DECIMAL";
+	    case Types.CHAR:
+	        return "CHAR";
+	    case Types.VARCHAR:
+	        return "VARCHAR";
+	    case Types.LONGVARCHAR:
+	        return "LONGVARCHAR";
+	    case Types.DATE:
+	        return "DATE";
+	    case Types.TIME:
+	        return "TIME";
+	    case Types.TIMESTAMP:
+	        return "TIMESTAMP";
+	    case Types.BINARY:
+	        return "BINARY";
+	    case Types.VARBINARY:
+	        return "VARBINARY";
+	    case Types.LONGVARBINARY:
+	        return "LONGVARBINARY";
+	    case Types.NULL:
+	        return "NULL";
+	    case Types.OTHER:
+	        return "OTHER";
+	    case Types.JAVA_OBJECT:
+	        return "JAVA_OBJECT";
+	    case Types.DISTINCT:
+	        return "DISTINCT";
+	    case Types.STRUCT:
+	        return "STRUCT";
+	    case Types.ARRAY:
+	        return "ARRAY";
+	    case Types.BLOB:
+	        return "BLOB";
+	    case Types.CLOB:
+	        return "CLOB";
+	    case Types.REF:
+	        return "REF";
+	    case Types.DATALINK:
+	        return "DATALINK";
+	    case Types.BOOLEAN:
+	        return "BOOLEAN";
+	    case Types.ROWID:
+	        return "ROWID";
+	    case Types.NCHAR:
+	        return "NCHAR";
+	    case Types.NVARCHAR:
+	        return "NVARCHAR";
+	    case Types.LONGNVARCHAR:
+	        return "LONGNVARCHAR";
+	    case Types.NCLOB:
+	        return "NCLOB";
+	    case Types.SQLXML:
+	        return "SQLXML";
+	    }
+
+	    return "?";
 	}
 }

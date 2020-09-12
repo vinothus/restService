@@ -1,6 +1,6 @@
 package com.vin.rest.exception;
 
-public class ServiceNotFoundException  extends Exception{
+public class ServiceNotFoundException   extends RuntimeException{
 
 	/**
 	 * 

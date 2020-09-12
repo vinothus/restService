@@ -10,20 +10,27 @@ import java.util.logging.Logger;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.web.servlet.error.ErrorController;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.errorprone.annotations.concurrent.LazyInit;
+import com.vin.rest.exception.GlobalExceptionHandler;
 import com.vin.rest.exception.RecordNotFoundException;
+import com.vin.rest.exception.ServiceNotFoundException;
 import com.vin.rest.model.EmployeeEntity;
 import com.vin.rest.repository.EmployeeRepositaryImpl;
 import com.vin.rest.service.EmployeeService;
@@ -32,8 +39,10 @@ import com.vin.validation.VinMap;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import javax.validation.Validator;
+import javax.validation.constraints.NotNull;
 @Component
 @Validated
+@Controller
 public class GenericController {
 
 	static Logger log = Logger.getLogger(GenericController.class.getName());
@@ -90,7 +99,11 @@ public class GenericController {
 		Map<String, String> jsonMap = new HashMap<>();
 		jsonMap = mapper.readValue(params, new TypeReference<Map<String, String>>() {
 		}); // converts JSON to Map
-
+		Set<ConstraintViolation<HashMap>> constraintViolation = validator
+				.validate(new VinMap<String, String>(jsonMap));
+		if (!constraintViolation.isEmpty()) {
+			throw new ConstraintViolationException(constraintViolation);
+		}
 		return new ResponseEntity<Map<String, Object>>(employeeRepositaryImpl.insertData(service, jsonMap),
 				new HttpHeaders(), HttpStatus.OK);
 	}
@@ -102,15 +115,17 @@ public class GenericController {
 		Map<String, String> jsonMap = new HashMap<>();
 		jsonMap = mapper.readValue(params, new TypeReference<Map<String, String>>() {
 		}); // converts JSON to Map
-
+		Set<ConstraintViolation<HashMap>> constraintViolation = validator
+				.validate(new VinMap<String, String>(jsonMap));
+		if (!constraintViolation.isEmpty()) {
+			throw new ConstraintViolationException(constraintViolation);
+		}
 		return new ResponseEntity<Map<String, Object>>(employeeRepositaryImpl.updateData(service, jsonMap),
 				new HttpHeaders(), HttpStatus.OK);
 	}
-
+	@GetMapping(path="/myApps/{service}/getdata")
 	public ResponseEntity<List<Map<String, Object>>> getDatum(@PathVariable("service") String service,
-			@RequestParam   Map<String, String> params) throws Exception {
-
-
+			@RequestParam   Map<String, String> params)    {
 		
 		  System.out.println("start validation"); System.out.println(validator);
 			Set<ConstraintViolation<HashMap>> constraintViolation = validator
@@ -119,10 +134,11 @@ public class GenericController {
 				ConstraintViolation<HashMap> constraintViolation2 = (ConstraintViolation<HashMap>) iterator.next();
 				System.out.println(constraintViolation2.getMessage());
 			}
-			/*
-			 * if (!constraintViolation.isEmpty()) { throw new
-			 * ConstraintViolationException(constraintViolation); }
-			 */
+			if (!constraintViolation.isEmpty()) {
+				throw new ConstraintViolationException(constraintViolation);
+			}
+			 
+			  
 		 
 		System.out.println("end validation");
 		
@@ -131,15 +147,17 @@ public class GenericController {
 	}
 
 	public ResponseEntity<Map<String, Object>> getData(@PathVariable("service") String service,
-			@PathVariable("uniquekey") String uniquekey) throws Exception {
+			@PathVariable("uniquekey") @Valid @NotNull String uniquekey) throws Exception {
 
 		return new ResponseEntity<Map<String, Object>>(employeeRepositaryImpl.getData(service, uniquekey),
 				new HttpHeaders(), HttpStatus.OK);
 	}
 
 	public ResponseEntity<Map<String, Object>> delData(@PathVariable("service") String service,
-			@PathVariable("uniquekey") String uniquekey) throws Exception {
+			@PathVariable("uniquekey") @Valid @NotNull String uniquekey) throws Exception {
 		return new ResponseEntity<Map<String, Object>>(employeeRepositaryImpl.deleteData(service, uniquekey),
 				new HttpHeaders(), HttpStatus.OK);
 	}
+
+	
 }

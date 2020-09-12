@@ -17,9 +17,14 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.http.HttpStatus;
 @ControllerAdvice
 @Component
-public class GlobalExceptionHandler {
+public class GlobalExceptionHandler extends Throwable{
 
-	 @ExceptionHandler
+	 /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+	@ExceptionHandler
 	    @ResponseBody
 	    @ResponseStatus(HttpStatus.BAD_REQUEST)
 	    public Map handle(MethodArgumentNotValidException exception) {

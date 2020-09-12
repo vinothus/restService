@@ -1,6 +1,7 @@
 package com.vin.rest;
 
 import java.util.Map;
+import java.util.Properties;
 import java.util.logging.Logger;
 
 import javax.sql.DataSource;
@@ -17,6 +18,7 @@ import org.springframework.validation.beanvalidation.MethodValidationPostProcess
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.springframework.web.servlet.handler.SimpleMappingExceptionResolver;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
@@ -95,7 +97,8 @@ public class Application {
 					RequestMappingInfo.paths("/" + appName + "/{service}/deleteData/{uniquekey}")
 							.methods(RequestMethod.DELETE).produces(MediaType.APPLICATION_JSON_VALUE).build(),
 					userController, userController.getClass().getMethod("delData", String.class, String.class));
-		 
+			
+			
 		} catch (  Exception e) {
 			e.printStackTrace();
 		}
@@ -124,4 +127,21 @@ public class Application {
 	 public MethodValidationPostProcessor methodValidationPostProcessor() {
 	      return new MethodValidationPostProcessor();
 	 }
+	
+	@Bean(name="simpleMappingExceptionResolver")
+	  public SimpleMappingExceptionResolver
+	                  createSimpleMappingExceptionResolver() {
+	    SimpleMappingExceptionResolver r =
+	                new SimpleMappingExceptionResolver();
+
+	    Properties mappings = new Properties();
+	    mappings.setProperty("DatabaseException", "databaseError");
+	    mappings.setProperty("ConstraintViolationException", "constraintViolationException");
+	    mappings.setProperty("ServiceNotFoundException","serviceNotFoundException");
+	    r.setExceptionMappings(mappings);  // None by default
+	    r.setDefaultErrorView("error");    // No default
+	    r.setExceptionAttribute("ex");     // Default is "exception"
+	    r.setWarnLogCategory("example.MvcLogger");     // No default
+	    return r;
+	  }
 }
