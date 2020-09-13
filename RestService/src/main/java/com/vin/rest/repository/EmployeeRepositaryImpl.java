@@ -1,5 +1,6 @@
 package com.vin.rest.repository;
 
+import java.math.BigDecimal;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -54,13 +55,13 @@ public class EmployeeRepositaryImpl {
 	static DbSchema schemaObj;
 	static DbSpec specficationObj;
 	public static Map<String, String> serviceTableMap;
-	public static Map<DbTable, List<DbColumn>> tableColumnMap;
+	public static Map<DbTable, List<DbColumn>> tableColumnMap= new HashMap<>();
 	static Map<String, Map<String, String>> serviceAttrbMap;
     String serviceNTFEx="Service not found Exception";
 	public void init() {
 
 		try {
-			tableColumnMap = getMetaDatum();
+			//tableColumnMap = getMetaDatum();
 			initGoldenTables();
 
 			getServiceTableMap();
@@ -208,23 +209,36 @@ public class EmployeeRepositaryImpl {
 				"VIEW"/*
 						 * , "SYSTEM TABLE", "GLOBAL TEMPORARY", "LOCAL TEMPORARY", "ALIAS", "SYNONYM"
 						 */ });
+		    
 		while (rs.next()) {
 
 			DbTable tableNameT = schemaObj.addTable(rs.getString("TABLE_NAME"));
 			String tableName = rs.getString("TABLE_NAME");
 			log.info(tableName);
+			if(tableName.contains("/")||tableName.contains("$"))
+			{
+				continue;
+			}
 			SelectQuery selectQuery = new SelectQuery();
 			List<DbColumn> listArray = new ArrayList<>();
-			ResultSet rs1 = md.getColumns(null, null, rs.getString("TABLE_NAME"), null);
-			ResultSet rs2 = md.getPrimaryKeys(null, null, rs.getString("TABLE_NAME"));
+			ResultSet rs1 = md.getColumns(null, null,tableName, null);
+			ResultSet rs2 = md.getPrimaryKeys(null, null, tableName);
 			String primaryKey = "";
 			while (rs2.next()) {
 				primaryKey = rs2.getString("COLUMN_NAME");
 			}
+			rs2.close();
 
 			while (rs1.next()) {
-				DbColumn column1 = tableNameT.addColumn(rs1.getString("COLUMN_NAME"),
+				DbColumn column1 = null ;
+				try {
+				 column1 = tableNameT.addColumn(rs1.getString("COLUMN_NAME"),
 						Integer.parseInt(rs1.getString("DATA_TYPE")), Integer.parseInt(rs1.getString("COLUMN_SIZE")));
+				}catch(Exception e)
+				{
+					 column1 = tableNameT.addColumn(rs1.getString("COLUMN_NAME"),
+								4, Integer.parseInt(rs1.getString("COLUMN_SIZE")));
+				}
 
 				if (rs1.getString("COLUMN_NAME").equals(primaryKey)) {
 					column1.primaryKey();
@@ -235,10 +249,12 @@ public class EmployeeRepositaryImpl {
 				log.info(rs1.getString("COLUMN_SIZE"));
 
 			}
+			rs1.close();
 			log.info(selectQuery.addAllTableColumns(tableNameT).validate().toString());
 			metaDatum.put(tableNameT, listArray);
 			
 		}
+		rs.close();
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -254,7 +270,50 @@ public class EmployeeRepositaryImpl {
 			String createTableQuery = new CreateTableQuery(tableName, true).validate().toString();
 			log.info("\nGenerated Sql Query?= " + createTableQuery + "\n");
 			jdbcTemplate.execute(createTableQuery);
-		} catch (Exception sqlException) {
+		}  catch (Exception sqlException) {
+			if(sqlException instanceof java.sql.SQLSyntaxErrorException || sqlException instanceof org.springframework.jdbc.BadSqlGrammarException)
+			{
+				log.info("table creation failed with Syntax Error");
+				
+				String manualQuery="Create TABLE "+tableName.getName() + " ( ";
+				List<DbColumn>  columns=tableName.getColumns();
+				for (Iterator iterator = columns.iterator(); iterator.hasNext();) {
+					DbColumn dbColumn = (DbColumn) iterator.next();
+					List<DbConstraint> dbconstaints=dbColumn.getConstraints();
+					boolean isPrimary=false;
+					for (Iterator iterator2 = dbconstaints.iterator(); iterator2.hasNext();) {
+						DbConstraint dbConstraint = (DbConstraint) iterator2.next();
+						if (dbConstraint.getType().toString().equals(Constraint.Type.PRIMARY_KEY.toString())) {
+							isPrimary= true;
+						}
+						
+					}
+					if(dbColumn.getTypeNameSQL().contains("INTEGER"))
+					{
+						manualQuery=manualQuery+dbColumn.getName()+ " "+dbColumn.getTypeNameSQL();
+					}else if(dbColumn.getTypeNameSQL().contains("VARCHAR"))
+					{
+						manualQuery=manualQuery+dbColumn.getName()+ " "+dbColumn.getTypeNameSQL()+"("+dbColumn.getTypeLength()+")";
+					}
+					if(isPrimary)
+					{
+						manualQuery=manualQuery+" PRIMARY KEY";	
+					}
+					if( iterator.hasNext())
+					{
+						manualQuery=manualQuery+" , ";	
+					}
+				}
+				manualQuery=manualQuery+" )";
+				System.out.println(manualQuery);
+				try {
+				jdbcTemplate.execute(manualQuery);
+				}catch(Exception e)
+				{
+				log.info(e.getMessage());	
+				}
+			}
+			
 			sqlException.printStackTrace();
 		}
 		log.info("\n=======The '" + tableName.getName() + "' Successfully Created In The Database=======\n");
@@ -536,7 +595,14 @@ public class EmployeeRepositaryImpl {
 		for (Iterator<Map<String, Object>> iterator = serviceDatum.iterator(); iterator.hasNext();) {
 			Map<String, Object> map = iterator.next();
 			serviceTableMap.put((String) map.get("serviceName"), (String) map.get("tableName"));
-			serviceAttrbMap(Integer.toString((int) map.get("id")), (String) map.get("serviceName"));
+			String id="";
+			try{
+				id=Integer.toString((int) map.get("id"));
+				}catch(Exception e) {
+				
+				id=(	(BigDecimal) map.get("id")).toString();
+			}
+			serviceAttrbMap(id, (String) map.get("serviceName"));
 
 		}
 		 
@@ -616,7 +682,13 @@ public class EmployeeRepositaryImpl {
 		if (data != null)
 			if (data.size() != 0) {
 				if (data.get(0).get("ID") != null) {
-					serID = Integer.toString((int) data.get(0).get("id"));
+					try
+					{
+						serID = Integer.toString((int) data.get(0).get("id"));
+					}catch(Exception e) {
+						java.math.BigDecimal setIDs=	(java.math.BigDecimal ) data.get(0).get("id");
+						serID=setIDs.toString();
+					}
 				}
 			}
 		return serID;
@@ -637,7 +709,14 @@ public class EmployeeRepositaryImpl {
 		if (data != null)
 			if (!data.isEmpty() ) {
 				if (data.get(0).get("ID") != null) {
-					attrID = Integer.toString((int) data.get(0).get("id"));
+					try {attrID = Integer.toString((int) data.get(0).get("id"));}catch(Exception e) {
+						
+						try{attrID = Long.toString((Long) data.get(0).get("id"));	}catch(Exception es) {
+							BigDecimal datas =(BigDecimal) data.get(0).get("id");
+							attrID=datas.toString();
+							
+						}
+					}
 				}
 			}
 		return attrID;
@@ -656,7 +735,12 @@ public class EmployeeRepositaryImpl {
 		if (data.get("ID") != null) {
 			try {attrID = Integer.toString((int) data.get("ID"));
 			}catch(Exception e) {
-				attrID = Long.toString((Long) data.get("ID"));	
+				
+				try{attrID = Long.toString((Long) data.get("ID"));	}catch(Exception es) {
+					BigDecimal datas =(BigDecimal) data.get("ID");
+					attrID=datas.toString();
+					
+				}
 			}
 		}
 		return attrID;

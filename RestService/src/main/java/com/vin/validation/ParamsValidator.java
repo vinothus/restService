@@ -17,7 +17,7 @@ public class ParamsValidator implements ConstraintValidator<ParamMapValidator,Ma
 	@Override
 	public boolean isValid(Map<String, String> value, ConstraintValidatorContext context) {
 		 System.out.println("Validator :"+value);
-		return false;
+		return true;
 	}
 
 	 
