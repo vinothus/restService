@@ -1017,7 +1017,12 @@ public class EmployeeRepositaryImpl {
 				returnStr=returnStr+chardata;
 			}
 		}
-		return Integer.parseInt(returnStr);
+		
+		int returnInt=0;
+		
+		try{returnInt=Integer.parseInt(returnStr);}catch(Exception e) {e.printStackTrace();}
+		
+		return returnInt;
 	}
 	public static String getSqlTypeName(int type) {
 	    switch (type) {
