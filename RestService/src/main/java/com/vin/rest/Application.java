@@ -11,21 +11,17 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 import org.springframework.http.MediaType;
 import org.springframework.validation.beanvalidation.MethodValidationPostProcessor;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.handler.SimpleMappingExceptionResolver;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
 import com.vin.intercept.SimpleFilter;
 import com.vin.rest.dynamic.GenericController;
-import com.vin.rest.repository.EmployeeRepositaryImpl;
-import com.vin.validation.VinMap;
 import com.vin.validation.WebConfig;
 
  
@@ -48,10 +44,10 @@ public class Application {
 	@Autowired
 	static ApplicationContext app;
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws Exception {
 
 		SpringApplication.run(Application.class, args);
-
+		
 	}
 
 	
@@ -71,9 +67,7 @@ public class Application {
 							.produces(MediaType.APPLICATION_JSON_VALUE).build(),
 					userController, userController.getClass().getMethod("getAllEmp", String.class));
 
-			EmployeeRepositaryImpl employeeRepositaryImpl = app.getBean(EmployeeRepositaryImpl.class);
-
-			employeeRepositaryImpl.init();
+			 
 			String appName = env.getProperty("spring.application.name");
 			handlerMapping.registerMapping(
 					RequestMappingInfo.paths("/" + appName + "/{service}/addData").methods(RequestMethod.POST)

@@ -1,6 +1,7 @@
 package com.vin.rest.repository;
 
 import java.math.BigDecimal;
+import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -22,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.ResultSetExtractor;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 import javax.sql.DataSource;
 import javax.validation.ConstraintViolation;
@@ -44,7 +46,7 @@ import com.vin.rest.model.EmployeeEntity;
 import com.vin.validation.ParamsValidator;
 import com.vin.validation.ServiceConstraintViolation;
 
-@Repository
+@Component
 public class EmployeeRepositaryImpl {
 
 	Logger log = Logger.getLogger(EmployeeRepositaryImpl.class.getName());
@@ -54,9 +56,9 @@ public class EmployeeRepositaryImpl {
 	JdbcTemplate jdbcTemplate;
 	static DbSchema schemaObj;
 	static DbSpec specficationObj;
-	public static Map<String, String> serviceTableMap;
+	public static Map<String, String> serviceTableMap= new HashMap<>();
 	public static Map<DbTable, List<DbColumn>> tableColumnMap= new HashMap<>();
-	static Map<String, Map<String, String>> serviceAttrbMap;
+	static Map<String, Map<String, String>> serviceAttrbMap= new HashMap<>();;
     String serviceNTFEx="Service not found Exception";
 	public void init() {
 
@@ -149,9 +151,11 @@ public class EmployeeRepositaryImpl {
 		Map<DbTable, List<DbColumn>> metaDatum = new HashMap<>();
 		DatabaseMetaData md;
 		ResultSet rs ;
+		Connection conn=null;
 		try {
-			md = dataSource.getConnection().getMetaData();
-			if(dataSource.getConnection().getMetaData().getURL().contains("mysql"))
+			conn=dataSource.getConnection();
+			md = conn.getMetaData();
+			if(md.getURL().contains("mysql"))
 			{
 			List<Map<String,Object>>	tableresult=jdbcTemplate.queryForList("show tables");
 				for (Iterator iterator = tableresult.iterator(); iterator.hasNext();) {
@@ -258,6 +262,16 @@ public class EmployeeRepositaryImpl {
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
+		}finally {
+			
+			if(conn!=null)
+			{
+				try {
+					conn.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
 		}
 		return metaDatum;
 	}
@@ -351,6 +365,13 @@ public class EmployeeRepositaryImpl {
 	public Map<String, Object> insertData(String service, Map<String, String> params) throws Exception {
 		loadSQLBuilderSchema();
 		String tableName = serviceTableMap.get(service);
+		 
+		
+		setGDValues(service, tableName);
+		tableName = serviceTableMap.get(service);
+		if (tableName == null) {
+			throw new ServiceNotFoundException(serviceNTFEx);
+		}
 		InsertQuery insertQuery;
 		String primaryKey = null;
 		boolean isUpdate = false;
@@ -378,7 +399,7 @@ public class EmployeeRepositaryImpl {
 							} else {
 
 								primaryKey = findMax(tableName);
-								params.put(dbColumn.getName(), primaryKey);
+								params.put(attribParamMap.get(dbColumn.getName()), primaryKey);
 
 							}
 						}
@@ -410,10 +431,138 @@ public class EmployeeRepositaryImpl {
 		return getData(service, primaryKey);
 
 	}
+	private void arrangeGoldenDataForTable(String tableName) {
+		loadSQLBuilderSchema();
+		setTableColumn(tableName);
+		
+	}
+	private void arrangeGoldenData(String service) {
+		loadSQLBuilderSchema();
+		String tableName=service.replace(" ", "_");
+		setTableColumn(tableName.toUpperCase());
+	}
+
+	private void setTableColumn(String tableName) {
+		DatabaseMetaData md;
+		DbTable tableNameT;
+		List<DbColumn> listArray = new ArrayList<>();
+		Connection conn=null;
+		boolean isPresent=false;
+		for (Map.Entry<DbTable, List<DbColumn>> entry : tableColumnMap.entrySet()) {
+			DbTable table = entry.getKey();
+			if (table.getName().equalsIgnoreCase(tableName)) {
+				isPresent=true;
+			}
+		}
+		try {
+			if(!isPresent) {
+			 conn= dataSource.getConnection();
+			md = conn.getMetaData();
+			if(md.getURL().contains("mysql"))
+			{
+				
+				 tableNameT = schemaObj.addTable(tableName);
+				List<DbColumn> listArraycol = new ArrayList<>();
+				ResultSetMetaData rsmd =  (ResultSetMetaData) jdbcTemplate.query("desc "+tableName,new ResultSetExtractor() {
+			        @Override
+			        public ResultSetMetaData extractData(ResultSet rs) throws SQLException, DataAccessException {
+			            ResultSetMetaData rsmd = rs.getMetaData();
+			            return rsmd;
+			        }
+			     });
+
+			    //ResultSetMetaData rsmd = (ResultSetMetaData) rsmdList.get(0);
+			    int numberOfColumns = rsmd.getColumnCount();
+			    
+				List<Map<String,Object>>	colums=jdbcTemplate.queryForList("desc "+tableName);
+				for (Iterator iterator2 = colums.iterator(); iterator2.hasNext();) {
+					Map<String, Object> coluMaps = (Map<String, Object>) iterator2.next();
+					coluMaps.get("Field");
+					coluMaps.get("Type");
+					coluMaps.get("Key");
+					int sqlTypes = 0;
+					for (int i = 1; i < numberOfColumns + 1; i++) {
+				        String columnName = rsmd.getColumnName(i);
+				        //String tableName = rsmd.getTableName(i);
+				        rsmd.getColumnType(numberOfColumns);
+				        
+				        if(columnName.equalsIgnoreCase((String)coluMaps.get("Field")))
+				        {
+				        	sqlTypes=rsmd.getColumnType(i);
+				        	continue;
+				        }
+				      }
+					DbColumn column1 = tableNameT.addColumn((String)coluMaps.get("Field"),
+							sqlTypes, getLength((String)coluMaps.get("Type")));
+					if(coluMaps.get("Key").equals("PRI"))
+						{
+						column1.primaryKey();
+						}
+					listArraycol.add(column1);
+					 
+				}
+				tableColumnMap.put(tableNameT, listArraycol);
+				
+			}else {
+			ResultSet rs1 = md.getColumns(null, null,tableName.toUpperCase(), null);
+			ResultSet rs2 = md.getPrimaryKeys(null, null, tableName.toUpperCase());
+			String primaryKey = "";
+			 tableNameT = schemaObj.addTable(tableName);
+			while (rs2.next()) {
+				primaryKey = rs2.getString("COLUMN_NAME");
+			}
+			rs2.close();
+
+			while (rs1.next()) {
+				DbColumn column1 = null ;
+				try {
+					
+				 column1 = tableNameT.addColumn(rs1.getString("COLUMN_NAME"),
+						Integer.parseInt(rs1.getString("DATA_TYPE")), Integer.parseInt(rs1.getString("COLUMN_SIZE")));
+				}catch(Exception e)
+				{
+					 column1 = tableNameT.addColumn(rs1.getString("COLUMN_NAME"),
+								4, Integer.parseInt(rs1.getString("COLUMN_SIZE")));
+				}
+
+				if (rs1.getString("COLUMN_NAME").equals(primaryKey)) {
+					column1.primaryKey();
+				}
+				listArray.add(column1);
+				log.info(rs1.getString("DATA_TYPE"));
+				log.info(rs1.getString("COLUMN_NAME"));
+				log.info(rs1.getString("COLUMN_SIZE"));
+
+			}
+			rs1.close();
+			
+			tableColumnMap.put(tableNameT, listArray);
+			}
+			}
+			setServiceTableMap(tableName);
+		} catch (SQLException e1) {
+			e1.printStackTrace();
+		}finally
+		{
+			if(conn!=null)
+			{
+				
+				try {
+					conn.close();
+				} catch (SQLException e) {
+					 
+					e.printStackTrace();
+				}
+			}
+			
+		}
+	}
 
 	public Map<String, Object> updateData(String service, Map<String, String> params) throws Exception {
 
 		String tableName = serviceTableMap.get(service);
+		setGDValues(service, tableName);
+		tableName = serviceTableMap.get(service);
 		if (tableName == null) {
 			throw new ServiceNotFoundException(serviceNTFEx);
 		}
@@ -469,9 +618,12 @@ public class EmployeeRepositaryImpl {
 
 		SelectQuery selectQuery = new SelectQuery();
 		String tableName = serviceTableMap.get(serviceName);
+		setGDValues(serviceName, tableName);
+		tableName = serviceTableMap.get(serviceName);
 		if (tableName == null) {
 			throw new ServiceNotFoundException(serviceNTFEx);
 		}
+		 
 		Map<String, String> attribParamMap = serviceAttrbMap.get(serviceName);
 		for (Map.Entry<DbTable, List<DbColumn>> entry : tableColumnMap.entrySet()) {
 			DbTable table = entry.getKey();
@@ -507,9 +659,12 @@ public class EmployeeRepositaryImpl {
 
 		DeleteQuery deleteQuery = null;
 		String tableName = serviceTableMap.get(serviceName);
+		setGDValues(serviceName, tableName);
+		tableName = serviceTableMap.get(serviceName);
 		if (tableName == null) {
 			throw new ServiceNotFoundException(serviceNTFEx);
 		}
+		 
 		for (Map.Entry<DbTable, List<DbColumn>> entry : tableColumnMap.entrySet()) {
 			DbTable table = entry.getKey();
 			if (table.getName().equalsIgnoreCase(tableName)) {
@@ -549,6 +704,9 @@ public class EmployeeRepositaryImpl {
 
 		SelectQuery selectQuery = new SelectQuery();
 		String tableName = serviceTableMap.get(serviceName);
+		setGDValues(serviceName, tableName);
+		tableName = serviceTableMap.get(serviceName);
+		 
 		if (tableName == null) {
 			Set<ConstraintViolation<HashMap>> constraintViolation =new HashSet<ConstraintViolation<HashMap>>();
 			Map errorMessages=new HashMap<String,String>();
@@ -586,10 +744,27 @@ public class EmployeeRepositaryImpl {
 		return result;
 	}
 
+	private void setGDValues(String serviceName, String tableName) {
+		if (tableName == null) {
+			arrangeGoldenData(serviceName);
+
+		} else {
+			boolean isPresent = false;
+			for (Map.Entry<DbTable, List<DbColumn>> entry : tableColumnMap.entrySet()) {
+				DbTable table = entry.getKey();
+				if (table.getName().equalsIgnoreCase(tableName)) {
+					isPresent = true;
+				}
+			}
+			if (!isPresent) {
+				arrangeGoldenDataForTable(tableName);
+			}
+		}
+	}
+
 	public void getServiceTableMap() {
 
-		serviceTableMap = new HashMap<>();
-		serviceAttrbMap = new HashMap<>();
+		 
 		List<Map<String, Object>> serviceDatum = jdbcTemplate
 				.queryForList("select id, tableName, serviceName from Service");
 		for (Iterator<Map<String, Object>> iterator = serviceDatum.iterator(); iterator.hasNext();) {
@@ -607,6 +782,39 @@ public class EmployeeRepositaryImpl {
 		}
 		 
 	}
+	public void setServiceTableMap(String tableName) {
+
+		
+		List<Map<String, Object>> serviceDatum = jdbcTemplate
+				.queryForList("select id, tableName, serviceName from Service where tableName= '"+tableName+"'");
+		boolean isPresent=false;
+		for (Iterator<Map<String, Object>> iterator = serviceDatum.iterator(); iterator.hasNext();) {
+			isPresent=true;
+			Map<String, Object> map = iterator.next();
+			 
+				serviceTableMap.put((String) map.get("serviceName"), (String) map.get("tableName"));
+			 
+			String id="";
+			try{
+				id=Integer.toString((int) map.get("id"));
+				}catch(Exception e) {
+				
+				id=(	(BigDecimal) map.get("id")).toString();
+			}
+			serviceAttrbMap(id, (String) map.get("serviceName"));
+
+		}
+		 if(!isPresent)
+		 {
+			 
+			 try {
+				insertServiceTables(tableName);
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} 
+		 }
+	}
 
 	public void serviceAttrbMap(String id, String serviceName) {
 
@@ -623,7 +831,50 @@ public class EmployeeRepositaryImpl {
 		}
 		 
 	}
+	private void insertServiceTables(String tableName) throws Exception {
 
+			String serviceInsertQuery = "INSERT INTO   Service (id ,tableName , serviceName )   values( (SELECT MAX( id )+1 FROM Service ser) , '"
+					+ tableName + "', '" + tableName.toLowerCase().replace("_", " ") + "'  )";
+			String serviceid = getServiceID(tableName);
+			String maxRec = findMax("Service");
+			if (maxRec != null && serviceid == null) {
+				jdbcTemplate.execute(serviceInsertQuery);
+				serviceid = getServiceID(tableName);
+			} else if (maxRec == null) {
+				serviceInsertQuery = "INSERT INTO   Service (id ,tableName , serviceName )   values( 0, '" + tableName
+						+ "', '" + tableName.toLowerCase().replace("_", " ") + "'  )";
+				jdbcTemplate.execute(serviceInsertQuery);
+				serviceid = getServiceID(tableName);
+			}
+
+			for (Map.Entry<DbTable, List<DbColumn>> entry : tableColumnMap.entrySet()) {
+				DbTable table = entry.getKey();
+				if (table.getName().equalsIgnoreCase(tableName)) {
+			List<DbColumn> column = entry.getValue();
+			for (Iterator<DbColumn> iterator = column.iterator(); iterator.hasNext();) {
+				DbColumn dbColumn = iterator.next();
+				String serviceAttrid = getServiceAttrID(serviceid, dbColumn.getName());
+				String maxRecAttr = findMax("Service_Attr");
+				if (maxRecAttr != null && serviceAttrid == null) {
+					String serviceAttrQuery = " INSERT INTO Service_Attr (id, service_id , attrName, colName) values ((SELECT MAX( id )+1 FROM Service_Attr serA) ,'"
+							+ serviceid + "','" + dbColumn.getName().toLowerCase().replace("_", " ") + "','"
+							+ dbColumn.getName() + "') ";
+					jdbcTemplate.execute(serviceAttrQuery);
+				} else if (maxRecAttr == null) {
+
+					{
+						String serviceAttrQuery = " INSERT INTO Service_Attr (id, service_id , attrName, colName) values (0 ,'"
+								+ serviceid + "','" + dbColumn.getName().toLowerCase().replace("_", " ") + "','"
+								+ dbColumn.getName() + "') ";
+						jdbcTemplate.execute(serviceAttrQuery);
+					}
+
+				}
+			}
+				}}
+		
+
+	}
 	private void insertServiceTables() throws Exception {
 
 		for (Map.Entry<DbTable, List<DbColumn>> entry : tableColumnMap.entrySet()) {
