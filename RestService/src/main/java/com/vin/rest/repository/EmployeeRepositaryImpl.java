@@ -548,9 +548,7 @@ public class EmployeeRepositaryImpl {
 				}
 			}
 			}
-			if( !isTablePresent)
-			{
-			
+			 
 				List<DbTable> serviceTables = initializeTable();
 				boolean serviceTabisPresent = false;
 				for (Iterator<DbTable> iterator = serviceTables.iterator(); iterator.hasNext();) {
@@ -573,9 +571,7 @@ public class EmployeeRepositaryImpl {
 					}
 
 				}
-				
-				
-			}
+			 
 			setServiceTableMap(tableName);
 		} catch (SQLException e1) {
 			e1.printStackTrace();
