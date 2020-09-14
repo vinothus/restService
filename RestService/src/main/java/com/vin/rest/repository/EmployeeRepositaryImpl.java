@@ -443,6 +443,7 @@ public class EmployeeRepositaryImpl {
 	}
 
 	private void setTableColumn(String tableName) {
+		boolean isTablePresent=false;
 		DatabaseMetaData md;
 		DbTable tableNameT;
 		List<DbColumn> listArray = new ArrayList<>();
@@ -476,6 +477,7 @@ public class EmployeeRepositaryImpl {
 			    
 				List<Map<String,Object>>	colums=jdbcTemplate.queryForList("desc "+tableName);
 				for (Iterator iterator2 = colums.iterator(); iterator2.hasNext();) {
+					 isTablePresent=true;
 					Map<String, Object> coluMaps = (Map<String, Object>) iterator2.next();
 					coluMaps.get("Field");
 					coluMaps.get("Type");
@@ -501,9 +503,13 @@ public class EmployeeRepositaryImpl {
 					listArraycol.add(column1);
 					 
 				}
+				if(listArraycol.size()>0)
+				{
 				tableColumnMap.put(tableNameT, listArraycol);
+				}
 				
 			}else {
+				
 			ResultSet rs1 = md.getColumns(null, null,tableName.toUpperCase(), null);
 			ResultSet rs2 = md.getPrimaryKeys(null, null, tableName.toUpperCase());
 			String primaryKey = "";
@@ -519,6 +525,7 @@ public class EmployeeRepositaryImpl {
 					
 				 column1 = tableNameT.addColumn(rs1.getString("COLUMN_NAME"),
 						Integer.parseInt(rs1.getString("DATA_TYPE")), Integer.parseInt(rs1.getString("COLUMN_SIZE")));
+				 isTablePresent=true;
 				}catch(Exception e)
 				{
 					 column1 = tableNameT.addColumn(rs1.getString("COLUMN_NAME"),
@@ -535,9 +542,39 @@ public class EmployeeRepositaryImpl {
 
 			}
 			rs1.close();
-			
-			tableColumnMap.put(tableNameT, listArray);
+			if(listArray.size()>0)
+			{
+				tableColumnMap.put(tableNameT, listArray);
+				}
 			}
+			}
+			if( !isTablePresent)
+			{
+			
+				List<DbTable> serviceTables = initializeTable();
+				boolean serviceTabisPresent = false;
+				for (Iterator<DbTable> iterator = serviceTables.iterator(); iterator.hasNext();) {
+					DbTable dbTable = iterator.next();
+					for (Map.Entry<DbTable, List<DbColumn>> entry : tableColumnMap.entrySet()) {
+						DbTable table = entry.getKey();
+
+						if (dbTable.getName().equalsIgnoreCase(table.getName())) {
+							serviceTabisPresent = true;
+							log.info("Table Already Present: ");
+						}
+					}
+
+				}
+				if (!serviceTabisPresent) {
+					for (Iterator<DbTable> iterator = serviceTables.iterator(); iterator.hasNext();) {
+						DbTable dbTable = iterator.next();
+						createDbTable(dbTable);
+						tableColumnMap.put(dbTable, dbTable.getColumns());
+					}
+
+				}
+				
+				
 			}
 			setServiceTableMap(tableName);
 		} catch (SQLException e1) {
@@ -808,7 +845,20 @@ public class EmployeeRepositaryImpl {
 		 {
 			 
 			 try {
-				insertServiceTables(tableName);
+				 boolean isPresentTable=false;
+					for (Map.Entry<DbTable, List<DbColumn>> entry : tableColumnMap.entrySet()) {
+						DbTable table = entry.getKey();
+						if (table.getName().equalsIgnoreCase(tableName)) {
+							isPresentTable=true;
+						}
+					}
+				  if(isPresentTable)
+				{
+					  insertServiceTables(tableName);
+				      setServiceTableMap(tableName);
+				      insertServiceTables(tableName);
+				}
+				
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
