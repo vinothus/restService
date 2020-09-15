@@ -260,4 +260,73 @@ public class ApplicationTests {
 		});
 		assertTrue(jsonMap1.size()>0);
 	}
+	
+	@Test
+	public void updateAttrb() throws Exception
+	{
+		mvc.perform(MockMvcRequestBuilders.get("/myApps/service/getdata")
+	            .contentType(MediaType.APPLICATION_JSON)
+	             
+	            )
+		        .andDo(MockMvcResultHandlers.print())
+	            .andExpect(MockMvcResultMatchers.status().isOk())
+	            .andReturn();
+		MvcResult resultPost = mvc.perform(MockMvcRequestBuilders.get("/myApps/service attr/getdata")
+	            .contentType(MediaType.APPLICATION_JSON)
+	             )
+				.andDo(MockMvcResultHandlers.print())
+	            .andExpect(MockMvcResultMatchers.status().isOk())
+	            .andReturn();
+		String jsonData= resultPost.getResponse().getContentAsString();
+		ObjectMapper mapper = new ObjectMapper();
+
+		List<Map<String, String>> jsonMap = new ArrayList<Map<String,String>>();
+		jsonMap = mapper.readValue(jsonData, new TypeReference<List<Map<String, String>>>() {
+		}); 
+		
+		Map<String ,String> serviceAttrData=new HashMap<String ,String>();
+		serviceAttrData.put("id", "2");
+		serviceAttrData.put("service id", "0");
+		serviceAttrData.put("attrname", "servicenameupdate");
+		serviceAttrData.put("colname", "serviceName");
+		//{"id":2,"service id":0,"attrname":"servicename","colname":"serviceName"}
+		
+		
+		 MvcResult resultPost2 =  mvc.perform(MockMvcRequestBuilders.put("/myApps/service attr/updateData")
+		            .contentType(MediaType.APPLICATION_JSON)
+		            .content(new ObjectMapper().writeValueAsString(serviceAttrData)))
+				    .andDo(MockMvcResultHandlers.print())
+		            .andExpect(MockMvcResultMatchers.status().isOk())
+		            .andReturn();
+	      String jsonData2= resultPost2.getResponse().getContentAsString();
+	      Map<String, String> jsonMap2 = new HashMap<String,String>();
+			jsonMap2 = mapper.readValue(jsonData2, new TypeReference<Map<String, String>>() {
+			});
+			
+			assertTrue(jsonMap2.get("attrname").equals("servicenameupdate"));
+		
+			mvc.perform(MockMvcRequestBuilders.get("/myApps/service attr/getdata")
+		            .contentType(MediaType.APPLICATION_JSON)
+		             
+		            )
+			        .andDo(MockMvcResultHandlers.print())
+		            .andExpect(MockMvcResultMatchers.status().isOk())
+		            .andReturn();
+			
+			mvc.perform(MockMvcRequestBuilders.get("/myApps/service/refreshMataData")
+		            .contentType(MediaType.APPLICATION_JSON)
+		             
+		            )
+			        .andDo(MockMvcResultHandlers.print())
+		            .andExpect(MockMvcResultMatchers.status().isOk())
+		            .andReturn();
+			
+			mvc.perform(MockMvcRequestBuilders.get("/myApps/service/getdata")
+		            .contentType(MediaType.APPLICATION_JSON)
+		             
+		            )
+			        .andDo(MockMvcResultHandlers.print())
+		            .andExpect(MockMvcResultMatchers.status().isOk())
+		            .andReturn();
+	}
 }

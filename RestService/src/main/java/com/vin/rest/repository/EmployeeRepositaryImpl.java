@@ -41,6 +41,7 @@ import com.healthmarketscience.sqlbuilder.dbspec.basic.DbConstraint;
 import com.healthmarketscience.sqlbuilder.dbspec.basic.DbSchema;
 import com.healthmarketscience.sqlbuilder.dbspec.basic.DbSpec;
 import com.healthmarketscience.sqlbuilder.dbspec.basic.DbTable;
+import com.vin.rest.exception.RecordNotFoundException;
 import com.vin.rest.exception.ServiceNotFoundException;
 import com.vin.rest.model.EmployeeEntity;
 import com.vin.validation.ParamsValidator;
@@ -471,6 +472,48 @@ public class EmployeeRepositaryImpl {
 			}
 		return isPresent;
 	}
+	public String refreshMataData(String serviceName) throws RecordNotFoundException
+	{
+		List<Map<String, Object>> serviceDatum = jdbcTemplate
+				.queryForList("select id, tableName, serviceName from Service where serviceName= '"+serviceName+"'");
+		if(!(serviceDatum.size()>0))
+		{
+			throw new RecordNotFoundException(serviceName +" not found ;");
+		}
+		String cacheTn=serviceTableMap.get(serviceName);
+		for (Iterator<Map<String, Object>> iterator = serviceDatum.iterator(); iterator.hasNext();) {
+			Map<String, Object> map = (Map<String, Object>) iterator.next();
+			String dbTn=(String) map.get("tableName");
+			if(cacheTn==null)
+			{
+				serviceTableMap.put(serviceName,dbTn);	
+			}
+		}
+		String id=getID(serviceDatum.get(0),"id");
+		serviceAttrbMap(id, serviceName);
+		
+		return id;
+	}
+	private String getID(Map<String, Object> data,String key) {
+		String id = null;
+		if (data.get(key) != null) {
+			try {
+				id = Integer.toString((int) data.get(key));
+			} catch (Exception e) {
+
+				try {
+					id = Long.toString((Long) data.get(key));
+				} catch (Exception es) {
+
+					BigDecimal datas = (BigDecimal) data.get(key);
+					id = datas.toString();
+
+				}
+			}
+		}
+		return id;
+	}
+
 	private void setTableColumn(String tableName) {
 		boolean isTablePresent=false;
 		DatabaseMetaData md;

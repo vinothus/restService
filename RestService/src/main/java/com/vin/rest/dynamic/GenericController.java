@@ -159,5 +159,9 @@ public class GenericController {
 				new HttpHeaders(), HttpStatus.OK);
 	}
 
-	
+	public ResponseEntity<String>	refreshMataData(@PathVariable("service") String service) throws RecordNotFoundException
+	{
+		
+		return new ResponseEntity<String>(employeeRepositaryImpl.refreshMataData(service),new HttpHeaders(), HttpStatus.OK)	;
+	}
 }

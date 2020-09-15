@@ -92,6 +92,11 @@ public class Application {
 							.methods(RequestMethod.DELETE).produces(MediaType.APPLICATION_JSON_VALUE).build(),
 					userController, userController.getClass().getMethod("delData", String.class, String.class));
 			
+			handlerMapping.registerMapping(
+					RequestMappingInfo.paths("/" + appName + "/{service}/refreshMataData").methods(RequestMethod.GET)
+							.produces(MediaType.APPLICATION_JSON_VALUE).build(),
+					userController, userController.getClass().getMethod("refreshMataData", String.class));
+			
 			
 		} catch (  Exception e) {
 			e.printStackTrace();
