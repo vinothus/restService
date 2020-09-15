@@ -438,10 +438,39 @@ public class EmployeeRepositaryImpl {
 	}
 	private void arrangeGoldenData(String service) {
 		loadSQLBuilderSchema();
-		String tableName=service.replace(" ", "_");
+		if(!isPresentinDB(service))
+		{
+			String tableName=service.replace(" ", "_");
 		setTableColumn(tableName.toUpperCase());
+		}
 	}
 
+	 
+	private boolean isPresentinDB(String service) {
+
+		String selectQuery = " select tableName from Service where serviceName = '" + service + "'";
+		List<Map<String, Object>> data = new ArrayList<Map<String, Object>>();
+		boolean isPresent=false;
+		try {
+			data = jdbcTemplate.queryForList(selectQuery);
+		} catch (Exception e) {
+			log.info(e.getMessage());
+		}
+		String tableName = null;
+		if (data != null)
+			if (data.size() != 0) {
+				isPresent=true;
+				if (data.get(0).get("tableName") != null) {
+					try {
+						tableName = (String) data.get(0).get("tableName");
+						setTableColumn(tableName.toUpperCase());
+					} catch (Exception e) {
+
+					}
+				}
+			}
+		return isPresent;
+	}
 	private void setTableColumn(String tableName) {
 		boolean isTablePresent=false;
 		DatabaseMetaData md;

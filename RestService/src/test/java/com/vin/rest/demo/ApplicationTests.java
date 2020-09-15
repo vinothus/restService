@@ -1,7 +1,9 @@
 package com.vin.rest.demo;
 
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.junit.Before;
@@ -19,6 +21,8 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.util.Assert;
 import org.springframework.web.context.WebApplicationContext;
 import  static  org.hamcrest.Matchers.*;
+import static org.junit.Assert.assertTrue;
+
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -190,5 +194,70 @@ public class ApplicationTests {
 			    	      .andExpect(MockMvcResultMatchers.status().isOk())
 			    	      .andExpect(MockMvcResultMatchers.jsonPath("$.id").doesNotExist());
 		
+	}
+	@Test
+	public void updateService() throws Exception {
+	// CREATE TABLE Service (id INTEGER(10) PRIMARY KEY,tableName VARCHAR(100),serviceName VARCHAR(100))
+		Map<String ,String> serviceData=new HashMap<String ,String>();
+		serviceData.put("tableName", "TBL_STUDENT");
+		//student.put("serviceName", "studentService");
+		
+		MvcResult resultPost = mvc.perform(MockMvcRequestBuilders.get("/myApps/service/getdata")
+	            .contentType(MediaType.APPLICATION_JSON)
+	            .param("tableName", "TBL_STUDENT"))
+	            .andExpect(MockMvcResultMatchers.status().isOk())
+	            .andReturn();
+		String jsonData= resultPost.getResponse().getContentAsString();
+		ObjectMapper mapper = new ObjectMapper();
+
+		List<Map<String, String>> jsonMap = new ArrayList<Map<String,String>>();
+		jsonMap = mapper.readValue(jsonData, new TypeReference<List<Map<String, String>>>() {
+		}); 
+       System.out.println(jsonMap);  
+      String id= jsonMap.get(0).get("id");
+       
+      serviceData.put("tablename", "TBL_STUDENT");
+      serviceData .put("servicename", "studentService") ;
+      serviceData.put("id", id) ;
+      
+      MvcResult resultPost2 =  mvc.perform(MockMvcRequestBuilders.put("/myApps/service/updateData")
+	            .contentType(MediaType.APPLICATION_JSON)
+	            .content(new ObjectMapper().writeValueAsString(serviceData)))
+			    .andDo(MockMvcResultHandlers.print())
+	            .andExpect(MockMvcResultMatchers.status().isOk())
+	            .andReturn();
+      String jsonData2= resultPost2.getResponse().getContentAsString();
+      Map<String, String> jsonMap2 = new HashMap<String,String>();
+		jsonMap2 = mapper.readValue(jsonData2, new TypeReference<Map<String, String>>() {
+		});
+		
+		assertTrue(jsonMap2.get("servicename").equals("studentService"));
+		MvcResult resultPost3 = mvc.perform(MockMvcRequestBuilders.get("/myApps/service/getdata")
+	            .contentType(MediaType.APPLICATION_JSON)
+	             )
+				.andDo(MockMvcResultHandlers.print())
+	            .andExpect(MockMvcResultMatchers.status().isOk())
+	            .andReturn();
+		String jsonData3= resultPost3.getResponse().getContentAsString();
+		//ObjectMapper mapper = new ObjectMapper();
+
+		List<Map<String, String>> jsonMap3 = new ArrayList<Map<String,String>>();
+		jsonMap3 = mapper.readValue(jsonData3, new TypeReference<List<Map<String, String>>>() {
+		});
+		System.out.println(jsonMap3);
+		assertTrue(jsonMap3.size()>0);
+		MvcResult resultPost1 = mvc.perform(MockMvcRequestBuilders.get("/myApps/studentService/getdata")
+	            .contentType(MediaType.APPLICATION_JSON)
+	             )
+				.andDo(MockMvcResultHandlers.print())
+	            .andExpect(MockMvcResultMatchers.status().isOk())
+	            .andReturn();
+		String jsonData1= resultPost1.getResponse().getContentAsString();
+		//ObjectMapper mapper = new ObjectMapper();
+
+		List<Map<String, String>> jsonMap1 = new ArrayList<Map<String,String>>();
+		jsonMap1 = mapper.readValue(jsonData1, new TypeReference<List<Map<String, String>>>() {
+		});
+		assertTrue(jsonMap1.size()>0);
 	}
 }
