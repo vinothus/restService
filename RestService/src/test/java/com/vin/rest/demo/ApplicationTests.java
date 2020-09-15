@@ -321,12 +321,19 @@ public class ApplicationTests {
 		            .andExpect(MockMvcResultMatchers.status().isOk())
 		            .andReturn();
 			
-			mvc.perform(MockMvcRequestBuilders.get("/myApps/service/getdata")
+			MvcResult resultPost3=	mvc.perform(MockMvcRequestBuilders.get("/myApps/service/getdata")
 		            .contentType(MediaType.APPLICATION_JSON)
 		             
 		            )
 			        .andDo(MockMvcResultHandlers.print())
 		            .andExpect(MockMvcResultMatchers.status().isOk())
 		            .andReturn();
+			 String jsonData3= resultPost3.getResponse().getContentAsString();
+		     List< Map<String, String>> jsonMap3 = new  ArrayList<Map<String,String>>();
+				jsonMap3 = mapper.readValue(jsonData3, new TypeReference<List< Map<String, String>>>() {
+				});
+				
+				assertTrue(jsonMap3.get(0).get("servicenameupdate")!=null);
+				
 	}
 }
