@@ -11,6 +11,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.core.env.Environment;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
@@ -40,6 +41,10 @@ public class ApplicationTests {
  
     @Autowired
     private WebApplicationContext webApplicationContext;
+    
+    @Autowired
+    Environment env;
+    
     
     @Before
     public void setUp() {
@@ -334,6 +339,5 @@ public class ApplicationTests {
 				});
 				
 				assertTrue(jsonMap3.get(0).get("servicenameupdate")!=null);
-				
 	}
 }
