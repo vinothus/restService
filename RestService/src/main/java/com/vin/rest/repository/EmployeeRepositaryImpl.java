@@ -62,6 +62,9 @@ public class EmployeeRepositaryImpl {
 	public static Map<DbTable, List<DbColumn>> tableColumnMap= new ConcurrentHashMap<>();
 	static Map<String, Map<String, String>> serviceAttrbMap= new ConcurrentHashMap<>();
     String serviceNTFEx="Service not found Exception";
+    
+	String[] nonscaling = {"NCLOB","BLOB","CLOB","NULL","OTHER","JAVA_OBJECT","ARRAY", "DISTINCT", "STRUCT", "REF", "DATALINK", "ROWID", "SQLXML", "?" };
+	List<String> invalidElement = new ArrayList<String>();
 	public void init() {
 
 		try {
@@ -168,36 +171,17 @@ public class EmployeeRepositaryImpl {
 			                             ", Value = " + entry.getValue()); 
 					DbTable tableNameT = schemaObj.addTable(entry.getValue().toString());
 					List<DbColumn> listArray = new ArrayList<>();
-					ResultSetMetaData rsmd =  (ResultSetMetaData) jdbcTemplate.query("desc "+entry.getValue(),new ResultSetExtractor() {
-				        @Override
-				        public ResultSetMetaData extractData(ResultSet rs) throws SQLException, DataAccessException {
-				            ResultSetMetaData rsmd = rs.getMetaData();
-				            return rsmd;
-				        }
-				     });
-
-				    //ResultSetMetaData rsmd = (ResultSetMetaData) rsmdList.get(0);
-				    int numberOfColumns = rsmd.getColumnCount();
-				    
+					 
 					List<Map<String,Object>>	colums=jdbcTemplate.queryForList("desc "+entry.getValue());
 					for (Iterator iterator2 = colums.iterator(); iterator2.hasNext();) {
 						Map<String, Object> coluMaps = (Map<String, Object>) iterator2.next();
 						coluMaps.get("Field");
 						coluMaps.get("Type");
 						coluMaps.get("Key");
-						int sqlTypes = 0;
-						for (int i = 1; i < numberOfColumns + 1; i++) {
-					        String columnName = rsmd.getColumnName(i);
-					        String tableName = rsmd.getTableName(i);
-					        rsmd.getColumnType(numberOfColumns);
-					        
-					        if(columnName.equals(coluMaps.get("Field")))
-					        {
-					        	sqlTypes=rsmd.getColumnType(i);
-					        }
-					      }
+						 
 						DbColumn column1 = tableNameT.addColumn((String)coluMaps.get("Field"),
-								sqlTypes, getLength((String)coluMaps.get("Type")));
+								getSqlTypeName((String)coluMaps.get("Type"))	, getLength((String)coluMaps.get("Type")));
+						column1.setDefaultValue(getSqlTypeName((String)coluMaps.get("Type")));
 						if(coluMaps.get("Key").equals("PRI"))
 							{
 							column1.primaryKey();
@@ -537,17 +521,6 @@ public class EmployeeRepositaryImpl {
 				
 				 tableNameT = schemaObj.addTable(tableName);
 				List<DbColumn> listArraycol = new ArrayList<>();
-				ResultSetMetaData rsmd =  (ResultSetMetaData) jdbcTemplate.query("desc "+tableName,new ResultSetExtractor() {
-			        @Override
-			        public ResultSetMetaData extractData(ResultSet rs) throws SQLException, DataAccessException {
-			            ResultSetMetaData rsmd = rs.getMetaData();
-			            return rsmd;
-			        }
-			     });
-
-			    //ResultSetMetaData rsmd = (ResultSetMetaData) rsmdList.get(0);
-			    int numberOfColumns = rsmd.getColumnCount();
-			    
 				List<Map<String,Object>>	colums=jdbcTemplate.queryForList("desc "+tableName);
 				for (Iterator iterator2 = colums.iterator(); iterator2.hasNext();) {
 					 isTablePresent=true;
@@ -555,20 +528,11 @@ public class EmployeeRepositaryImpl {
 					coluMaps.get("Field");
 					coluMaps.get("Type");
 					coluMaps.get("Key");
-					int sqlTypes = 0;
-					for (int i = 1; i < numberOfColumns + 1; i++) {
-				        String columnName = rsmd.getColumnName(i);
-				        //String tableName = rsmd.getTableName(i);
-				        rsmd.getColumnType(numberOfColumns);
-				        
-				        if(columnName.equalsIgnoreCase((String)coluMaps.get("Field")))
-				        {
-				        	sqlTypes=rsmd.getColumnType(i);
-				        	continue;
-				        }
-				      }
+					 
+					 
 					DbColumn column1 = tableNameT.addColumn((String)coluMaps.get("Field"),
-							sqlTypes, getLength((String)coluMaps.get("Type")));
+							getSqlTypeName((String)coluMaps.get("Type")), getLength((String)coluMaps.get("Type")));
+					column1.setDefaultValue(getSqlTypeName((String)coluMaps.get("Type")));
 					if(coluMaps.get("Key").equals("PRI"))
 						{
 						column1.primaryKey();
@@ -846,7 +810,9 @@ public class EmployeeRepositaryImpl {
 	}
 
 	public List<Map<String, Object>> getDataForParams(String serviceName, Map<String, String> params)    {
-
+		for (int i = 0; i < nonscaling.length; i++) {
+			invalidElement.add(nonscaling[i]);
+		}
 		SelectQuery selectQuery = new SelectQuery();
 		String tableName = serviceTableMap.get(serviceName);
 		setGDValues(serviceName, tableName);
@@ -872,7 +838,10 @@ public class EmployeeRepositaryImpl {
 						selectQuery.addCondition(
 								BinaryCondition.equalTo(dbColumn, params.get(attribParamMap.get(dbColumn.getName()))));
 					}
-					if(isValidForSelect(dbColumn.getTypeNameSQL()))
+				String columnType=	 dbColumn.getTypeNameSQL() ;
+				if(columnType.equalsIgnoreCase("NULL")){
+					selectQuery.addAliasedColumn(dbColumn, "\"" + attribParamMap.get(dbColumn.getName()) + "\"");
+				}else if(isValidForSelect(dbColumn.getTypeNameSQL()))
 					{selectQuery.addAliasedColumn(dbColumn, "\"" + attribParamMap.get(dbColumn.getName()) + "\"");}
 				}
 				log.info(selectQuery.validate().toString());
@@ -1413,5 +1382,189 @@ public class EmployeeRepositaryImpl {
 		return false;
 	}
 		
+	public static int getSqlTypeName(String type) {
+	     
+	    if("BIT".contentEquals(type))
+	    	{ return Types.BIT;
+	    	}
+	        
+	    
+	    	if("TINYINT".contentEquals(type))
+	    	{
+	    		return Types.TINYINT;
+	    	}
+	    
+	    	if("SMALLINT".contentEquals(type))
+	    	{
+	    		return Types.SMALLINT;
+	    	}
+	   
+	    	if("INTEGER".contentEquals(type))
+	    	{
+	    		 return Types.INTEGER;
+	    	}
+	    
+	    	if("BIGINT".contentEquals(type))
+	    	{
+	    		return Types.BIGINT;
+	    	}
+	    
+	    	if("FLOAT".contentEquals(type))
+	    	{
+	    		return Types.FLOAT;
+	    	}
+	    
+	    	if("REAL".contentEquals(type))
+	    	{
+	    		return Types.REAL;
+	    	}
+	    
+	    	if("DOUBLE".contentEquals(type))
+	    	{
+	    		return Types.DOUBLE;
+	    	}
+	   
+	    	if("NUMERIC".contentEquals(type))
+	    	{
+	    		 return Types.NUMERIC;
+	    	}
+	  
+	    	if("DECIMAL".contentEquals(type))
+	    	{
+	    		  return Types.DECIMAL;
+	    	}
+	    
+	    	if("CHAR".contentEquals(type))
+	    	{
+	    		return Types.CHAR;
+	    	}
+	   
+	    	if("VARCHAR".contentEquals(type))
+	    	{
+	    		 return Types.VARCHAR;
+	    	}
+	    
+	    	if("LONGVARCHAR".contentEquals(type))
+	    	{
+	    		return Types.LONGVARCHAR;
+	    	}
+	   
+	    	if("DATE".contentEquals(type))
+	    	{
+	    		 return Types.DATE;
+	    	}
+	    
+	    	if("TIME".contentEquals(type))
+	    	{
+	    		return Types.TIME;
+	    	}
+	   
+	    	if("TIMESTAMP".contentEquals(type))
+	    	{
+	    		 return Types.TIMESTAMP;
+	    	}
+	    
+	    	if("BINARY".contentEquals(type))
+	    	{
+	    		return Types.BINARY;
+	    	}
+	   
+	    	if("VARBINARY".contentEquals(type))
+	    	{
+	    		 return Types.VARBINARY;
+	    	}
+	    
+	    	if("LONGVARBINARY".contentEquals(type))
+	    	{
+	    		return Types.LONGVARBINARY;
+	    	}
+	   
+	    	if("NULL".contentEquals(type))
+	    	{
+	    		 return Types.NULL;
+	    	}
+	   
+	    	if("OTHER".contentEquals(type))
+	    	{
+	    		 return Types.OTHER;
+	    	}
+	   
+	    	if("JAVA_OBJECT".contentEquals(type))
+	    	{
+	    		 return Types.JAVA_OBJECT;
+	    	}
+	  
+	    	if("DISTINCT".contentEquals(type))
+	    	{
+	    		  return Types.DISTINCT;
+	    	}
+	   
+	    	if("STRUCT".contentEquals(type))
+	    	{
+	    		 return Types.STRUCT;
+	    	}
+	   
+	    	if( "ARRAY".contentEquals(type))
+	    	{
+	    		 return Types.ARRAY;
+	    	}
+	    
+	    	if( "BLOB".contentEquals(type))
+	    	{
+	    		return Types.BLOB;
+	    	}
+	    
+	    	if( "CLOB".contentEquals(type))
+	    	{
+	    		return Types.CLOB;
+	    	}
+	  
+	    	if( "REF".contentEquals(type))
+	    	{
+	    		  return Types.REF;
+	    	}
+	    
+	    	if( "DATALINK".contentEquals(type))
+	    	{
+	    		return Types.DATALINK;
+	    	}
+	    
+	    	if( "BOOLEAN".contentEquals(type))
+	    	{
+	    		return Types.BOOLEAN;
+	    	}
+	   
+	    	if( "ROWID".contentEquals(type))
+	    	{
+	    		 return Types.ROWID;
+	    	}
+	    
+	    	if( "NCHAR".contentEquals(type))
+	    	{
+	    		return Types.NCHAR;
+	    	}
+	    
+	    	if( "NVARCHAR".contentEquals(type))
+	    	{
+	    		return Types.NVARCHAR;
+	    	}
+	   
+	    	if( "LONGNVARCHAR".contentEquals(type))
+	    	{
+	    		 return Types.LONGNVARCHAR;
+	    	}
+	  
+	    	if( "NCLOB".contentEquals(type))
+	    	{
+	    		  return Types.NCLOB;
+	    	}
+	   
+	    	if( "SQLXML".contentEquals(type))
+	    	{
+	    		 return Types.SQLXML;
+	    }
+
+	    return 0;
+	} 
 	 
 }
