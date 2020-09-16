@@ -864,6 +864,7 @@ public class EmployeeRepositaryImpl {
 			DbTable table = entry.getKey();
 			if (table.getName().equalsIgnoreCase(tableName)) {
 				List<DbColumn> column = entry.getValue();
+				
 				for (Iterator<DbColumn> iterator = column.iterator(); iterator.hasNext();) {
 					DbColumn dbColumn = iterator.next();
 					if (attribParamMap.containsKey(dbColumn.getName())
@@ -871,7 +872,8 @@ public class EmployeeRepositaryImpl {
 						selectQuery.addCondition(
 								BinaryCondition.equalTo(dbColumn, params.get(attribParamMap.get(dbColumn.getName()))));
 					}
-					selectQuery.addAliasedColumn(dbColumn, "\"" + attribParamMap.get(dbColumn.getName()) + "\"");
+					if(isValidForSelect(dbColumn.getTypeNameSQL()))
+					{selectQuery.addAliasedColumn(dbColumn, "\"" + attribParamMap.get(dbColumn.getName()) + "\"");}
 				}
 				log.info(selectQuery.validate().toString());
 				break;
@@ -1260,4 +1262,156 @@ public class EmployeeRepositaryImpl {
 
 	    return "?";
 	}
+	
+	public boolean isValidForSelect(String type)
+	{
+
+		if ("BIT".contentEquals(type)) {
+			return true;
+		}
+
+		if ("TINYINT".contentEquals(type)) {
+			return true;
+		}
+
+		if ("SMALLINT".contentEquals(type)) {
+			return true;
+		}
+
+		if ("INTEGER".contentEquals(type)) {
+			return true;
+		}
+
+		if ("BIGINT".contentEquals(type)) {
+			return true;
+		}
+
+		if ("FLOAT".contentEquals(type)) {
+			return true;
+		}
+
+		if ("REAL".contentEquals(type)) {
+			return true;
+		}
+
+		if ("DOUBLE".contentEquals(type)) {
+			return true;
+		}
+
+		if ("NUMERIC".contentEquals(type)) {
+			return true;
+		}
+
+		if ("DECIMAL".contentEquals(type)) {
+			return true;
+		}
+
+		if ("CHAR".contentEquals(type)) {
+			return true;
+		}
+
+		if ("VARCHAR".contentEquals(type)) {
+			return true;
+		}
+
+		if ("LONGVARCHAR".contentEquals(type)) {
+			return true;
+		}
+
+		if ("DATE".contentEquals(type)) {
+			return true;
+		}
+
+		if ("TIME".contentEquals(type)) {
+			return true;
+		}
+
+		if ("TIMESTAMP".contentEquals(type)) {
+			return true;
+		}
+
+		if ("BINARY".contentEquals(type)) {
+			return false;
+		}
+
+		if ("VARBINARY".contentEquals(type)) {
+			return false;
+		}
+
+		if ("LONGVARBINARY".contentEquals(type)) {
+			return false;
+		}
+
+		if ("NULL".contentEquals(type)) {
+			return false;
+		}
+
+		if ("OTHER".contentEquals(type)) {
+			return false;
+		}
+
+		if ("JAVA_OBJECT".contentEquals(type)) {
+			return false;
+		}
+
+		if ("DISTINCT".contentEquals(type)) {
+			return false;
+		}
+
+		if ("STRUCT".contentEquals(type)) {
+			return false;
+		}
+
+		if ("ARRAY".contentEquals(type)) {
+			return false;
+		}
+
+		if ("BLOB".contentEquals(type)) {
+			return false;
+		}
+
+		if ("CLOB".contentEquals(type)) {
+			return false;
+		}
+
+		if ("REF".contentEquals(type)) {
+			return false;
+		}
+
+		if ("DATALINK".contentEquals(type)) {
+			return false;
+		}
+
+		if ("BOOLEAN".contentEquals(type)) {
+			return true;
+		}
+
+		if ("ROWID".contentEquals(type)) {
+			return false;
+		}
+
+		if ("NCHAR".contentEquals(type)) {
+			return true;
+		}
+
+		if ("NVARCHAR".contentEquals(type)) {
+			return true;
+		}
+
+		if ("LONGNVARCHAR".contentEquals(type)) {
+			return true;
+		}
+
+		if ("NCLOB".contentEquals(type)) {
+			return false;
+		}
+
+		if ("SQLXML".contentEquals(type)) {
+			return false;
+		}
+
+		return false;
+	}
+		
+	 
 }
