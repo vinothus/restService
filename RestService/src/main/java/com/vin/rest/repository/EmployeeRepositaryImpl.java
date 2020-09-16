@@ -16,6 +16,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 
 import org.hibernate.validator.internal.engine.ConstraintViolationImpl;
@@ -57,9 +58,9 @@ public class EmployeeRepositaryImpl {
 	JdbcTemplate jdbcTemplate;
 	static DbSchema schemaObj;
 	static DbSpec specficationObj;
-	public static Map<String, String> serviceTableMap= new HashMap<>();
-	public static Map<DbTable, List<DbColumn>> tableColumnMap= new HashMap<>();
-	static Map<String, Map<String, String>> serviceAttrbMap= new HashMap<>();;
+	public static Map<String, String> serviceTableMap= new ConcurrentHashMap<>();
+	public static Map<DbTable, List<DbColumn>> tableColumnMap= new ConcurrentHashMap<>();
+	static Map<String, Map<String, String>> serviceAttrbMap= new ConcurrentHashMap<>();
     String serviceNTFEx="Service not found Exception";
 	public void init() {
 
@@ -416,7 +417,7 @@ public class EmployeeRepositaryImpl {
 				if (primaryKey != null) {
 
 					if (!isUpdate) {
-						jdbcTemplate.execute(insertQuery.toString());
+						jdbcTemplate.update(insertQuery.toString());
 					} else {
 						updateData(service, params);
 					}
@@ -711,7 +712,46 @@ public class EmployeeRepositaryImpl {
 			}
 		}
 		if (isUpdate > 0) {
-
+		if(tableName.equals("SERVICE_ATTR"))
+		{
+			System.out.println("select S.id as id, S.tableName as tableName, S.serviceName as serviceName, SA.colName as colName, SA.attrName as attrName  from Service S Service_Attr SA, jdbcTemplate where S.id=  '"+params.get("service id")+"'  and S.id=SA.service_id ");
+			List<Map<String, Object>> serviceDatum = jdbcTemplate
+					.queryForList("select S.id as id, S.tableName as tableName, S.serviceName as serviceName, SA.colName as colName, SA.attrName as attrName  from Service S, Service_Attr SA  where S.id=  '"+params.get("service id")+"'  and S.id=SA.service_id ");
+			
+			String serviceName=(String)serviceDatum.get(0).get("serviceName");
+			Map<String, String> AttrbMap; 
+			AttrbMap=serviceAttrbMap.get(serviceName);
+			if(AttrbMap==null)
+			{
+				AttrbMap = new TreeMap<String, String>(String.CASE_INSENSITIVE_ORDER);
+			}
+			 
+			for (Iterator iterator = serviceDatum.iterator(); iterator.hasNext();) {
+				Map<String, Object> map = (Map<String, Object>) iterator.next();
+				serviceName=(String)map.get("serviceName");
+				AttrbMap.put((String) map.get("colName".toUpperCase()), (String) map.get("attrName".toUpperCase()));
+				//serviceAttrbMap.put((String)map.get("serviceName"),AttrbMap);
+			}
+			if(serviceName!=null)
+			{
+				serviceAttrbMap.put(serviceName,AttrbMap);
+				}
+			/*
+			 * List<Map<String, Object>> serviceDatum1 = jdbcTemplate
+			 * .queryForList("select colName, attrName from Service_Attr where service_id = '"
+			 * + params.get("service id") + "'"); Map<String, String> AttrbMap; AttrbMap =
+			 * new TreeMap<String, String>(String.CASE_INSENSITIVE_ORDER); for
+			 * (Iterator<Map<String, Object>> iterator = serviceDatum1.iterator();
+			 * iterator.hasNext();) { Map<String, Object> map = iterator.next();
+			 * 
+			 * AttrbMap.put((String) map.get("colName".toUpperCase()), (String)
+			 * map.get("attrName".toUpperCase())); serviceAttrbMap.put((String)
+			 * serviceDatum.get(0).get("serviceName"), AttrbMap); }
+			 */
+				
+				//serviceAttrbMap(id,(String) serviceDatum.get(0).get("serviceName"));
+		     
+		}
 			return getDataForParams(service, params).get(0);
 		} else {
 			throw new Exception("update Failed");
