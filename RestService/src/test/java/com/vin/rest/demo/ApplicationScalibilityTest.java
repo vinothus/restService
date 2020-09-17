@@ -819,11 +819,11 @@ public class ApplicationScalibilityTest {
 			String tablename=(String) map.get("TABLE_NAME");
 			System.out.println(tablename);
 			try {
-				/*
-				 * mvc.perform(MockMvcRequestBuilders.get("/myApps/"+tablename.toLowerCase()+
-				 * "/getdata").contentType(MediaType.APPLICATION_JSON) .param("tableName",
-				 * "TBL_STUDENT")) .andDo(MockMvcResultHandlers.print());
-				 */
+				
+				mvc.perform(MockMvcRequestBuilders.get("/myApps/" + tablename.toLowerCase() + "/getdata")
+						.contentType(MediaType.APPLICATION_JSON).param("tableName", "TBL_STUDENT"))
+						.andDo(MockMvcResultHandlers.print());
+				 
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

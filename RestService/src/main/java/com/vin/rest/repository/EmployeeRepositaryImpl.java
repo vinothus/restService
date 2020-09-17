@@ -1149,7 +1149,7 @@ public class EmployeeRepositaryImpl {
 		
 		int returnInt=0;
 		
-		try{returnInt=Integer.parseInt(returnStr);}catch(Exception e) {e.printStackTrace();}
+		try{returnInt=Integer.parseInt(returnStr);}catch(Exception e) {log.info(e.getMessage());}
 		
 		return returnInt;
 	}
@@ -1235,147 +1235,147 @@ public class EmployeeRepositaryImpl {
 	public boolean isValidForSelect(String type)
 	{
 
-		if ("BIT".contentEquals(type)) {
+		if ("BIT".equalsIgnoreCase(type)) {
 			return true;
 		}
 
-		if ("TINYINT".contentEquals(type)) {
+		if ("TINYINT".equalsIgnoreCase(type)) {
 			return true;
 		}
 
-		if ("SMALLINT".contentEquals(type)) {
+		if ("SMALLINT".equalsIgnoreCase(type)) {
 			return true;
 		}
 
-		if ("INTEGER".contentEquals(type)) {
+		if ("INTEGER".equalsIgnoreCase(type)) {
 			return true;
 		}
 
-		if ("BIGINT".contentEquals(type)) {
+		if ("BIGINT".equalsIgnoreCase(type)) {
 			return true;
 		}
 
-		if ("FLOAT".contentEquals(type)) {
+		if ("FLOAT".equalsIgnoreCase(type)) {
 			return true;
 		}
 
-		if ("REAL".contentEquals(type)) {
+		if ("REAL".equalsIgnoreCase(type)) {
 			return true;
 		}
 
-		if ("DOUBLE".contentEquals(type)) {
+		if ("DOUBLE".equalsIgnoreCase(type)) {
 			return true;
 		}
 
-		if ("NUMERIC".contentEquals(type)) {
+		if ("NUMERIC".equalsIgnoreCase(type)) {
 			return true;
 		}
 
-		if ("DECIMAL".contentEquals(type)) {
+		if ("DECIMAL".equalsIgnoreCase(type)) {
 			return true;
 		}
 
-		if ("CHAR".contentEquals(type)) {
+		if ("CHAR".equalsIgnoreCase(type)) {
 			return true;
 		}
 
-		if ("VARCHAR".contentEquals(type)) {
+		if ("VARCHAR".equalsIgnoreCase(type)) {
 			return true;
 		}
 
-		if ("LONGVARCHAR".contentEquals(type)) {
+		if ("LONGVARCHAR".equalsIgnoreCase(type)) {
 			return true;
 		}
 
-		if ("DATE".contentEquals(type)) {
+		if ("DATE".equalsIgnoreCase(type)) {
 			return true;
 		}
 
-		if ("TIME".contentEquals(type)) {
+		if ("TIME".equalsIgnoreCase(type)) {
 			return true;
 		}
 
-		if ("TIMESTAMP".contentEquals(type)) {
+		if ("TIMESTAMP".equalsIgnoreCase(type)) {
 			return true;
 		}
 
-		if ("BINARY".contentEquals(type)) {
+		if ("BINARY".equalsIgnoreCase(type)) {
 			return false;
 		}
 
-		if ("VARBINARY".contentEquals(type)) {
+		if ("VARBINARY".equalsIgnoreCase(type)) {
 			return false;
 		}
 
-		if ("LONGVARBINARY".contentEquals(type)) {
+		if ("LONGVARBINARY".equalsIgnoreCase(type)) {
 			return false;
 		}
 
-		if ("NULL".contentEquals(type)) {
+		if ("NULL".equalsIgnoreCase(type)) {
 			return false;
 		}
 
-		if ("OTHER".contentEquals(type)) {
+		if ("OTHER".equalsIgnoreCase(type)) {
 			return false;
 		}
 
-		if ("JAVA_OBJECT".contentEquals(type)) {
+		if ("JAVA_OBJECT".equalsIgnoreCase(type)) {
 			return false;
 		}
 
-		if ("DISTINCT".contentEquals(type)) {
+		if ("DISTINCT".equalsIgnoreCase(type)) {
 			return false;
 		}
 
-		if ("STRUCT".contentEquals(type)) {
+		if ("STRUCT".equalsIgnoreCase(type)) {
 			return false;
 		}
 
-		if ("ARRAY".contentEquals(type)) {
+		if ("ARRAY".equalsIgnoreCase(type)) {
 			return false;
 		}
 
-		if ("BLOB".contentEquals(type)) {
+		if ("BLOB".equalsIgnoreCase(type)) {
 			return false;
 		}
 
-		if ("CLOB".contentEquals(type)) {
+		if ("CLOB".equalsIgnoreCase(type)) {
 			return false;
 		}
 
-		if ("REF".contentEquals(type)) {
+		if ("REF".equalsIgnoreCase(type)) {
 			return false;
 		}
 
-		if ("DATALINK".contentEquals(type)) {
+		if ("DATALINK".equalsIgnoreCase(type)) {
 			return false;
 		}
 
-		if ("BOOLEAN".contentEquals(type)) {
+		if ("BOOLEAN".equalsIgnoreCase(type)) {
 			return true;
 		}
 
-		if ("ROWID".contentEquals(type)) {
+		if ("ROWID".equalsIgnoreCase(type)) {
 			return false;
 		}
 
-		if ("NCHAR".contentEquals(type)) {
+		if ("NCHAR".equalsIgnoreCase(type)) {
 			return true;
 		}
 
-		if ("NVARCHAR".contentEquals(type)) {
+		if ("NVARCHAR".equalsIgnoreCase(type)) {
 			return true;
 		}
 
-		if ("LONGNVARCHAR".contentEquals(type)) {
+		if ("LONGNVARCHAR".equalsIgnoreCase(type)) {
 			return true;
 		}
 
-		if ("NCLOB".contentEquals(type)) {
+		if ("NCLOB".equalsIgnoreCase(type)) {
 			return false;
 		}
 
-		if ("SQLXML".contentEquals(type)) {
+		if ("SQLXML".equalsIgnoreCase(type)) {
 			return false;
 		}
 
@@ -1384,182 +1384,182 @@ public class EmployeeRepositaryImpl {
 		
 	public static int getSqlTypeName(String type) {
 	     
-	    if("BIT".contentEquals(type))
+	    if("BIT".equalsIgnoreCase(type))
 	    	{ return Types.BIT;
 	    	}
 	        
 	    
-	    	if("TINYINT".contentEquals(type))
+	    	if("TINYINT".equalsIgnoreCase(type))
 	    	{
 	    		return Types.TINYINT;
 	    	}
 	    
-	    	if("SMALLINT".contentEquals(type))
+	    	if("SMALLINT".equalsIgnoreCase(type))
 	    	{
 	    		return Types.SMALLINT;
 	    	}
 	   
-	    	if("INTEGER".contentEquals(type))
+	    	if("INTEGER".equalsIgnoreCase(type))
 	    	{
 	    		 return Types.INTEGER;
 	    	}
 	    
-	    	if("BIGINT".contentEquals(type))
+	    	if("BIGINT".equalsIgnoreCase(type))
 	    	{
 	    		return Types.BIGINT;
 	    	}
 	    
-	    	if("FLOAT".contentEquals(type))
+	    	if("FLOAT".equalsIgnoreCase(type))
 	    	{
 	    		return Types.FLOAT;
 	    	}
 	    
-	    	if("REAL".contentEquals(type))
+	    	if("REAL".equalsIgnoreCase(type))
 	    	{
 	    		return Types.REAL;
 	    	}
 	    
-	    	if("DOUBLE".contentEquals(type))
+	    	if("DOUBLE".equalsIgnoreCase(type))
 	    	{
 	    		return Types.DOUBLE;
 	    	}
 	   
-	    	if("NUMERIC".contentEquals(type))
+	    	if("NUMERIC".equalsIgnoreCase(type))
 	    	{
 	    		 return Types.NUMERIC;
 	    	}
 	  
-	    	if("DECIMAL".contentEquals(type))
+	    	if("DECIMAL".equalsIgnoreCase(type))
 	    	{
 	    		  return Types.DECIMAL;
 	    	}
 	    
-	    	if("CHAR".contentEquals(type))
+	    	if("CHAR".equalsIgnoreCase(type))
 	    	{
 	    		return Types.CHAR;
 	    	}
 	   
-	    	if("VARCHAR".contentEquals(type))
+	    	if("VARCHAR".equalsIgnoreCase(type))
 	    	{
 	    		 return Types.VARCHAR;
 	    	}
 	    
-	    	if("LONGVARCHAR".contentEquals(type))
+	    	if("LONGVARCHAR".equalsIgnoreCase(type))
 	    	{
 	    		return Types.LONGVARCHAR;
 	    	}
 	   
-	    	if("DATE".contentEquals(type))
+	    	if("DATE".equalsIgnoreCase(type))
 	    	{
 	    		 return Types.DATE;
 	    	}
 	    
-	    	if("TIME".contentEquals(type))
+	    	if("TIME".equalsIgnoreCase(type))
 	    	{
 	    		return Types.TIME;
 	    	}
 	   
-	    	if("TIMESTAMP".contentEquals(type))
+	    	if("TIMESTAMP".equalsIgnoreCase(type))
 	    	{
 	    		 return Types.TIMESTAMP;
 	    	}
 	    
-	    	if("BINARY".contentEquals(type))
+	    	if("BINARY".equalsIgnoreCase(type))
 	    	{
 	    		return Types.BINARY;
 	    	}
 	   
-	    	if("VARBINARY".contentEquals(type))
+	    	if("VARBINARY".equalsIgnoreCase(type))
 	    	{
 	    		 return Types.VARBINARY;
 	    	}
 	    
-	    	if("LONGVARBINARY".contentEquals(type))
+	    	if("LONGVARBINARY".equalsIgnoreCase(type))
 	    	{
 	    		return Types.LONGVARBINARY;
 	    	}
 	   
-	    	if("NULL".contentEquals(type))
+	    	if("NULL".equalsIgnoreCase(type))
 	    	{
 	    		 return Types.NULL;
 	    	}
 	   
-	    	if("OTHER".contentEquals(type))
+	    	if("OTHER".equalsIgnoreCase(type))
 	    	{
 	    		 return Types.OTHER;
 	    	}
 	   
-	    	if("JAVA_OBJECT".contentEquals(type))
+	    	if("JAVA_OBJECT".equalsIgnoreCase(type))
 	    	{
 	    		 return Types.JAVA_OBJECT;
 	    	}
 	  
-	    	if("DISTINCT".contentEquals(type))
+	    	if("DISTINCT".equalsIgnoreCase(type))
 	    	{
 	    		  return Types.DISTINCT;
 	    	}
 	   
-	    	if("STRUCT".contentEquals(type))
+	    	if("STRUCT".equalsIgnoreCase(type))
 	    	{
 	    		 return Types.STRUCT;
 	    	}
 	   
-	    	if( "ARRAY".contentEquals(type))
+	    	if( "ARRAY".equalsIgnoreCase(type))
 	    	{
 	    		 return Types.ARRAY;
 	    	}
 	    
-	    	if( "BLOB".contentEquals(type))
+	    	if( "BLOB".equalsIgnoreCase(type))
 	    	{
 	    		return Types.BLOB;
 	    	}
 	    
-	    	if( "CLOB".contentEquals(type))
+	    	if( "CLOB".equalsIgnoreCase(type))
 	    	{
 	    		return Types.CLOB;
 	    	}
 	  
-	    	if( "REF".contentEquals(type))
+	    	if( "REF".equalsIgnoreCase(type))
 	    	{
 	    		  return Types.REF;
 	    	}
 	    
-	    	if( "DATALINK".contentEquals(type))
+	    	if( "DATALINK".equalsIgnoreCase(type))
 	    	{
 	    		return Types.DATALINK;
 	    	}
 	    
-	    	if( "BOOLEAN".contentEquals(type))
+	    	if( "BOOLEAN".equalsIgnoreCase(type))
 	    	{
 	    		return Types.BOOLEAN;
 	    	}
 	   
-	    	if( "ROWID".contentEquals(type))
+	    	if( "ROWID".equalsIgnoreCase(type))
 	    	{
 	    		 return Types.ROWID;
 	    	}
 	    
-	    	if( "NCHAR".contentEquals(type))
+	    	if( "NCHAR".equalsIgnoreCase(type))
 	    	{
 	    		return Types.NCHAR;
 	    	}
 	    
-	    	if( "NVARCHAR".contentEquals(type))
+	    	if( "NVARCHAR".equalsIgnoreCase(type))
 	    	{
 	    		return Types.NVARCHAR;
 	    	}
 	   
-	    	if( "LONGNVARCHAR".contentEquals(type))
+	    	if( "LONGNVARCHAR".equalsIgnoreCase(type))
 	    	{
 	    		 return Types.LONGNVARCHAR;
 	    	}
 	  
-	    	if( "NCLOB".contentEquals(type))
+	    	if( "NCLOB".equalsIgnoreCase(type))
 	    	{
 	    		  return Types.NCLOB;
 	    	}
 	   
-	    	if( "SQLXML".contentEquals(type))
+	    	if( "SQLXML".equalsIgnoreCase(type))
 	    	{
 	    		 return Types.SQLXML;
 	    }

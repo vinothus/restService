@@ -712,7 +712,7 @@ public class ApplicationScalibilityTestMysql {
 	    	if("TIMESTAMP".contentEquals(type))
 	    	{
 	    		
-	    		return "2016-4-05 13 −45 −21";
+	    		return "2020-09-17 12:47:07";
 	    		// return new java.sql.Timestamp(2020,01,01,10, 17, 1,1).toString();
 	    	}
 	    
@@ -828,10 +828,10 @@ public class ApplicationScalibilityTestMysql {
 			String tablename=(String) map.get("Tables_in_cameldb");
 			System.out.println(tablename);
 			try {
-				if(!tablename.isEmpty())
-				mvc.perform(MockMvcRequestBuilders.get("/myApps/" + tablename.toLowerCase().replace("_", " ") + "/getdata")
-						.contentType(MediaType.APPLICATION_JSON).param("tableName", "TBL_STUDENT"))
-						.andDo(MockMvcResultHandlers.print());
+				//if(!tablename.isEmpty())
+				//mvc.perform(MockMvcRequestBuilders.get("/myApps/" + tablename.toLowerCase().replace("_", " ") + "/getdata")
+				//		.contentType(MediaType.APPLICATION_JSON).param("tableName", "TBL_STUDENT"))
+				//		.andDo(MockMvcResultHandlers.print());
 				 
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
