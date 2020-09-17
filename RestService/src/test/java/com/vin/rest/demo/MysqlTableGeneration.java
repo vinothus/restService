@@ -3,11 +3,15 @@ package com.vin.rest.demo;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.lang.reflect.Field;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.sql.Types;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -20,6 +24,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.env.Environment;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.junit4.SpringRunner;
+
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.healthmarketscience.sqlbuilder.CreateTableQuery;
 import com.healthmarketscience.sqlbuilder.dbspec.Constraint;
 import com.healthmarketscience.sqlbuilder.dbspec.basic.DbColumn;
@@ -51,7 +58,7 @@ public class MysqlTableGeneration {
 	    @Test
 		public void executeQuery()
 		{
-	    	String[] tableName = new String[100];
+	    	String[] tableName = new String[1];
 			 try {	String[] nonscaling = {"LONGVARBINARY","LONGVARCHAR","NCHAR","LONGNVARCHAR","NVARCHAR","NCLOB","BLOB","CLOB","NULL","OTHER","JAVA_OBJECT","ARRAY", "DISTINCT", "STRUCT", "REF", "DATALINK", "ROWID", "SQLXML", "?" };
 				List<String> invalidElement = new ArrayList<String>();
 				for (int i = 0; i < nonscaling.length; i++) {
@@ -104,14 +111,94 @@ for (int i = 0; i < tableName.length; i++) {
       BufferedReader in = new BufferedReader(new InputStreamReader(
                               yc.getInputStream()));
       String inputLine;
-      while ((inputLine = in.readLine()) != null) 
+      String data="";
+      while ((inputLine = in.readLine()) != null) {
           System.out.println(inputLine);
+          data=data+inputLine;
+          
+      }
       in.close();
-	
-}
-			
-		}
+      
+      ObjectMapper mapper = new ObjectMapper();
 
+		List<Map<String, Object>> jsonMap = new ArrayList<Map<String, Object>>();
+		jsonMap = mapper.readValue(data, new TypeReference<List<Map<String, Object>>>() {
+		});
+		Map postDataMap=jsonMap.get(0);
+		String putStr=new ObjectMapper().writeValueAsString(postDataMap);
+		String id=Integer.toString( (int)postDataMap.get("id"));
+		postDataMap.remove("id");
+		String postStr=new ObjectMapper().writeValueAsString(postDataMap);
+		getData("http://localhost:8080/myApps/"+string.toLowerCase()+"/getdataForKey/"+id);
+		postData("http://localhost:8080/myApps/"+string.toLowerCase()+"/addData", postStr);
+		putData("http://localhost:8080/myApps/"+string.toLowerCase()+"/updateData", putStr);
+		delData("http://localhost:8080/myApps/"+string.toLowerCase()+"/deleteData/"+id);
+}
+
+	    }
+	    
+	    
+	    private void getData(String url) throws IOException
+	    {
+	    	URL geturl = new URL(url);
+	        URLConnection yc = geturl.openConnection();
+	        BufferedReader in = new BufferedReader(new InputStreamReader(
+	                                yc.getInputStream()));
+	        String inputLine;
+	        while ((inputLine = in.readLine()) != null) 
+	            System.out.println(inputLine);
+	        in.close();
+	        	
+	    	
+	    }
+	private void postData(String url,String dataToPost) throws IOException
+	{
+		URL postUrl = new URL (url);
+		HttpURLConnection con = (HttpURLConnection)postUrl.openConnection();
+		con.setRequestMethod("POST");
+		con.setRequestProperty("Content-Type", "application/json; utf-8");
+		con.setRequestProperty("Accept", "application/json");
+		con.setDoOutput(true);
+		try(OutputStream os = con.getOutputStream()) {
+		    byte[] input = dataToPost.getBytes("utf-8");
+		    os.write(input, 0, input.length);			
+		}
+	String message=	con.getResponseMessage();
+	log.info(message);
+
+	}
+		private void delData(String url) throws IOException
+		{
+			URL postUrl = new URL (url);
+			HttpURLConnection con = (HttpURLConnection)postUrl.openConnection();
+			con.setRequestMethod("DELETE");
+			con.setRequestProperty("Content-Type", "application/json; utf-8");
+			con.setRequestProperty("Accept", "application/json");
+			con.setDoOutput(true);
+		 
+		
+			String message=	con.getResponseMessage();
+			log.info(message);
+	 
+		}
+	private void putData(String url,String dataToPost) throws IOException
+	{
+		URL postUrl = new URL (url);
+		HttpURLConnection con = (HttpURLConnection)postUrl.openConnection();
+		con.setRequestMethod("PUT");
+		con.setRequestProperty("Content-Type", "application/json; utf-8");
+		con.setRequestProperty("Accept", "application/json");
+		con.setDoOutput(true);
+		try(OutputStream os = con.getOutputStream()) {
+		    byte[] input = dataToPost.getBytes("utf-8");
+		    os.write(input, 0, input.length);			
+		}
+		
+		
+		String message=	con.getResponseMessage();
+		log.info(message);
+	 
+		}
 		public void createDbTable(DbTable tableName) {
 			log.info("\n=======Creating '" + tableName.getName() + "' In The Database=======\n");
 			loadSQLBuilderSchema();
