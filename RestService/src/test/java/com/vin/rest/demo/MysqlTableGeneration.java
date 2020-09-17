@@ -788,7 +788,7 @@ for (int i = 0; i < tableName.length; i++) {
 		    
 		    	if( "BOOLEAN".contentEquals(type))
 		    	{
-		    		return "true";
+		    		return "1";
 		    	}
 		   
 		    	if( "ROWID".contentEquals(type))

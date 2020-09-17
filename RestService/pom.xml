@@ -9,10 +9,10 @@
 		<version>2.1.5.RELEASE</version>
 		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>com.howtodoinjava</groupId>
-	<artifactId>demo</artifactId>
+	<groupId>com.vinrest</groupId>
+	<artifactId>rest</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>demo</name>
+	<name>REST</name>
 	<description>Demo project for Spring Boot</description>
 
 	<properties>
