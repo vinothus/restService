@@ -58,8 +58,10 @@ public class MysqlTableGeneration {
 	    @Test
 		public void executeQuery()
 		{
-	    	String[] tableName = new String[99];
-			 try {	String[] nonscaling = {"LONGVARBINARY","LONGVARCHAR","NCHAR","LONGNVARCHAR","NVARCHAR","NCLOB","BLOB","CLOB","NULL","OTHER","JAVA_OBJECT","ARRAY", "DISTINCT", "STRUCT", "REF", "DATALINK", "ROWID", "SQLXML", "?" };
+	    	String[] tableName = new String[1];
+			try {
+				String[] nonscaling = {"LONGVARCHAR","NCHAR","NVARCHAR","NCLOB","CLOB","LONGVARBINARY","VARBINARY","LONGNVARCHAR",
+						/* "LONGVARBINARY","LONGVARCHAR","NCHAR","LONGNVARCHAR","NVARCHAR","NCLOB", "BLOB","CLOB",*/"NULL","OTHER","JAVA_OBJECT","ARRAY", "DISTINCT", "STRUCT", "REF", "DATALINK", "ROWID", "SQLXML", "?" };
 				List<String> invalidElement = new ArrayList<String>();
 				for (int i = 0; i < nonscaling.length; i++) {
 					invalidElement.add(nonscaling[i]);
@@ -84,7 +86,7 @@ public class MysqlTableGeneration {
 						}
 					}
 					createDbTable(randomTable);
-					insertDbTable(randomTable,10000);
+					insertDbTable(randomTable,10);
 				}
 				//rest(tableName);
 			 
@@ -228,7 +230,7 @@ for (int i = 0; i < tableName.length; i++) {
 						if(dbColumn.getTypeNameSQL().contains("INTEGER"))
 						{
 							manualQuery=manualQuery+dbColumn.getName()+ " "+dbColumn.getTypeNameSQL();
-						}else if(dbColumn.getTypeNameSQL().contains("VARCHAR"))
+						}else if(dbColumn.getTypeNameSQL().equals("VARCHAR"))
 						{
 							manualQuery=manualQuery+dbColumn.getName()+ " "+dbColumn.getTypeNameSQL()+"(10)";
 						}else if(dbColumn.getTypeNameSQL().contains("VARBINARY"))
@@ -768,7 +770,7 @@ for (int i = 0; i < tableName.length; i++) {
 		    
 		    	if( "BLOB".equalsIgnoreCase(type))
 		    	{
-		    		return "";
+		    		return "DE";
 		    	}
 		    
 		    	if( "CLOB".equalsIgnoreCase(type))

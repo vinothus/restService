@@ -385,6 +385,10 @@ public class EmployeeRepositaryImpl {
 							} else {
 
 								primaryKey = findMax(tableName);
+								if(primaryKey==null)
+								{
+									primaryKey="0";
+								}
 								params.put(attribParamMap.get(dbColumn.getName()), primaryKey);
 
 							}
@@ -749,7 +753,12 @@ public class EmployeeRepositaryImpl {
 						}
 					}
 					if (attribParamMap.get(dbColumn.getName())!= null)
-						{selectQuery.addAliasedColumn(dbColumn, "\"" + attribParamMap.get(dbColumn.getName()) + "\"");}
+						{
+						if(isValidForSelect(dbColumn.getTypeNameSQL()))
+						{
+							selectQuery.addAliasedColumn(dbColumn, "\"" + attribParamMap.get(dbColumn.getName()) + "\"");
+						}
+						}
 				}
 				break;
 			}
@@ -842,7 +851,10 @@ public class EmployeeRepositaryImpl {
 				String columnType=	 dbColumn.getTypeNameSQL() ;
 				 if(attribParamMap.get(dbColumn.getName())!=null)
 				 { 
-					 selectQuery.addAliasedColumn(dbColumn, "\"" + attribParamMap.get(dbColumn.getName()) + "\"");} 
+					 if(isValidForSelect(dbColumn.getTypeNameSQL())) {
+					 selectQuery.addAliasedColumn(dbColumn, "\"" + attribParamMap.get(dbColumn.getName()) + "\"");
+					 }	 
+				 } 
 				}
 				log.info(selectQuery.validate().toString());
 				break;

@@ -277,7 +277,7 @@ public class ApplicationTests {
 	@Test
 	public void updateAttrb() throws Exception
 	{
-		mvc.perform(MockMvcRequestBuilders.get("/myApps/service/getdata")
+		mvc.perform(MockMvcRequestBuilders.get("/myApps/tbl student/getdata")
 	            .contentType(MediaType.APPLICATION_JSON)
 	             
 	            )
