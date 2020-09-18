@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.lang.reflect.Field;
+import java.math.BigDecimal;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -25,6 +26,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.healthmarketscience.sqlbuilder.CreateTableQuery;
@@ -88,14 +90,14 @@ public class MysqlTableGeneration {
 					createDbTable(randomTable);
 					insertDbTable(randomTable,10);
 				}
-				//rest(tableName);
+				rest(tableName);
 			 
 			 
 			 }catch(Exception e) {
 				 
 			 }finally {
 				 
-            // dropTable(tableName);
+             dropTable(tableName);
 			 }
 	    	
 			 
@@ -103,12 +105,12 @@ public class MysqlTableGeneration {
 			
 		}
 	    
-	    private void rest(String[] tableName) throws IOException {
+	    private void rest(String[] tableName) throws Exception {
 
 for (int i = 0; i < tableName.length; i++) {
-	String string = tableName[i];
-	log.info("http://localhost:8080/myApps/"+string.toLowerCase()+"/getdata");
-	  URL oracle = new URL("http://localhost:8080/myApps/"+string.toLowerCase()+"/getdata");
+	String tablename = tableName[i];
+	log.info("http://localhost:8080/myApps/"+tablename.toLowerCase()+"/getdata");
+	  URL oracle = new URL("http://localhost:8080/myApps/"+tablename.toLowerCase()+"/getdata");
       URLConnection yc = oracle.openConnection();
       BufferedReader in = new BufferedReader(new InputStreamReader(
                               yc.getInputStream()));
@@ -131,16 +133,16 @@ for (int i = 0; i < tableName.length; i++) {
 		String id=Integer.toString( (int)postDataMap.get("id"));
 		postDataMap.remove("id");
 		String postStr=new ObjectMapper().writeValueAsString(postDataMap);
-		getData("http://localhost:8080/myApps/"+string.toLowerCase()+"/getdataForKey/"+id);
-		postData("http://localhost:8080/myApps/"+string.toLowerCase()+"/addData", postStr);
-		putData("http://localhost:8080/myApps/"+string.toLowerCase()+"/updateData", putStr);
-		delData("http://localhost:8080/myApps/"+string.toLowerCase()+"/deleteData/"+id);
+		getData("http://localhost:8080/myApps/"+tablename.toLowerCase()+"/getdataForKey/"+id,tablename);
+		postData("http://localhost:8080/myApps/"+tablename.toLowerCase()+"/addData", postStr,tablename);
+		putData("http://localhost:8080/myApps/"+tablename.toLowerCase()+"/updateData", putStr,tablename);
+		delData("http://localhost:8080/myApps/"+tablename.toLowerCase()+"/deleteData/"+id);
 }
 
 	    }
 	    
 	    
-	    private void getData(String url) throws IOException
+	    private void getData(String url,String tablename) throws IOException
 	    {
 	    	URL geturl = new URL(url);
 	        URLConnection yc = geturl.openConnection();
@@ -153,16 +155,17 @@ for (int i = 0; i < tableName.length; i++) {
 	        	
 	    	
 	    }
-	private void postData(String url,String dataToPost) throws IOException
+	private void postData(String url,String dataToPost,String tablename) throws Exception
 	{
 		URL postUrl = new URL (url);
+		String dataval=generateInsertData(tablename,"insert");
 		HttpURLConnection con = (HttpURLConnection)postUrl.openConnection();
 		con.setRequestMethod("POST");
 		con.setRequestProperty("Content-Type", "application/json; utf-8");
 		con.setRequestProperty("Accept", "application/json");
 		con.setDoOutput(true);
 		try(OutputStream os = con.getOutputStream()) {
-		    byte[] input = dataToPost.getBytes("utf-8");
+		    byte[] input = dataval.getBytes("utf-8");
 		    os.write(input, 0, input.length);			
 		}
 	String message=	con.getResponseMessage();
@@ -183,16 +186,17 @@ for (int i = 0; i < tableName.length; i++) {
 			log.info(message);
 	 
 		}
-	private void putData(String url,String dataToPost) throws IOException
+	private void putData(String url,String dataToPost,String tablename) throws Exception
 	{
 		URL postUrl = new URL (url);
+		String dataval=generateInsertData(tablename,"");
 		HttpURLConnection con = (HttpURLConnection)postUrl.openConnection();
 		con.setRequestMethod("PUT");
 		con.setRequestProperty("Content-Type", "application/json; utf-8");
 		con.setRequestProperty("Accept", "application/json");
 		con.setDoOutput(true);
 		try(OutputStream os = con.getOutputStream()) {
-		    byte[] input = dataToPost.getBytes("utf-8");
+		    byte[] input = dataval.getBytes("utf-8");
 		    os.write(input, 0, input.length);			
 		}
 		
@@ -641,10 +645,12 @@ for (int i = 0; i < tableName.length; i++) {
 			}
 		public static String getSampleData(String type) {
 		     
-		    if("BIT".contentEquals(type))
+		    if("BIT".equalsIgnoreCase(type))
 		    	{ return "0";
 		    	}
-		        
+		    if("INT".equalsIgnoreCase(type))
+	    	{ return "0";
+	    	}
 		    
 		    	if("TINYINT".equalsIgnoreCase(type))
 		    	{
@@ -838,5 +844,95 @@ for (int i = 0; i < tableName.length; i++) {
 				}
 				
 			}
+		}
+		
+		public String generateInsertData(String tableName,String update) throws Exception
+		{
+			
+			
+			
+			
+			List<Map<String,Object>>	colums=jdbcTemplate.queryForList("desc  "+tableName);
+			
+			 Map<String, String> dataInsert=new HashMap<String, String>();
+			for (Iterator<Map<String, Object>> iterator2 = colums.iterator(); iterator2.hasNext();) {
+				Map<String, Object> coluMaps = (Map<String, Object>) iterator2.next();
+				coluMaps.get("Field");
+				coluMaps.get("Type");
+				coluMaps.get("Key");
+				
+			String dataType=	getSqlTypeWithoutScal((String)coluMaps.get("Type"));
+			String key=(String)coluMaps.get("Field");
+			String dataSampleValue=getSampleData(dataType);
+			if(!dataType.equalsIgnoreCase("BIT"))
+			{
+				dataInsert.put(key.toLowerCase(), dataSampleValue);
+				}
+				
+			}
+			if(update.equals("insert")) {
+			dataInsert.remove("id");
+			String id=  findMax(tableName);
+			dataInsert.put("id", id);
+			}
+			
+			String putStr=new ObjectMapper().writeValueAsString(dataInsert);
+			
+			
+			return putStr;
+		}
+
+		private String getSqlTypeWithoutScal(String string) {
+
+			char[] lengthData=string.toCharArray();
+			String returnStr="";
+			for (int i = 0; i < lengthData.length; i++) {
+				char chardata= lengthData[i];
+				if (chardata >= '0' && chardata <= '9')
+				{
+					returnStr=returnStr+chardata;
+					string=string.replace(chardata+"", "");
+				}
+			}
+			
+			 
+			
+			 
+			
+			return string.replace("(", "").replace(")", "").replace(returnStr, "").replace(",","");
+		
+			
+		}
+		@Test
+		public void setData()
+		{
+			log.info(getSqlTypeWithoutScal("Decimal(10,0)"));
+			
+		}
+		private String findMax(String table) {
+			String query = "SELECT MAX( id )+1 as id FROM " + table;
+			Map<String, Object> data = new HashMap<String, Object>();
+			try {
+				data = jdbcTemplate.queryForMap(query);
+			} catch (Exception e) {
+				log.info(e.getMessage());
+			}
+
+			String attrID = null;
+			if (data.get("ID") != null) {
+				try {attrID = Integer.toString((int) data.get("ID"));
+				}catch(Exception e) {
+					
+					try{attrID = Long.toString((Long) data.get("ID"));	}catch(Exception es) {
+						BigDecimal datas =(BigDecimal) data.get("ID");
+						attrID=datas.toString();
+						
+					}
+				}
+			}
+			if(attrID==null)
+			{attrID="0";}
+			return attrID;
+
 		}
 }

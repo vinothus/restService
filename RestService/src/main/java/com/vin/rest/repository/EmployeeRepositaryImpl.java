@@ -651,6 +651,7 @@ public class EmployeeRepositaryImpl {
 		UpdateQuery updateQuery = new UpdateQuery(tableName);
 		int isUpdate = 0;
 		String primaryKey = "";
+		String primaryKeyAttr="";
 		Map<String, String> attribParamMap = serviceAttrbMap.get(service);
 		for (Map.Entry<DbTable, List<DbColumn>> entry : tableColumnMap.entrySet()) {
 			DbTable table = entry.getKey();
@@ -670,6 +671,7 @@ public class EmployeeRepositaryImpl {
 								updateQuery.addCondition(BinaryCondition.equalTo(dbColumn,
 										params.get(attribParamMap.get(dbColumn.getName()))));
 							primaryKey = params.get(attribParamMap.get(dbColumn.getName()));
+							primaryKeyAttr=attribParamMap.get(dbColumn.getName());
 						}
 					}
 					if ((params.get(attribParamMap.get(dbColumn.getName())) != null))
@@ -728,6 +730,8 @@ public class EmployeeRepositaryImpl {
 				//serviceAttrbMap(id,(String) serviceDatum.get(0).get("serviceName"));
 		     
 		}
+		params=new HashMap<String, String>();
+		params.put(primaryKeyAttr,primaryKey);
 			return getDataForParams(service, params).get(0);
 		} else {
 			throw new Exception("update Failed");
