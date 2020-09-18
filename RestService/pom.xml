@@ -89,5 +89,15 @@
             <artifactId>ojdbc7</artifactId>
             <version>12.1.0</version>
         </dependency> -->
+        <dependency>
+         <groupId>Vinvalidation</groupId>
+  <artifactId>Vinvalidation</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+        <groupId>VinProcessor</groupId>
+  <artifactId>Processor</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+     </dependency>
 	</dependencies>
 </project>
