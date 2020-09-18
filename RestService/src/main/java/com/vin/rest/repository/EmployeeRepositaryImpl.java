@@ -351,7 +351,7 @@ public class EmployeeRepositaryImpl {
 	public Map<String, Object> insertData(String service, Map<String, String> params) throws Exception {
 		loadSQLBuilderSchema();
 		String tableName = serviceTableMap.get(service);
-		 
+		int updatedata=0;
 		
 		setGDValues(service, tableName);
 		tableName = serviceTableMap.get(service);
@@ -402,10 +402,11 @@ public class EmployeeRepositaryImpl {
 
 				log.info("Key = " + entry.getKey() + ", Value = " + entry.getValue());
 				log.info(insertQuery.toString());
+				
 				if (primaryKey != null) {
 
 					if (!isUpdate) {
-						jdbcTemplate.update(insertQuery.toString());
+					 updatedata=	jdbcTemplate.update(insertQuery.toString());
 					} else {
 						updateData(service, params);
 					}
@@ -418,7 +419,14 @@ public class EmployeeRepositaryImpl {
 			}
 
 		}
-		return getData(service, primaryKey);
+		Map<String, Object>  datatrt=getData(service, primaryKey);
+		if(datatrt==null||datatrt.isEmpty())
+		{
+			if(updatedata==1&&primaryKey.equals("0"))
+			{datatrt=	getDataForParams(service, new HashMap<String, String>()).get(0);}
+		}
+		
+		return datatrt;
 
 	}
 	private void arrangeGoldenDataForTable(String tableName) {
