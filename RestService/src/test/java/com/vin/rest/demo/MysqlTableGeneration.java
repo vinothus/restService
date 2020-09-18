@@ -60,7 +60,7 @@ public class MysqlTableGeneration {
 	    @Test
 		public void executeQuery()
 		{
-	    	String[] tableName = new String[1];
+	    	String[] tableName = new String[100];
 			try {
 				String[] nonscaling = {"LONGVARCHAR","NCHAR","NVARCHAR","NCLOB","CLOB","LONGVARBINARY","VARBINARY","LONGNVARCHAR",
 						/* "LONGVARBINARY","LONGVARCHAR","NCHAR","LONGNVARCHAR","NVARCHAR","NCLOB", "BLOB","CLOB",*/"NULL","OTHER","JAVA_OBJECT","ARRAY", "DISTINCT", "STRUCT", "REF", "DATALINK", "ROWID", "SQLXML", "?" };
@@ -84,7 +84,7 @@ public class MysqlTableGeneration {
 						}
 
 						if (!invalidElement.contains(getSqlTypeName(sqlTypes[j]))) {
-							randomTable.addColumn(columnName, sqlTypes[j], 10);
+							randomTable.addColumn(columnName, sqlTypes[j], 100);
 						}
 					}
 					createDbTable(randomTable);
