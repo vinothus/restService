@@ -180,7 +180,7 @@ public class EmployeeRepositaryImpl {
 						coluMaps.get("Key");
 						 
 						DbColumn column1 = tableNameT.addColumn((String)coluMaps.get("Field"),
-								getSqlTypeName((String)coluMaps.get("Type"))	, getLength((String)coluMaps.get("Type")));
+								getSqlTypeWithoutScal((String)coluMaps.get("Type"))	, getLength((String)coluMaps.get("Type")));
 						column1.setDefaultValue(getSqlTypeName((String)coluMaps.get("Type")));
 						if(coluMaps.get("Key").equals("PRI"))
 							{
@@ -531,8 +531,8 @@ public class EmployeeRepositaryImpl {
 					 
 					 
 					DbColumn column1 = tableNameT.addColumn((String)coluMaps.get("Field"),
-							getSqlTypeName((String)coluMaps.get("Type")), getLength((String)coluMaps.get("Type")));
-					column1.setDefaultValue(getSqlTypeName((String)coluMaps.get("Type")));
+							getSqlTypeWithoutScal((String)coluMaps.get("Type")), getLength((String)coluMaps.get("Type")));
+					//column1.setDefaultValue(getSqlTypeName((String)coluMaps.get("Type")));
 					if(coluMaps.get("Key").equals("PRI"))
 						{
 						column1.primaryKey();
@@ -748,7 +748,8 @@ public class EmployeeRepositaryImpl {
 
 						}
 					}
-					selectQuery.addAliasedColumn(dbColumn, "\"" + attribParamMap.get(dbColumn.getName()) + "\"");
+					if (attribParamMap.get(dbColumn.getName())!= null)
+						{selectQuery.addAliasedColumn(dbColumn, "\"" + attribParamMap.get(dbColumn.getName()) + "\"");}
 				}
 				break;
 			}
@@ -839,10 +840,9 @@ public class EmployeeRepositaryImpl {
 								BinaryCondition.equalTo(dbColumn, params.get(attribParamMap.get(dbColumn.getName()))));
 					}
 				String columnType=	 dbColumn.getTypeNameSQL() ;
-				if(columnType.equalsIgnoreCase("NULL")){
-					selectQuery.addAliasedColumn(dbColumn, "\"" + attribParamMap.get(dbColumn.getName()) + "\"");
-				}else if(isValidForSelect(dbColumn.getTypeNameSQL()))
-					{selectQuery.addAliasedColumn(dbColumn, "\"" + attribParamMap.get(dbColumn.getName()) + "\"");}
+				 if(attribParamMap.get(dbColumn.getName())!=null)
+				 { 
+					 selectQuery.addAliasedColumn(dbColumn, "\"" + attribParamMap.get(dbColumn.getName()) + "\"");} 
 				}
 				log.info(selectQuery.validate().toString());
 				break;
@@ -1153,6 +1153,25 @@ public class EmployeeRepositaryImpl {
 		
 		return returnInt;
 	}
+	
+	public String getSqlTypeWithoutScal(String mysqlDataType)
+	{
+		char[] lengthData=mysqlDataType.toCharArray();
+		String returnStr="";
+		for (int i = 0; i < lengthData.length; i++) {
+			char chardata= lengthData[i];
+			if (chardata >= '0' && chardata <= '9')
+			{
+				returnStr=returnStr+chardata;
+			}
+		}
+		
+		 
+		
+		 
+		
+		return mysqlDataType.replace("(", "").replace(")", "").replace(returnStr, "");
+	}
 	public static String getSqlTypeName(int type) {
 	    switch (type) {
 	    case Types.BIT:
@@ -1238,7 +1257,9 @@ public class EmployeeRepositaryImpl {
 		if ("BIT".equalsIgnoreCase(type)) {
 			return true;
 		}
-
+		if ("INT".equalsIgnoreCase(type)) {
+			return true;
+		}
 		if ("TINYINT".equalsIgnoreCase(type)) {
 			return true;
 		}

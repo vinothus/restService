@@ -58,7 +58,7 @@ public class MysqlTableGeneration {
 	    @Test
 		public void executeQuery()
 		{
-	    	String[] tableName = new String[1];
+	    	String[] tableName = new String[99];
 			 try {	String[] nonscaling = {"LONGVARBINARY","LONGVARCHAR","NCHAR","LONGNVARCHAR","NVARCHAR","NCLOB","BLOB","CLOB","NULL","OTHER","JAVA_OBJECT","ARRAY", "DISTINCT", "STRUCT", "REF", "DATALINK", "ROWID", "SQLXML", "?" };
 				List<String> invalidElement = new ArrayList<String>();
 				for (int i = 0; i < nonscaling.length; i++) {
@@ -70,7 +70,7 @@ public class MysqlTableGeneration {
 				
 				loadSQLBuilderSchema();
 				for (int i = 0; i < tableName.length; i++) {
-					tableName[i] = generateRandomString();
+					tableName[i] ="Test"+ generateRandomString();
 					DbTable randomTable = schemaObj.addTable(tableName[i]);
 					randomTable.addColumn("id", Types.INTEGER, 10).primaryKey();
 					for (int j = 0; j < sqlTypes.length; j++) {
@@ -84,16 +84,16 @@ public class MysqlTableGeneration {
 						}
 					}
 					createDbTable(randomTable);
-					insertDbTable(randomTable,100);
+					insertDbTable(randomTable,10000);
 				}
-				rest(tableName);
+				//rest(tableName);
 			 
 			 
 			 }catch(Exception e) {
 				 
 			 }finally {
 				 
-             dropTable(tableName);
+            // dropTable(tableName);
 			 }
 	    	
 			 
