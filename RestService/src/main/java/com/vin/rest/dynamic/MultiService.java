@@ -4,7 +4,7 @@ public class MultiService {
 
 	int id;
 	String serviceName;
-	String serviceType;
+	ServiceType serviceType;
 	int priproty;
 	String relationwithParam;
 	public int getId() {
@@ -19,10 +19,10 @@ public class MultiService {
 	public void setServiceName(String serviceName) {
 		this.serviceName = serviceName;
 	}
-	public String getServiceType() {
+	public ServiceType getServiceType() {
 		return serviceType;
 	}
-	public void setServiceType(String serviceType) {
+	public void setServiceType(ServiceType serviceType) {
 		this.serviceType = serviceType;
 	}
 	public int getPriproty() {

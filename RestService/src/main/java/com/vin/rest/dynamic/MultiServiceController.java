@@ -1,7 +1,9 @@
 package com.vin.rest.dynamic;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -30,6 +32,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.healthmarketscience.sqlbuilder.dbspec.basic.DbColumn;
 import com.healthmarketscience.sqlbuilder.dbspec.basic.DbTable;
+import com.vin.validation.ServiceConstraintViolation;
 import com.vin.validation.VinMap;
 
 @Component
@@ -41,19 +44,28 @@ public class MultiServiceController {
 	@Autowired
 	Validator validator;
 	public ResponseEntity<List<Map<String,Map<String, Object>>>> addData(@PathVariable("service") String service,
-			@RequestBody String params) throws Exception {
+			@RequestBody String params)   {
 		ObjectMapper mapper = new ObjectMapper();
 
 		List<Map<String,Map<String, String>>> jsonMap = new ArrayList<>();
-		jsonMap = mapper.readValue(params, new TypeReference<List<Map<String,Map<String, Object>>>>() {
-		}); // converts JSON to Map
+		try {
+			jsonMap = mapper.readValue(params, new TypeReference<List<Map<String,Map<String, Object>>>>() {
+			});
+		} catch (IOException e) {
+			Set<ConstraintViolation<HashMap>> constraintViolation =new HashSet<ConstraintViolation<HashMap>>();
+			Map<String, String> errorMessages=new HashMap<String,String>();
+			ConstraintViolation<HashMap> cv=new ServiceConstraintViolation<String,String>("Not a Valid JSON "," / "+service); 
+			constraintViolation.add(cv);
+			throw new ConstraintViolationException(constraintViolation);
+		} // converts JSON to Map
 		for (Iterator<Map<String, Map<String, String>>> iterator = jsonMap.iterator(); iterator.hasNext();) {
-			Map<String, Map<String, String>> map = (Map<String, Map<String, String>>) iterator.next();
+			Map<String, Map<String, String>> map = iterator.next();
 			
 			for (Entry<String, Map<String, String>>entry : map.entrySet()) {
 				String serviceName=entry.getKey();
 				 
 				Map<String, String> serviceMap=entry.getValue();
+				serviceMap.put("ServiceKey", service);
 			Set<ConstraintViolation<HashMap>> constraintViolation = validator
 					.validate(new VinMap<String, String>(serviceMap));
 			if (!constraintViolation.isEmpty()) {
@@ -68,40 +80,70 @@ public class MultiServiceController {
 	}
 
 	public ResponseEntity<List<Map<String,Map<String, Object>>>> updateData(@PathVariable("service") String service,
-			@RequestBody String params) throws Exception {
+			@RequestBody String params)   {
 		ObjectMapper mapper = new ObjectMapper();
 
-		Map<String, String> jsonMap = new HashMap<>();
-		jsonMap = mapper.readValue(params, new TypeReference<Map<String, String>>() {
-		}); // converts JSON to Map
-		Set<ConstraintViolation<HashMap>> constraintViolation = validator
-				.validate(new VinMap<String, String>(jsonMap));
-		if (!constraintViolation.isEmpty()) {
+		List<Map<String,Map<String, String>>> jsonMap = new ArrayList<>();
+		try {
+			jsonMap = mapper.readValue(params, new TypeReference<List<Map<String,Map<String, Object>>>>() {
+			});
+		} catch (IOException e) {
+			Set<ConstraintViolation<HashMap>> constraintViolation =new HashSet<ConstraintViolation<HashMap>>();
+			Map<String, String> errorMessages=new HashMap<String,String>();
+			ConstraintViolation<HashMap> cv=new ServiceConstraintViolation<String,String>("Not a Valid JSON "," / "+service); 
+			constraintViolation.add(cv);
 			throw new ConstraintViolationException(constraintViolation);
+		}// converts JSON to Map
+		for (Iterator<Map<String, Map<String, String>>> iterator = jsonMap.iterator(); iterator.hasNext();) {
+			Map<String, Map<String, String>> map = iterator.next();
+			
+			for (Entry<String, Map<String, String>>entry : map.entrySet()) {
+				String serviceName=entry.getKey();
+				 
+				Map<String, String> serviceMap=entry.getValue();
+				serviceMap.put("ServiceKey", service);
+			Set<ConstraintViolation<HashMap>> constraintViolation = validator
+					.validate(new VinMap<String, String>(serviceMap));
+			if (!constraintViolation.isEmpty()) {
+				throw new ConstraintViolationException(constraintViolation);
+			}
+			
+			}
 		}
+		 
 		return new ResponseEntity<List<Map<String,Map<String, Object>>>>(multiserviceImpl.updateMultiData(service, jsonMap),
 				new HttpHeaders(), HttpStatus.OK);
 	}
 	public ResponseEntity<List<Map<String,Map<String, Object>>>> getDatum(@PathVariable("service") String service,
-			@RequestParam   Map<String, String> params)    {
-		
-		  System.out.println("start validation"); System.out.println(validator);
-		  
-		  
+			@RequestBody String params)    {
+		ObjectMapper mapper = new ObjectMapper();
+		List<Map<String,Map<String, String>>> jsonMap = new ArrayList<>();
+		try {
+			jsonMap = mapper.readValue(params, new TypeReference<List<Map<String,Map<String, Object>>>>() {
+			});
+		} catch (IOException e) {
+			Set<ConstraintViolation<HashMap>> constraintViolation =new HashSet<ConstraintViolation<HashMap>>();
+			Map<String, String> errorMessages=new HashMap<String,String>();
+			ConstraintViolation<HashMap> cv=new ServiceConstraintViolation<String,String>("Not a Valid JSON "," / "+service); 
+			constraintViolation.add(cv);
+			throw new ConstraintViolationException(constraintViolation);
+		} // converts JSON to Map
+		for (Iterator<Map<String, Map<String, String>>> iterator = jsonMap.iterator(); iterator.hasNext();) {
+			Map<String, Map<String, String>> map = iterator.next();
+			
+			for (Entry<String, Map<String, String>>entry : map.entrySet()) {
+				String serviceName=entry.getKey();
+				 
+				Map<String, String> serviceMap=entry.getValue();
+				serviceMap.put("ServiceKey", service);
 			Set<ConstraintViolation<HashMap>> constraintViolation = validator
-					.validate(new VinMap<String, String>(params));
-			for (Iterator iterator = constraintViolation.iterator(); iterator.hasNext();) {
-				ConstraintViolation<HashMap> constraintViolation2 = (ConstraintViolation<HashMap>) iterator.next();
-				System.out.println(constraintViolation2.getMessage());
-			}
+					.validate(new VinMap<String, String>(serviceMap));
 			if (!constraintViolation.isEmpty()) {
 				throw new ConstraintViolationException(constraintViolation);
 			}
-			 
-			  
-		 
-		System.out.println("end validation");
-		
+			
+			}
+		}
 		return new ResponseEntity<List<Map<String,Map<String, Object>>>>(multiserviceImpl.getMultiDataForParams(service, params),
 				new HttpHeaders(), HttpStatus.OK);
 	}
