@@ -22,6 +22,7 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandl
 
 import com.vin.intercept.SimpleFilter;
 import com.vin.rest.dynamic.GenericController;
+import com.vin.rest.dynamic.MultiServiceController;
 import com.vin.validation.WebConfig;
 
  
@@ -30,6 +31,9 @@ public class Application {
 	static Logger log = Logger.getLogger(Application.class.getName());
 	@Autowired
 	GenericController userController;
+	
+	@Autowired
+	MultiServiceController  multiServiceController;
 	
 	@FunctionalInterface
 	interface FuncInter1 {
@@ -56,6 +60,7 @@ public class Application {
 			  Environment env) {
 		RequestMappingHandlerMapping	handlerMapping = app.getBean(RequestMappingHandlerMapping.class);
 		userController = app.getBean(GenericController.class);
+		  multiServiceController=app.getBean(MultiServiceController.class);
 		try {
 			handlerMapping
 					.registerMapping(
@@ -93,10 +98,9 @@ public class Application {
 					userController, userController.getClass().getMethod("delData", String.class, String.class));
 			
 			handlerMapping.registerMapping(
-					RequestMappingInfo.paths("/" + appName + "/{service}/refreshMataData").methods(RequestMethod.GET)
+					RequestMappingInfo.paths("/" + appName + "/multiService/{service}/MultiDataForParams").methods(RequestMethod.GET)
 							.produces(MediaType.APPLICATION_JSON_VALUE).build(),
-					userController, userController.getClass().getMethod("refreshMataData", String.class));
-			
+							multiServiceController, multiServiceController.getClass().getMethod("getDatum", String.class, Map.class));
 			
 		} catch (  Exception e) {
 			e.printStackTrace();

@@ -13,19 +13,40 @@ import javax.validation.constraints.NotNull;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vin.rest.repository.EmployeeRepositaryImpl;
-
+@Component
 public class MultiServiceImpl {
 	@Autowired
 	JdbcTemplate jdbcTemplate;
 	@Autowired
 	EmployeeRepositaryImpl singleServiceImpl;
 	public static Map<String, List<MultiService>> MultiServiceMap= new ConcurrentHashMap<>();
+	static {init();}
+	public static void init()
+	{
+		List<MultiService> serviceList =new ArrayList<>();
 	
-	
+		MultiService service=new MultiService();
+		service.setId(1);
+		service.setServiceType(ServiceType.SINGLE);
+		service.setServiceName("tbl student");
+		//service.setRelationwithParam("..");
+		serviceList.add(service);
+		
+		MultiService service1=new MultiService();
+		service1.setId(1);
+		service1.setServiceType(ServiceType.SINGLE);
+		service1.setServiceName("tbl employees");
+		//service.setRelationwithParam("..");
+		serviceList.add(service1);
+		
+		MultiServiceMap.put("student", serviceList);
+		
+	}
 	public List<Map<String, Map<String, Object>>> insertMultiData(String service,
 			List<Map<String, Map<String, String>>> jsonMap) throws Exception {
 		List<MultiService> serviceComponent= MultiServiceMap.get(service);
