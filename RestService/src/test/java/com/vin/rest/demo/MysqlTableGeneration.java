@@ -84,11 +84,11 @@ public class MysqlTableGeneration {
 						}
 
 						if (!invalidElement.contains(getSqlTypeName(sqlTypes[j]))) {
-							randomTable.addColumn(columnName, sqlTypes[j], 100);
+							randomTable.addColumn(columnName, sqlTypes[j], 10);
 						}
 					}
 					createDbTable(randomTable);
-					insertDbTable(randomTable,10);
+					insertDbTable(randomTable,10000);
 				}
 				rest(tableName);
 			 
@@ -97,7 +97,7 @@ public class MysqlTableGeneration {
 				 
 			 }finally {
 				 
-             dropTable(tableName);
+             //dropTable(tableName);
 			 }
 	    	
 			 
