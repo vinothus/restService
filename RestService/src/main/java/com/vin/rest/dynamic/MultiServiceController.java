@@ -114,37 +114,19 @@ public class MultiServiceController {
 		return new ResponseEntity<List<Map<String,Map<String, Object>>>>(multiserviceImpl.updateMultiData(service, jsonMap),
 				new HttpHeaders(), HttpStatus.OK);
 	}
-	public ResponseEntity<List<Map<String,Map<String, Object>>>> getDatum(@PathVariable("service") String service,
-			@RequestBody String params)    {
+	public ResponseEntity<List<Map<String,List<Map<String, Object>>>>> getDatum(@PathVariable("service") String service,
+			@RequestParam   Map<String, String> params)    {
 		ObjectMapper mapper = new ObjectMapper();
 		List<Map<String,Map<String, String>>> jsonMap = new ArrayList<>();
-		try {
-			jsonMap = mapper.readValue(params, new TypeReference<List<Map<String,Map<String, Object>>>>() {
-			});
-		} catch (IOException e) {
-			Set<ConstraintViolation<HashMap>> constraintViolation =new HashSet<ConstraintViolation<HashMap>>();
-			Map<String, String> errorMessages=new HashMap<String,String>();
-			ConstraintViolation<HashMap> cv=new ServiceConstraintViolation<String,String>("Not a Valid JSON "," / "+service); 
-			constraintViolation.add(cv);
-			throw new ConstraintViolationException(constraintViolation);
-		} // converts JSON to Map
-		for (Iterator<Map<String, Map<String, String>>> iterator = jsonMap.iterator(); iterator.hasNext();) {
-			Map<String, Map<String, String>> map = iterator.next();
-			
-			for (Entry<String, Map<String, String>>entry : map.entrySet()) {
-				String serviceName=entry.getKey();
-				 
-				Map<String, String> serviceMap=entry.getValue();
-				serviceMap.put("ServiceKey", service);
+		params.put("ServiceKey", service);
 			Set<ConstraintViolation<HashMap>> constraintViolation = validator
-					.validate(new VinMap<String, String>(serviceMap));
+					.validate(new VinMap<String, String>(params));
 			if (!constraintViolation.isEmpty()) {
 				throw new ConstraintViolationException(constraintViolation);
 			}
 			
-			}
-		}
-		return new ResponseEntity<List<Map<String,Map<String, Object>>>>(multiserviceImpl.getMultiDataForParams(service, params),
+			 
+		return new ResponseEntity<List<Map<String,List<Map<String, Object>>>>>(multiserviceImpl.getMultiDataForParams(service, params),
 				new HttpHeaders(), HttpStatus.OK);
 	}
 
