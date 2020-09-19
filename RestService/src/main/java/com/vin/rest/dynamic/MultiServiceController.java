@@ -44,7 +44,7 @@ public class MultiServiceController {
 	@Autowired
 	Validator validator;
 	public ResponseEntity<List<Map<String,Map<String, Object>>>> addData(@PathVariable("service") String service,
-			@RequestBody String params)   {
+			@RequestBody String params) throws Exception   {
 		ObjectMapper mapper = new ObjectMapper();
 
 		List<Map<String,Map<String, String>>> jsonMap = new ArrayList<>();
@@ -80,7 +80,7 @@ public class MultiServiceController {
 	}
 
 	public ResponseEntity<List<Map<String,Map<String, Object>>>> updateData(@PathVariable("service") String service,
-			@RequestBody String params)   {
+			@RequestBody String params) throws Exception   {
 		ObjectMapper mapper = new ObjectMapper();
 
 		List<Map<String,Map<String, String>>> jsonMap = new ArrayList<>();
