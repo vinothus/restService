@@ -104,6 +104,10 @@ public class Application {
 					RequestMappingInfo.paths("/" + appName + "/multiService/{service}/MultiDataForParams").methods(RequestMethod.GET)
 							.produces(MediaType.APPLICATION_JSON_VALUE).build(),
 							multiServiceController, multiServiceController.getClass().getMethod("getDatum", String.class, Map.class));
+			handlerMapping.registerMapping(
+					RequestMappingInfo.paths("/" + appName + "/multiService/{service}/MultiDataForUniQueKey/{uniquekey}").methods(RequestMethod.GET)
+							.produces(MediaType.APPLICATION_JSON_VALUE).build(),
+							multiServiceController, multiServiceController.getClass().getMethod("getData", String.class, String.class));
 			
 		} catch (  Exception e) {
 			e.printStackTrace();

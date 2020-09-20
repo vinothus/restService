@@ -52,6 +52,11 @@ public class MultiServiceImpl {
 	public List<Map<String, Map<String, Object>>> insertMultiData(String service,
 			List<Map<String, Map<String, String>>> jsonMap) throws Exception {
 		List<MultiService> serviceComponent= MultiServiceMap.get(service);
+		if(serviceComponent==null)
+		{
+			arrangeMultServiceGD(service);
+			 serviceComponent= MultiServiceMap.get(service);
+		}
 		ObjectMapper mapper = new ObjectMapper();
 		List<Map<String, Map<String, Object>>> returnData=new ArrayList<>();
 		
@@ -69,7 +74,7 @@ public class MultiServiceImpl {
 				{
 					if(relation.contains("."))
 				{
-					String[] serviceParam=relation.split(".");
+					String[] serviceParam=relation.split("\\.");
 					data.put(serviceParam[2], multiServiceData.get(serviceParam[1]).get(serviceParam[0]));
 				}
 					}
@@ -119,7 +124,7 @@ public class MultiServiceImpl {
 				if(relation!=null)
 				if(relation.contains("."))
 				{
-					String[] serviceParam=relation.split(".");
+					String[] serviceParam=relation.split("\\.");
 					data.put(serviceParam[2], multiServiceData.get(serviceParam[0]).get(serviceParam[1]));
 				}
 				Map<String, Object> dataReturn=singleServiceImpl.updateData(singleService, data);
@@ -250,6 +255,11 @@ public class MultiServiceImpl {
 		List<MultiService> serviceComponent= MultiServiceMap.get(service);
 		ObjectMapper mapper = new ObjectMapper();
 		List<Map<String, Map<String, Object>>> returnData=new ArrayList<>();
+		if(serviceComponent==null)
+		{
+			arrangeMultServiceGD(service);
+			 serviceComponent= MultiServiceMap.get(service);
+		}
 		for (Iterator<MultiService> iterator = serviceComponent.iterator(); iterator.hasNext();) {
 			Map<String, Map<String, Object>> retObj=new HashMap<>();
 			MultiService multiService = (MultiService) iterator.next();
@@ -258,10 +268,17 @@ public class MultiServiceImpl {
 				String relation=multiService.getRelationwithParam();
 				if(relation!=null)
 					{
-					if(relation.contains("."))
+					if(relation.contains("none"))
+					{
+						Map<String, Object> dataReturn=singleServiceImpl.getData(singleService, uniquekey);
+						retObj.put(singleService,dataReturn);
+						returnData.add(retObj);	
+					}
+					
+					else if(relation.contains("."))
 					{
 						
-						String[] serviceParam=relation.split(".");
+						String[] serviceParam=relation.split("\\.");
 						for (Iterator iterator2 = returnData.iterator(); iterator2.hasNext();) {
 							Map<String, Map<String, Object>> map = (Map<String, Map<String, Object>>) iterator2.next();
 							if(map.size()>0)
@@ -275,13 +292,29 @@ public class MultiServiceImpl {
 										if(key!=null)
 										{
 											uniquekey=key;
+											Map<String, Object> dataReturn=singleServiceImpl.getData(singleService, uniquekey);
+											retObj.put(singleService,dataReturn);
+											returnData.add(retObj);
+										}else
+										{
+											Map<String, Object> dataReturn=singleServiceImpl.getData(singleService, uniquekey);
+											retObj.put(singleService,dataReturn);
+											returnData.add(retObj);	
 										}
 								}
 						}
-						Map<String, Object> dataReturn=singleServiceImpl.deleteData(singleService, uniquekey);
+						
+					}else {
+						Map<String, Object> dataReturn=singleServiceImpl.getData(singleService, uniquekey);
 						retObj.put(singleService,dataReturn);
 						returnData.add(retObj);
 					}
+					}else
+					{
+						Map<String, Object> dataReturn=singleServiceImpl.getData(singleService, uniquekey);
+						retObj.put(singleService,dataReturn);
+						returnData.add(retObj);
+						
 					}
 				}
 			}
@@ -292,6 +325,11 @@ public class MultiServiceImpl {
 	public List<Map<String, Map<String, Object>>> deleteMultiData(String service, @Valid @NotNull String uniquekey) throws Exception {
 		List<MultiService> serviceComponent= MultiServiceMap.get(service);
 		ObjectMapper mapper = new ObjectMapper();
+		if(serviceComponent==null)
+		{
+			arrangeMultServiceGD(service);
+			 serviceComponent= MultiServiceMap.get(service);
+		}
 		List<Map<String, Map<String, Object>>> returnData=new ArrayList<>();
 		for (Iterator<MultiService> iterator = serviceComponent.iterator(); iterator.hasNext();) {
 			Map<String, Map<String, Object>> retObj=new HashMap<>();
@@ -304,7 +342,7 @@ public class MultiServiceImpl {
 					if(relation.contains("."))
 					{
 						
-						String[] serviceParam=relation.split(".");
+						String[] serviceParam=relation.split("\\.");
 						for (Iterator iterator2 = returnData.iterator(); iterator2.hasNext();) {
 							Map<String, Map<String, Object>> map = (Map<String, Map<String, Object>>) iterator2.next();
 							if(map.size()>0)
