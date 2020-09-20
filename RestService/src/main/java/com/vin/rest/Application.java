@@ -96,7 +96,10 @@ public class Application {
 					RequestMappingInfo.paths("/" + appName + "/{service}/deleteData/{uniquekey}")
 							.methods(RequestMethod.DELETE).produces(MediaType.APPLICATION_JSON_VALUE).build(),
 					userController, userController.getClass().getMethod("delData", String.class, String.class));
-			
+			handlerMapping.registerMapping(
+					RequestMappingInfo.paths("/" + appName + "/clearCache")
+							.methods(RequestMethod.GET).produces(MediaType.APPLICATION_JSON_VALUE).build(),
+					userController, userController.getClass().getMethod("clearCache"));
 			handlerMapping.registerMapping(
 					RequestMappingInfo.paths("/" + appName + "/multiService/{service}/MultiDataForParams").methods(RequestMethod.GET)
 							.produces(MediaType.APPLICATION_JSON_VALUE).build(),

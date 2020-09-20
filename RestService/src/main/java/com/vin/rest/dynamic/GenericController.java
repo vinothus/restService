@@ -164,4 +164,10 @@ public class GenericController {
 		
 		return new ResponseEntity<String>(employeeRepositaryImpl.refreshMataData(service),new HttpHeaders(), HttpStatus.OK)	;
 	}
+	
+	public ResponseEntity<String>	 clearCache()
+	{
+		
+		return new ResponseEntity<String>(employeeRepositaryImpl.clearCache(),new HttpHeaders(), HttpStatus.OK)	;
+	}
 }

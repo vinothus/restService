@@ -42,6 +42,7 @@ import com.healthmarketscience.sqlbuilder.dbspec.basic.DbConstraint;
 import com.healthmarketscience.sqlbuilder.dbspec.basic.DbSchema;
 import com.healthmarketscience.sqlbuilder.dbspec.basic.DbSpec;
 import com.healthmarketscience.sqlbuilder.dbspec.basic.DbTable;
+import com.vin.rest.dynamic.MultiServiceImpl;
 import com.vin.rest.exception.RecordNotFoundException;
 import com.vin.rest.exception.ServiceNotFoundException;
 import com.vin.rest.model.EmployeeEntity;
@@ -329,10 +330,17 @@ public class EmployeeRepositaryImpl {
 		DbColumn  serid;
 		DbColumn  attrName;
 		DbColumn  colName;
+		DbColumn multiseviceid;
+		DbColumn multisevice_id;
+		DbColumn multiseviceName;
+		DbColumn multisevicePriority;
+		DbColumn multiseviceType;
+		DbColumn multiseviceRelationwithParam;
+		DbColumn sevicePriority;
 		
 		DbTable tableService = schemaObj.addTable("Service");
 		DbTable tableServiceAttr = schemaObj.addTable("Service_Attr");
-
+		DbTable tableMultiService = schemaObj.addTable("Multi_Service");
 		id = tableService.addColumn("id", Types.INTEGER, 10);
 		id.primaryKey();
 		tableName = tableService.addColumn("tableName", Types.VARCHAR, 100);
@@ -342,9 +350,18 @@ public class EmployeeRepositaryImpl {
 		serid = tableServiceAttr.addColumn("service_id", Types.INTEGER, 10);
 		attrName = tableServiceAttr.addColumn("attrName", Types.VARCHAR, 100);
 		colName = tableServiceAttr.addColumn("colName", Types.VARCHAR, 100);
+		multiseviceid= tableMultiService.addColumn("id", Types.INTEGER, 10);
+		multiseviceid.primaryKey();
+		multisevice_id= tableMultiService.addColumn("service_id",  Types.VARCHAR, 100);
+		multiseviceName= tableMultiService.addColumn("multiservicename", Types.VARCHAR, 100);
+		multisevicePriority= tableMultiService.addColumn("priority", Types.INTEGER, 10);
+		multiseviceType= tableMultiService.addColumn("type",Types.VARCHAR, 100);
+		multiseviceRelationwithParam= tableMultiService.addColumn("relationwithparam", Types.VARCHAR, 100);
+		
 		List<DbTable> initialTable = new ArrayList<DbTable>();
 		initialTable.add(tableService);
 		initialTable.add(tableServiceAttr);
+		initialTable.add(tableMultiService);
 		return initialTable;
 	}
 
@@ -453,6 +470,7 @@ public class EmployeeRepositaryImpl {
 			data = jdbcTemplate.queryForList(selectQuery);
 		} catch (Exception e) {
 			log.info(e.getMessage());
+			return isPresent;
 		}
 		String tableName = null;
 		if (data != null)
@@ -1611,5 +1629,15 @@ public class EmployeeRepositaryImpl {
 
 	    return 0;
 	} 
+	
+	public String clearCache()
+	{
+		 serviceTableMap= new ConcurrentHashMap<>();
+		 tableColumnMap= new ConcurrentHashMap<>();
+		 serviceAttrbMap= new ConcurrentHashMap<>();
+		MultiServiceImpl.MultiServiceMap= new ConcurrentHashMap<>();
+		log.info( "Cache Cleared");
+		return "Cache Cleared";
+	}
 	 
 }

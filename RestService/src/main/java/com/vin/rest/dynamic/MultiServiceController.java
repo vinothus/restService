@@ -24,7 +24,10 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
+
+import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vin.validation.ServiceConstraintViolation;
 import com.vin.validation.VinMap;
@@ -109,7 +112,7 @@ public class MultiServiceController {
 				new HttpHeaders(), HttpStatus.OK);
 	}
 	public ResponseEntity<List<Map<String,List<Map<String, Object>>>>> getDatum(@PathVariable("service") String service,
-			@RequestParam   Map<String, String> params)    {
+			@RequestParam   Map<String, String> params) throws JsonParseException, JsonMappingException, IOException    {
 		ObjectMapper mapper = new ObjectMapper();
 		List<Map<String,Map<String, String>>> jsonMap = new ArrayList<>();
 		params.put("ServiceKey", service);

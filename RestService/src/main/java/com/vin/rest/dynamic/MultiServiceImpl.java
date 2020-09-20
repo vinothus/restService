@@ -15,7 +15,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
+import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vin.rest.repository.EmployeeRepositaryImpl;
 @Component
@@ -97,6 +99,10 @@ public class MultiServiceImpl {
 	public List<Map<String, Map<String, Object>>> updateMultiData(String service,
 			List<Map<String, Map<String, String>>> jsonMap) throws Exception {
 		List<MultiService> serviceComponent= MultiServiceMap.get(service);
+		if(serviceComponent==null)
+		{
+			arrangeMultServiceGD(service);
+		}
 		ObjectMapper mapper = new ObjectMapper();
 		List<Map<String, Map<String, Object>>> returnData=new ArrayList<>();
 		
@@ -114,7 +120,7 @@ public class MultiServiceImpl {
 				if(relation.contains("."))
 				{
 					String[] serviceParam=relation.split(".");
-					data.put(serviceParam[2], multiServiceData.get(serviceParam[1]).get(serviceParam[0]));
+					data.put(serviceParam[2], multiServiceData.get(serviceParam[0]).get(serviceParam[1]));
 				}
 				Map<String, Object> dataReturn=singleServiceImpl.updateData(singleService, data);
 				
@@ -139,11 +145,49 @@ public class MultiServiceImpl {
 		return returnData;
 	}
 
-	public List<Map<String, List<Map<String, Object>>>> getMultiDataForParams(String service, Map<String, String> params) {
+	private void arrangeMultServiceGD(String serviceName) throws JsonParseException, JsonMappingException, IOException {
+		List<Map<String, Object>> serviceDatum = jdbcTemplate.queryForList("select ms.id as id, s.serviceName as serviceName, ms.multiservicename as multiservicename, ms.priority as priority ,ms.type,relationwithparam from multi_service ms , service s where multiservicename= '"+serviceName+"'  and s.id=ms.service_id ");
+		List<Map<String, String>> serviceStrDatum=new ArrayList<>();
+		 ObjectMapper mapper = new ObjectMapper();
+			String params = mapper.writeValueAsString(serviceDatum);
+			serviceStrDatum = mapper.readValue(params, new TypeReference<List<Map<String, String>>>() {
+			});
+			List<MultiService> serviceList =new ArrayList<>();
+			String multiServiceName=null;
+		for (Iterator<Map<String, String>> iterator = serviceStrDatum.iterator(); iterator.hasNext();) {
+			Map<String, String> map = (Map<String, String>) iterator.next();
+			
+			
+			MultiService service=new MultiService();
+			service.setId(Integer.parseInt(map.get("id")));
+			service.setPriproty(Integer.parseInt(map.get("priority")));
+			if(map.get("type").equalsIgnoreCase("single"))
+			{
+				service.setServiceType(ServiceType.SINGLE);
+			}else
+			{
+				service.setServiceType(ServiceType.MULTIPLE);
+			}
+			
+			service.setServiceName(map.get("serviceName"));
+			service.setRelationwithParam(map.get("relationwithparam"));
+			serviceList.add(service);
+			multiServiceName=(map.get("multiservicename"));
+		}
+		if(multiServiceName!=null)
+		{
+			MultiServiceMap.put(multiServiceName, serviceList);
+		}
+	}
+	public List<Map<String, List<Map<String, Object>>>> getMultiDataForParams(String service, Map<String, String> params) throws JsonParseException, JsonMappingException, IOException {
 		List<MultiService> serviceComponent= MultiServiceMap.get(service);
 		ObjectMapper mapper = new ObjectMapper();
 		List<Map<String, List<Map<String, Object>>>> returnData=new ArrayList<>();
-		
+		if(serviceComponent==null)
+		{
+			arrangeMultServiceGD(service);
+			 serviceComponent= MultiServiceMap.get(service);
+		}
 		for (Iterator<MultiService> iterator = serviceComponent.iterator(); iterator.hasNext();) {
 			Map<String, List<Map<String, Object>>> retObj=new HashMap<>();
 			MultiService multiService = (MultiService) iterator.next();
@@ -152,18 +196,41 @@ public class MultiServiceImpl {
 				String relation=multiService.getRelationwithParam();
 				if(relation!=null)
 					{
-					if(relation.contains("."))
+					if(relation.contains("none"))
 					{
-						String[] serviceParam=relation.split(".");
+						List<Map<String, Object>> dataReturn=singleServiceImpl.getDataForParams(singleService, new HashMap<String, String>());
+						retObj.put(singleService, dataReturn);
+						returnData.add(retObj);
+						
+					}
+					else if(relation.contains("."))
+					{
+						String[] serviceParam=relation.split("\\.");
 						for (Iterator iterator2 = returnData.iterator(); iterator2.hasNext();) {
 							Map<String, List<Map<String, Object>>> map = (Map<String, List<Map<String, Object>>>) iterator2.next();
+							
 							if(map.size()>0)
-							params.put(serviceParam[2],(String) (map.get(serviceParam[1]).get(0).get(serviceParam[0])));
+							{
+								Map<String, List<Map<String, String>>> hashMapStr=new HashMap<>();
+								String mapStr = mapper.writeValueAsString(map);
+								hashMapStr = mapper.readValue(mapStr, new TypeReference<Map<String, List<Map<String, String>>>>() {
+								});
+								
+								if(hashMapStr.get(serviceParam[0])!=null)
+									{params.put(serviceParam[2],(String) (hashMapStr.get(serviceParam[0]).get(0).get(serviceParam[1])));
+									}
+							}
 						}
 						List<Map<String, Object>> dataReturn=singleServiceImpl.getDataForParams(singleService, params);
+						retObj.put(singleService, dataReturn);
+						returnData.add(retObj);
 					}else if(relation.contains(":")) {
 						String[] serviceParam=relation.split(":");
 						params.put(serviceParam[0],(String)params.get(serviceParam[1]));
+						List<Map<String, Object>> dataReturn=singleServiceImpl.getDataForParams(singleService, params);
+						retObj.put(singleService, dataReturn);
+						returnData.add(retObj);
+					}else {
 						List<Map<String, Object>> dataReturn=singleServiceImpl.getDataForParams(singleService, params);
 						retObj.put(singleService, dataReturn);
 						returnData.add(retObj);
