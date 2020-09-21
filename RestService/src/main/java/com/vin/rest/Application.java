@@ -112,8 +112,14 @@ public class Application {
 					RequestMappingInfo.paths("/" + appName + "/multiService/{service}/addData").methods(RequestMethod.POST)
 							.produces(MediaType.APPLICATION_JSON_VALUE).build(),
 							multiServiceController, multiServiceController.getClass().getMethod("addData", String.class, String.class));
-			
-			
+			handlerMapping.registerMapping(
+					RequestMappingInfo.paths("/" + appName + "/multiService/{service}/updateData").methods(RequestMethod.PUT)
+							.produces(MediaType.APPLICATION_JSON_VALUE).build(),
+							multiServiceController, multiServiceController.getClass().getMethod("updateData", String.class, String.class));
+			handlerMapping.registerMapping(
+					RequestMappingInfo.paths("/" + appName + "/multiService/{service}/deleteData/{uniquekey}")
+							.methods(RequestMethod.DELETE).produces(MediaType.APPLICATION_JSON_VALUE).build(),
+							multiServiceController, multiServiceController.getClass().getMethod("delData", String.class, String.class));
 		} catch (  Exception e) {
 			e.printStackTrace();
 		}

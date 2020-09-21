@@ -175,6 +175,7 @@ public class MultiServiceImpl {
 						}
 					}
 				}}
+				if (data != null) {
 				Map<String, Object> dataReturn=singleServiceImpl.updateData(singleService, data);
 				
 				 Map<String, String> datareturn=new HashMap<>();
@@ -184,6 +185,7 @@ public class MultiServiceImpl {
 				//data.putAll(datareturn);
 				returnMap.put(singleService, dataReturn);
 				returnData.add(returnMap);
+				}
 				
 			} else if(multiService.getServiceType().equals(ServiceType.MULTIPLE))
 			{
