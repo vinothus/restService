@@ -108,6 +108,11 @@ public class Application {
 					RequestMappingInfo.paths("/" + appName + "/multiService/{service}/MultiDataForUniQueKey/{uniquekey}").methods(RequestMethod.GET)
 							.produces(MediaType.APPLICATION_JSON_VALUE).build(),
 							multiServiceController, multiServiceController.getClass().getMethod("getData", String.class, String.class));
+			handlerMapping.registerMapping(
+					RequestMappingInfo.paths("/" + appName + "/multiService/{service}/addData").methods(RequestMethod.POST)
+							.produces(MediaType.APPLICATION_JSON_VALUE).build(),
+							multiServiceController, multiServiceController.getClass().getMethod("addData", String.class, String.class));
+			
 			
 		} catch (  Exception e) {
 			e.printStackTrace();

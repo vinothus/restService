@@ -72,25 +72,46 @@ public class MultiServiceImpl {
 				String relation=multiService.getRelationwithParam();
 				if(relation!=null)
 				{
-					if(relation.contains("."))
+					if(relation.equalsIgnoreCase("none")) {
+						
+					}
+					else if(relation.contains("."))
 				{
 					String[] serviceParam=relation.split("\\.");
 					if(serviceParam.length==3)
 					{
+						if (data != null) {
+							for (Iterator iterator2 = returnData.iterator(); iterator2.hasNext();) {
+								Map<String, Map<String, Object>> map = (Map<String, Map<String, Object>>) iterator2
+										.next();
+								
+								String paramsStr = mapper.writeValueAsString(map);
+								
+								Map<String, Map<String, String>>  strMap =new HashMap<>();
+								strMap = mapper.readValue(paramsStr, new TypeReference<Map<String, Map<String, String>>>() {
+								});
+								if(strMap.get(serviceParam[0])!=null&&strMap.get(serviceParam[0]).get(serviceParam[1])!=null)
+								{
+									data.put(serviceParam[2], strMap.get(serviceParam[0]).get(serviceParam[1]));
+								}
+							}
 					
-					data.put(serviceParam[2], multiServiceData.get(serviceParam[1]).get(serviceParam[0]));
+						}
 					}
 				}
 					}
-				Map<String, Object> dataReturn=singleServiceImpl.insertData(singleService, data);
 				
-				 Map<String, String> datareturn=new HashMap<>();
-				String params = mapper.writeValueAsString(dataReturn);
-				datareturn = mapper.readValue(params, new TypeReference<Map<String, String>>() {
-				});
-				data.putAll(datareturn);
-				returnMap.put(singleService, dataReturn);
-				returnData.add(returnMap);
+					if (data != null) {
+						Map<String, Object> dataReturn = singleServiceImpl.insertData(singleService, data);
+
+						Map<String, String> datareturn = new HashMap<>();
+						String params = mapper.writeValueAsString(dataReturn);
+						datareturn = mapper.readValue(params, new TypeReference<Map<String, String>>() {
+						});
+						//data.putAll(datareturn);
+						returnMap.put(singleService, dataReturn);
+						returnData.add(returnMap);
+					}
 				
 			} else if(multiService.getServiceType().equals(ServiceType.MULTIPLE))
 			{
@@ -126,21 +147,41 @@ public class MultiServiceImpl {
 				Map<String, String> data=multiServiceData.get(singleService);
 				String relation=multiService.getRelationwithParam();
 				if(relation!=null)
-				if(relation.contains("."))
+				{	
+					if(relation.equalsIgnoreCase("none")) {
+						
+					}
+					else if(relation.contains("."))
 				{
 					String[] serviceParam=relation.split("\\.");
 					if(serviceParam.length==3)
 					{
-						data.put(serviceParam[2], multiServiceData.get(serviceParam[0]).get(serviceParam[1]));
+						if (data != null) {
+							for (Iterator iterator2 = returnData.iterator(); iterator2.hasNext();) {
+								Map<String, Map<String, Object>> map = (Map<String, Map<String, Object>>) iterator2
+										.next();
+								
+								String paramsStr = mapper.writeValueAsString(map);
+								
+								Map<String, Map<String, String>>  strMap =new HashMap<>();
+								strMap = mapper.readValue(paramsStr, new TypeReference<Map<String, Map<String, String>>>() {
+								});
+								if(strMap.get(serviceParam[0])!=null&&strMap.get(serviceParam[0]).get(serviceParam[1])!=null)
+								{
+									data.put(serviceParam[2], strMap.get(serviceParam[0]).get(serviceParam[1]));
+								}
+							}
+					
 						}
-				}
+					}
+				}}
 				Map<String, Object> dataReturn=singleServiceImpl.updateData(singleService, data);
 				
 				 Map<String, String> datareturn=new HashMap<>();
 				String params = mapper.writeValueAsString(dataReturn);
 				datareturn = mapper.readValue(params, new TypeReference<Map<String, String>>() {
 				});
-				data.putAll(datareturn);
+				//data.putAll(datareturn);
 				returnMap.put(singleService, dataReturn);
 				returnData.add(returnMap);
 				
