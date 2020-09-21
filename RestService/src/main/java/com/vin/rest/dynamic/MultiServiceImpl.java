@@ -75,7 +75,11 @@ public class MultiServiceImpl {
 					if(relation.contains("."))
 				{
 					String[] serviceParam=relation.split("\\.");
+					if(serviceParam.length==3)
+					{
+					
 					data.put(serviceParam[2], multiServiceData.get(serviceParam[1]).get(serviceParam[0]));
+					}
 				}
 					}
 				Map<String, Object> dataReturn=singleServiceImpl.insertData(singleService, data);
@@ -125,7 +129,10 @@ public class MultiServiceImpl {
 				if(relation.contains("."))
 				{
 					String[] serviceParam=relation.split("\\.");
-					data.put(serviceParam[2], multiServiceData.get(serviceParam[0]).get(serviceParam[1]));
+					if(serviceParam.length==3)
+					{
+						data.put(serviceParam[2], multiServiceData.get(serviceParam[0]).get(serviceParam[1]));
+						}
 				}
 				Map<String, Object> dataReturn=singleServiceImpl.updateData(singleService, data);
 				
@@ -222,10 +229,12 @@ public class MultiServiceImpl {
 								String mapStr = mapper.writeValueAsString(map);
 								hashMapStr = mapper.readValue(mapStr, new TypeReference<Map<String, List<Map<String, String>>>>() {
 								});
-								
-								if(hashMapStr.get(serviceParam[0])!=null)
+								if(serviceParam.length==3)
+								{
+								if(hashMapStr.get(serviceParam[0])!=null&&hashMapStr.get(serviceParam[0]).get(0)!=null&&hashMapStr.get(serviceParam[0]).get(0).get(serviceParam[1])!=null)
 									{params.put(serviceParam[2],(String) (hashMapStr.get(serviceParam[0]).get(0).get(serviceParam[1])));
 									}
+								}
 							}
 						}
 						List<Map<String, Object>> dataReturn=singleServiceImpl.getDataForParams(singleService, params);
@@ -292,7 +301,8 @@ public class MultiServiceImpl {
 								});
 								}
 						}
-								if(datareturn.get(serviceParam[0])!=null)
+						if(serviceParam.length==2)
+						{	if(datareturn.get(serviceParam[0])!=null&& datareturn.get(serviceParam[0]).get(serviceParam[1])!=null)
 								{
 									String key = (String) datareturn.get(serviceParam[0]).get(serviceParam[1]);
 									if (key != null) {
@@ -309,6 +319,7 @@ public class MultiServiceImpl {
 									}
 
 								}
+						}
 						
 					}else {
 						Map<String, Object> dataReturn=singleServiceImpl.getData(singleService, uniquekey);
