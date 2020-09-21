@@ -179,6 +179,8 @@ public class MultiServiceImpl {
 			serviceList.add(service);
 			multiServiceName=(map.get("multiservicename"));
 		}
+		
+		serviceList.sort(new MultiService());
 		if(multiServiceName!=null)
 		{
 			MultiServiceMap.put(multiServiceName, serviceList);
@@ -279,30 +281,34 @@ public class MultiServiceImpl {
 					{
 						
 						String[] serviceParam=relation.split("\\.");
+						Map<String, Map<String, String>> datareturn=new HashMap<>();
 						for (Iterator iterator2 = returnData.iterator(); iterator2.hasNext();) {
 							Map<String, Map<String, Object>> map = (Map<String, Map<String, Object>>) iterator2.next();
 							if(map.size()>0)
 								{
-								Map<String, Map<String, Object>> datareturn=new HashMap<>();
+							
 								String params = mapper.writeValueAsString(map);
-								datareturn = mapper.readValue(params, new TypeReference<Map<String, Map<String, Object>>>() {
+								datareturn = mapper.readValue(params, new TypeReference<Map<String, Map<String, String>>>() {
 								});
-								
-										String key=(String) datareturn.get(serviceParam[0]).get(serviceParam[1]);
-										if(key!=null)
-										{
-											uniquekey=key;
-											Map<String, Object> dataReturn=singleServiceImpl.getData(singleService, uniquekey);
-											retObj.put(singleService,dataReturn);
-											returnData.add(retObj);
-										}else
-										{
-											Map<String, Object> dataReturn=singleServiceImpl.getData(singleService, uniquekey);
-											retObj.put(singleService,dataReturn);
-											returnData.add(retObj);	
-										}
 								}
 						}
+								if(datareturn.get(serviceParam[0])!=null)
+								{
+									String key = (String) datareturn.get(serviceParam[0]).get(serviceParam[1]);
+									if (key != null) {
+										uniquekey = key;
+										Map<String, Object> dataReturn = singleServiceImpl.getData(singleService,
+												uniquekey);
+										retObj.put(singleService, dataReturn);
+										returnData.add(retObj);
+									} else {
+										Map<String, Object> dataReturn = singleServiceImpl.getData(singleService,
+												uniquekey);
+										retObj.put(singleService, dataReturn);
+										returnData.add(retObj);
+									}
+
+								}
 						
 					}else {
 						Map<String, Object> dataReturn=singleServiceImpl.getData(singleService, uniquekey);

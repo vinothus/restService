@@ -97,7 +97,10 @@ public class EmployeeRepositaryImpl {
 		if (!serviceTabisPresent) {
 			for (Iterator<DbTable> iterator = serviceTables.iterator(); iterator.hasNext();) {
 				DbTable dbTable = iterator.next();
-				createDbTable(dbTable);
+				if(!isTablePresent(dbTable.getName()))
+				{
+					createDbTable(dbTable);
+					}
 
 			}
 
@@ -633,7 +636,10 @@ public class EmployeeRepositaryImpl {
 				if (!serviceTabisPresent) {
 					for (Iterator<DbTable> iterator = serviceTables.iterator(); iterator.hasNext();) {
 						DbTable dbTable = iterator.next();
-						createDbTable(dbTable);
+						if(!isTablePresent(dbTable.getName()))
+						{
+							createDbTable(dbTable);
+							}
 						tableColumnMap.put(dbTable, dbTable.getColumns());
 					}
 
@@ -1638,6 +1644,24 @@ public class EmployeeRepositaryImpl {
 		MultiServiceImpl.MultiServiceMap= new ConcurrentHashMap<>();
 		log.info( "Cache Cleared");
 		return "Cache Cleared";
+	}
+	
+	public boolean isTablePresent(String tableName) {
+		List<Map<String, Object>> map = new ArrayList<>();
+		try {
+			map = jdbcTemplate.queryForList("desc " + tableName);
+			if (map == null) {
+				return false;
+			}
+			if (map.size() > 0) {
+				log.info("table present");
+				return true;
+			}
+		} catch (Exception e) {
+			log.info(e.getMessage());
+		}
+
+		return false;
 	}
 	 
 }

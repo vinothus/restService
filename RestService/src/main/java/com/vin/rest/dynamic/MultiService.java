@@ -1,6 +1,8 @@
 package com.vin.rest.dynamic;
 
-public class MultiService {
+import java.util.Comparator;
+
+public class MultiService implements Comparator<MultiService> {
 
 	int id;
 	String serviceName;
@@ -37,6 +39,11 @@ public class MultiService {
 	public void setRelationwithParam(String relationwithParam) {
 		this.relationwithParam = relationwithParam;
 	}
+	@Override
+	public int compare(MultiService o1, MultiService o2) {
+		return o1.getPriproty()-o2.getPriproty();
+	}
+	 
 	
 	
 }
