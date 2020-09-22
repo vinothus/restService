@@ -75,6 +75,38 @@ public class MultiServiceImpl {
 					if(relation.equalsIgnoreCase("none")) {
 						
 					}
+					
+					else if(relation.contains(",")) {
+						String[] serviceListParam=relation.split(",");	
+						for (int i = 0; i < serviceListParam.length; i++) {
+							
+							String serviceRelation=serviceListParam[i];
+							String[] serviceParam=serviceRelation.split("\\.");
+
+							if(serviceParam.length==3)
+							{
+								if (data != null) {
+									for (Iterator iterator2 = returnData.iterator(); iterator2.hasNext();) {
+										Map<String, Map<String, Object>> map = (Map<String, Map<String, Object>>) iterator2
+												.next();
+										
+										String paramsStr = mapper.writeValueAsString(map);
+										
+										Map<String, Map<String, String>>  strMap =new HashMap<>();
+										strMap = mapper.readValue(paramsStr, new TypeReference<Map<String, Map<String, String>>>() {
+										});
+										if(strMap.get(serviceParam[0])!=null&&strMap.get(serviceParam[0]).get(serviceParam[1])!=null)
+										{
+											data.put(serviceParam[2], strMap.get(serviceParam[0]).get(serviceParam[1]));
+										}
+									}
+							
+								}
+							}
+						
+						}
+						
+					}
 					else if(relation.contains("."))
 				{
 					String[] serviceParam=relation.split("\\.");
@@ -153,6 +185,38 @@ public class MultiServiceImpl {
 					if(relation.equalsIgnoreCase("none")) {
 						
 					}
+					else if(relation.contains(",")) {
+						String[] serviceListParam=relation.split(",");	
+						for (int i = 0; i < serviceListParam.length; i++) {
+							
+							String serviceRelation=serviceListParam[i];
+							String[] serviceParam=serviceRelation.split("\\.");
+
+							if(serviceParam.length==3)
+							{
+								if (data != null) {
+									for (Iterator iterator2 = returnData.iterator(); iterator2.hasNext();) {
+										Map<String, Map<String, Object>> map = (Map<String, Map<String, Object>>) iterator2
+												.next();
+										
+										String paramsStr = mapper.writeValueAsString(map);
+										
+										Map<String, Map<String, String>>  strMap =new HashMap<>();
+										strMap = mapper.readValue(paramsStr, new TypeReference<Map<String, Map<String, String>>>() {
+										});
+										if(strMap.get(serviceParam[0])!=null&&strMap.get(serviceParam[0]).get(serviceParam[1])!=null)
+										{
+											data.put(serviceParam[2], strMap.get(serviceParam[0]).get(serviceParam[1]));
+										}
+									}
+							
+								}
+							}
+						
+						}
+						
+					}
+					
 					else if(relation.contains("."))
 				{
 					String[] serviceParam=relation.split("\\.");
@@ -262,6 +326,40 @@ public class MultiServiceImpl {
 						returnData.add(retObj);
 						
 					}
+					
+					
+					else if(relation.contains(",")) {
+						String[] serviceListParam=relation.split(",");	
+						for (int i = 0; i < serviceListParam.length; i++) {
+							
+							String serviceRelation=serviceListParam[i];
+							String[] serviceParam=serviceRelation.split("\\.");
+
+							for (Iterator iterator2 = returnData.iterator(); iterator2.hasNext();) {
+								Map<String, List<Map<String, Object>>> map = (Map<String, List<Map<String, Object>>>) iterator2.next();
+								
+								if(map.size()>0)
+								{
+									Map<String, List<Map<String, String>>> hashMapStr=new HashMap<>();
+									String mapStr = mapper.writeValueAsString(map);
+									hashMapStr = mapper.readValue(mapStr, new TypeReference<Map<String, List<Map<String, String>>>>() {
+									});
+									if(serviceParam.length==3)
+									{
+									if(hashMapStr.get(serviceParam[0])!=null&&hashMapStr.get(serviceParam[0]).get(0)!=null&&hashMapStr.get(serviceParam[0]).get(0).get(serviceParam[1])!=null)
+										{params.put(serviceParam[2],(String) (hashMapStr.get(serviceParam[0]).get(0).get(serviceParam[1])));
+										}
+									}
+								}
+							}
+							List<Map<String, Object>> dataReturn=singleServiceImpl.getDataForParams(singleService, params);
+							retObj.put(singleService, dataReturn);
+							returnData.add(retObj);
+						
+						}
+						
+					}
+					
 					else if(relation.contains("."))
 					{
 						String[] serviceParam=relation.split("\\.");
@@ -329,6 +427,50 @@ public class MultiServiceImpl {
 						Map<String, Object> dataReturn=singleServiceImpl.getData(singleService, uniquekey);
 						retObj.put(singleService,dataReturn);
 						returnData.add(retObj);	
+					}
+					
+					
+					
+					else if(relation.contains(",")) {
+						String[] serviceListParam=relation.split(",");	
+						for (int i = 0; i < serviceListParam.length; i++) {
+							
+							String serviceRelation=serviceListParam[i];
+							String[] serviceParam=serviceRelation.split("\\.");
+							Map<String, Map<String, String>> datareturn=new HashMap<>();
+							for (Iterator iterator2 = returnData.iterator(); iterator2.hasNext();) {
+								Map<String, Map<String, Object>> map = (Map<String, Map<String, Object>>) iterator2.next();
+								if(map.size()>0)
+									{
+								
+									String params = mapper.writeValueAsString(map);
+									datareturn = mapper.readValue(params, new TypeReference<Map<String, Map<String, String>>>() {
+									});
+									}
+							}
+							if(serviceParam.length==2)
+							{	if(datareturn.get(serviceParam[0])!=null&& datareturn.get(serviceParam[0]).get(serviceParam[1])!=null)
+									{
+										String key = (String) datareturn.get(serviceParam[0]).get(serviceParam[1]);
+										if (key != null) {
+											uniquekey = key;
+											Map<String, Object> dataReturn = singleServiceImpl.getData(singleService,
+													uniquekey);
+											retObj.put(singleService, dataReturn);
+											returnData.add(retObj);
+										} else {
+											Map<String, Object> dataReturn = singleServiceImpl.getData(singleService,
+													uniquekey);
+											retObj.put(singleService, dataReturn);
+											returnData.add(retObj);
+										}
+
+									}
+							}
+							
+						
+						}
+						
 					}
 					
 					else if(relation.contains("."))
@@ -407,7 +549,34 @@ public class MultiServiceImpl {
 						retObj.put(singleService,dataReturn);
 						returnData.add(retObj);	
 					}
-					
+					else if(relation.contains(",")) {
+						String[] serviceListParam=relation.split(",");	
+						for (int i = 0; i < serviceListParam.length; i++) {
+
+							
+							String[] serviceParam=serviceListParam[i].split("\\.");
+							for (Iterator iterator2 = returnData.iterator(); iterator2.hasNext();) {
+								Map<String, Map<String, Object>> map = (Map<String, Map<String, Object>>) iterator2.next();
+								if(map.size()>0)
+									{
+									Map<String, Map<String, String>> datareturn=new HashMap<>();
+									String params = mapper.writeValueAsString(map);
+									datareturn = mapper.readValue(params, new TypeReference<Map<String, Map<String, String>>>() {
+									});
+									
+											String key=(String) datareturn.get(serviceParam[0]).get(serviceParam[1]);
+											if(key!=null)
+											{
+												uniquekey=key;
+											}
+									}
+							}
+							Map<String, Object> dataReturn=singleServiceImpl.deleteData(singleService, uniquekey);
+							retObj.put(singleService,dataReturn);
+							returnData.add(retObj);
+						
+						}
+						}
 					else if(relation.contains("."))
 					{
 						

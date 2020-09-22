@@ -4,12 +4,15 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.junit.Test;
 
 import com.vin.rest.dynamic.MultiService;
 import com.vin.rest.dynamic.ServiceType;
+
+import jdk.internal.jline.internal.Log;
 
 public class BasicUnitTest {
 	
@@ -54,6 +57,34 @@ public class BasicUnitTest {
 		}
 		MultiServiceMap.put("student", serviceList);
 		
+	}
+	
+	
+	public static String removeLastCharOptional(String s) {
+	    return Optional.ofNullable(s)
+	      .filter(str -> str.length() != 0)
+	      .map(str -> str.substring(0, str.length() - 1))
+	      .orElse(s);
+	    }
+	private String replaceDoubleQute(String primaryKey) {
+		if(primaryKey.charAt(0)=='"')
+		{
+			primaryKey=primaryKey.replaceFirst("\"", "");
+		}
+		if(primaryKey.charAt(primaryKey.length()-1)=='"')
+		{
+			primaryKey=removeLastCharOptional(primaryKey);
+		}
+		return primaryKey;
+	}
+	
+	@Test
+	public void testString()
+	{
+		String testStr="\"100000000\"";
+		System.out.println(testStr);
+		testStr=replaceDoubleQute(testStr);
+		System.out.println(testStr);
 	}
 
 }

@@ -14,6 +14,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
@@ -441,6 +442,7 @@ public class EmployeeRepositaryImpl {
 			}
 
 		}
+		primaryKey = replaceDoubleQute(primaryKey);
 		Map<String, Object>  datatrt=getData(service, primaryKey);
 		if(datatrt==null||datatrt.isEmpty())
 		{
@@ -451,6 +453,8 @@ public class EmployeeRepositaryImpl {
 		return datatrt;
 
 	}
+
+	
 	private void arrangeGoldenDataForTable(String tableName) {
 		loadSQLBuilderSchema();
 		setTableColumn(tableName);
@@ -760,6 +764,7 @@ public class EmployeeRepositaryImpl {
 		     
 		}
 		params=new HashMap<String, String>();
+		primaryKey = replaceDoubleQute(primaryKey);
 		params.put(primaryKeyAttr,primaryKey);
 			return getDataForParams(service, params).get(0);
 		} else {
@@ -1681,5 +1686,21 @@ public class EmployeeRepositaryImpl {
 
 		return false;
 	}
-	 
+	public static String removeLastCharOptional(String s) {
+	    return Optional.ofNullable(s)
+	      .filter(str -> str.length() != 0)
+	      .map(str -> str.substring(0, str.length() - 1))
+	      .orElse(s);
+	    }
+	private String replaceDoubleQute(String primaryKey) {
+		if(primaryKey.charAt(0)=='"')
+		{
+			primaryKey=primaryKey.replaceFirst("\"", "");
+		}
+		if(primaryKey.charAt(primaryKey.length()-1)=='"')
+		{
+			primaryKey=removeLastCharOptional(primaryKey);
+		}
+		return primaryKey;
+	}
 }
