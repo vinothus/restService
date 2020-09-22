@@ -314,6 +314,7 @@ public class MultiServiceImpl {
 		for (Iterator<MultiService> iterator = serviceComponent.iterator(); iterator.hasNext();) {
 			Map<String, List<Map<String, Object>>> retObj=new HashMap<>();
 			MultiService multiService = (MultiService) iterator.next();
+			List<Map<String, Object>> sumazationList=new ArrayList<>(); 
 			if(multiService.getServiceType().equals(ServiceType.SINGLE)) {
 				String singleService=multiService.getServiceName();
 				String relation=multiService.getRelationwithParam();
@@ -326,9 +327,25 @@ public class MultiServiceImpl {
 						returnData.add(retObj);
 						
 					}
+					else if(relation.contains(",")&&relation.contains(":"))
+					{
+						String[] serviceListParam=relation.split(",");
+						for (int i = 0; i < serviceListParam.length; i++) {
+							String relationlpstr = serviceListParam[i];
+							
+
+							String[] serviceParam=relationlpstr.split(":");
+							params.put(serviceParam[0],(String)params.get(serviceParam[1]));
+							List<Map<String, Object>> dataReturn=singleServiceImpl.getDataForParams(singleService, params);
+							sumazationList.addAll(dataReturn);
+							retObj.put(singleService, sumazationList);
+							returnData.add(retObj);
+						
+							
+						}
+					}
 					
-					
-					else if(relation.contains(",")) {
+					else if(relation.contains(",")&&relation.contains(".")) {
 						String[] serviceListParam=relation.split(",");	
 						for (int i = 0; i < serviceListParam.length; i++) {
 							
@@ -346,14 +363,41 @@ public class MultiServiceImpl {
 									});
 									if(serviceParam.length==3)
 									{
-									if(hashMapStr.get(serviceParam[0])!=null&&hashMapStr.get(serviceParam[0]).get(0)!=null&&hashMapStr.get(serviceParam[0]).get(0).get(serviceParam[1])!=null)
-										{params.put(serviceParam[2],(String) (hashMapStr.get(serviceParam[0]).get(0).get(serviceParam[1])));
+										for (Map.Entry<String,List<Map<String, String>>> entry : hashMapStr.entrySet())  
+										{
+											if(entry.getKey().equalsIgnoreCase(serviceParam[0]))
+													{
+												List<Map<String, String>> listObj=entry.getValue(); 
+												for (Iterator iterator3 = listObj.iterator(); iterator3
+														.hasNext();) {
+													Map<String, String> map2 = (Map<String, String>) iterator3.next();
+													params.put(serviceParam[2],(String) (map2.get(serviceParam[1])));
+													List<Map<String, Object>> dataReturn=singleServiceImpl.getDataForParams(singleService, params);
+													sumazationList.addAll(dataReturn);
+													retObj.put(singleService, sumazationList);
+												}
+												
+												//returnData.add(retObj);
+													}
+											
 										}
+										
+										
+										/*
+										 * if(hashMapStr.get(serviceParam[0])!=null&&hashMapStr.get(serviceParam[0]).get
+										 * (0)!=null&&hashMapStr.get(serviceParam[0]).get(0).get(serviceParam[1])!=null)
+										 * {params.put(serviceParam[2],(String)
+										 * (hashMapStr.get(serviceParam[0]).get(0).get(serviceParam[1]))); }
+										 */
+									}else {
+										
+										List<Map<String, Object>> dataReturn=singleServiceImpl.getDataForParams(singleService, params);
+										sumazationList.addAll(dataReturn);
+										retObj.put(singleService, sumazationList);
+										
 									}
 								}
 							}
-							List<Map<String, Object>> dataReturn=singleServiceImpl.getDataForParams(singleService, params);
-							retObj.put(singleService, dataReturn);
 							returnData.add(retObj);
 						
 						}
@@ -374,29 +418,51 @@ public class MultiServiceImpl {
 								});
 								if(serviceParam.length==3)
 								{
-								if(hashMapStr.get(serviceParam[0])!=null&&hashMapStr.get(serviceParam[0]).get(0)!=null&&hashMapStr.get(serviceParam[0]).get(0).get(serviceParam[1])!=null)
-									{params.put(serviceParam[2],(String) (hashMapStr.get(serviceParam[0]).get(0).get(serviceParam[1])));
+									for (Map.Entry<String,List<Map<String, String>>> entry : hashMapStr.entrySet())  
+									{
+										if(entry.getKey().equalsIgnoreCase(serviceParam[0]))
+												{
+											List<Map<String, String>> listObj=entry.getValue(); 
+											for (Iterator iterator3 = listObj.iterator(); iterator3
+													.hasNext();) {
+												Map<String, String> map2 = (Map<String, String>) iterator3.next();
+												params.put(serviceParam[2],(String) (map2.get(serviceParam[1])));
+												List<Map<String, Object>> dataReturn=singleServiceImpl.getDataForParams(singleService, params);
+												sumazationList.addAll(dataReturn);
+												retObj.put(singleService, sumazationList);
+											}
+											
+											//returnData.add(retObj);
+												}
+										
 									}
+								}else {
+									
+									List<Map<String, Object>> dataReturn=singleServiceImpl.getDataForParams(singleService, params);
+									sumazationList.addAll(dataReturn);
+									retObj.put(singleService, sumazationList);
+								
 								}
 							}
 						}
-						List<Map<String, Object>> dataReturn=singleServiceImpl.getDataForParams(singleService, params);
-						retObj.put(singleService, dataReturn);
 						returnData.add(retObj);
 					}else if(relation.contains(":")) {
 						String[] serviceParam=relation.split(":");
 						params.put(serviceParam[0],(String)params.get(serviceParam[1]));
 						List<Map<String, Object>> dataReturn=singleServiceImpl.getDataForParams(singleService, params);
-						retObj.put(singleService, dataReturn);
+						sumazationList.addAll(dataReturn);
+						retObj.put(singleService, sumazationList);
 						returnData.add(retObj);
 					}else {
 						List<Map<String, Object>> dataReturn=singleServiceImpl.getDataForParams(singleService, params);
-						retObj.put(singleService, dataReturn);
+						sumazationList.addAll(dataReturn);
+						retObj.put(singleService, sumazationList);
 						returnData.add(retObj);
 					}
 					}else {
 						List<Map<String, Object>> dataReturn=singleServiceImpl.getDataForParams(singleService, params);
-						retObj.put(singleService, dataReturn);
+						sumazationList.addAll(dataReturn);
+						retObj.put(singleService, sumazationList);
 						returnData.add(retObj);
 					}
 			}

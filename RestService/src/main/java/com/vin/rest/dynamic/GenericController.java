@@ -170,4 +170,10 @@ public class GenericController {
 		
 		return new ResponseEntity<String>(employeeRepositaryImpl.clearCache(),new HttpHeaders(), HttpStatus.OK)	;
 	}
+	
+	
+	    public String home() {
+	        System.out.println("Going home...");
+	        return "index";
+	    }
 }
