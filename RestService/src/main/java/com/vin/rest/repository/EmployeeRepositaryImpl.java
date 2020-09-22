@@ -30,6 +30,7 @@ import javax.sql.DataSource;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.healthmarketscience.sqlbuilder.BinaryCondition;
 import com.healthmarketscience.sqlbuilder.CreateTableQuery;
 import com.healthmarketscience.sqlbuilder.DeleteQuery;
@@ -370,6 +371,7 @@ public class EmployeeRepositaryImpl {
 
 	public Map<String, Object> insertData(String service, Map<String, String> params) throws Exception {
 		loadSQLBuilderSchema();
+		ObjectMapper mapper = new ObjectMapper();
 		String tableName = serviceTableMap.get(service);
 		int updatedata=0;
 		
@@ -398,7 +400,7 @@ public class EmployeeRepositaryImpl {
 
 							if ((params.get(attribParamMap.get(dbColumn.getName())) != null)) {
 								isPrimaryKey = true;
-								primaryKey =( params.get(attribParamMap.get(dbColumn.getName()))+"");
+								primaryKey =( mapper.writeValueAsString(params.get(attribParamMap.get(dbColumn.getName()))) );
 								if (getData(service, primaryKey).size() > 0) {
 									isUpdate = true;
 								}
@@ -665,7 +667,7 @@ public class EmployeeRepositaryImpl {
 	}
 
 	public Map<String, Object> updateData(String service, Map<String, String> params) throws Exception {
-
+		ObjectMapper mapper = new ObjectMapper();
 		String tableName = serviceTableMap.get(service);
 		setGDValues(service, tableName);
 		tableName = serviceTableMap.get(service);
@@ -694,7 +696,7 @@ public class EmployeeRepositaryImpl {
 							if ((params.get(attribParamMap.get(dbColumn.getName())) != null))
 								updateQuery.addCondition(BinaryCondition.equalTo(dbColumn,
 										params.get(attribParamMap.get(dbColumn.getName()))));
-							primaryKey =( params.get(attribParamMap.get(dbColumn.getName()))+"");
+							primaryKey =( mapper.writeValueAsString(params.get(attribParamMap.get(dbColumn.getName()))) );
 							primaryKeyAttr=attribParamMap.get(dbColumn.getName());
 						}
 					}
