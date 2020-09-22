@@ -398,7 +398,7 @@ public class EmployeeRepositaryImpl {
 
 							if ((params.get(attribParamMap.get(dbColumn.getName())) != null)) {
 								isPrimaryKey = true;
-								primaryKey = params.get(attribParamMap.get(dbColumn.getName()));
+								primaryKey =( params.get(attribParamMap.get(dbColumn.getName()))+"");
 								if (getData(service, primaryKey).size() > 0) {
 									isUpdate = true;
 								}
@@ -694,7 +694,7 @@ public class EmployeeRepositaryImpl {
 							if ((params.get(attribParamMap.get(dbColumn.getName())) != null))
 								updateQuery.addCondition(BinaryCondition.equalTo(dbColumn,
 										params.get(attribParamMap.get(dbColumn.getName()))));
-							primaryKey = params.get(attribParamMap.get(dbColumn.getName()));
+							primaryKey =( params.get(attribParamMap.get(dbColumn.getName()))+"");
 							primaryKeyAttr=attribParamMap.get(dbColumn.getName());
 						}
 					}
@@ -707,7 +707,10 @@ public class EmployeeRepositaryImpl {
 				// params.get(attribParamMap.get(dbColumn.getName()))
 				log.info(updateQuery.toString());
 				try {
-					isUpdate = jdbcTemplate.update(updateQuery.toString());
+					if(!(primaryKey==null||primaryKey.isEmpty()||primaryKey.equalsIgnoreCase("null")))
+					{
+						isUpdate = jdbcTemplate.update(updateQuery.toString());
+					}
 				} catch (Exception e) {
 				}
 				break;
@@ -758,10 +761,23 @@ public class EmployeeRepositaryImpl {
 		params.put(primaryKeyAttr,primaryKey);
 			return getDataForParams(service, params).get(0);
 		} else {
-			throw new Exception("update Failed");
+			try {
+				if(primaryKey==null||primaryKey.isEmpty()||primaryKey.equalsIgnoreCase("null"))
+				{
+					return insertData(service, params);
+				}
+			} catch (Exception e) {
+				throw new Exception("update Failed");
+			}
+			if (!(isUpdate > 0)) {
+				throw new Exception("update Failed");
+			}else
+			{
+				return getDataForParams(service, params).get(0);
+			}
 		}
 
-	}
+}
 
 	public Map<String, Object> getData(String serviceName, String primaryKeyValue) throws Exception {
 

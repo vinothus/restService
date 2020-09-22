@@ -132,7 +132,9 @@ public class MultiServiceImpl {
 		if(serviceComponent==null)
 		{
 			arrangeMultServiceGD(service);
+			serviceComponent= MultiServiceMap.get(service);
 		}
+		
 		ObjectMapper mapper = new ObjectMapper();
 		List<Map<String, Map<String, Object>>> returnData=new ArrayList<>();
 		
@@ -399,7 +401,14 @@ public class MultiServiceImpl {
 				String relation=multiService.getRelationwithParam();
 				if(relation!=null)
 					{
-					if(relation.contains("."))
+					if(relation.contains("none"))
+					{
+						Map<String, Object> dataReturn=singleServiceImpl.deleteData(singleService, uniquekey);
+						retObj.put(singleService,dataReturn);
+						returnData.add(retObj);	
+					}
+					
+					else if(relation.contains("."))
 					{
 						
 						String[] serviceParam=relation.split("\\.");
@@ -407,9 +416,9 @@ public class MultiServiceImpl {
 							Map<String, Map<String, Object>> map = (Map<String, Map<String, Object>>) iterator2.next();
 							if(map.size()>0)
 								{
-								Map<String, Map<String, Object>> datareturn=new HashMap<>();
+								Map<String, Map<String, String>> datareturn=new HashMap<>();
 								String params = mapper.writeValueAsString(map);
-								datareturn = mapper.readValue(params, new TypeReference<Map<String, Map<String, Object>>>() {
+								datareturn = mapper.readValue(params, new TypeReference<Map<String, Map<String, String>>>() {
 								});
 								
 										String key=(String) datareturn.get(serviceParam[0]).get(serviceParam[1]);
