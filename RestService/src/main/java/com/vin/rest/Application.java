@@ -28,6 +28,12 @@ import com.vin.validation.WebConfig;
  
 @SpringBootApplication
 public class Application {
+	
+	public static void main(String[] args) throws Exception {
+
+		SpringApplication.run(Application.class, args);
+		
+	}
 	static Logger log = Logger.getLogger(Application.class.getName());
 	@Autowired
 	GenericController userController;
@@ -35,29 +41,10 @@ public class Application {
 	@Autowired
 	MultiServiceController  multiServiceController;
 	
-	@FunctionalInterface
-	interface FuncInter1 {
-		@RequestMapping("/test")
-		void operation();
-	}
-
-	@Autowired
-	DataSource dataSource;
-	@Autowired
-	private Environment env;
-	@Autowired
-	static ApplicationContext app;
-
-	public static void main(String[] args) throws Exception {
-
-		SpringApplication.run(Application.class, args);
-		
-	}
-
 	
 	@Bean
-	RequestMappingHandlerMapping getObject(ApplicationContext app, DataSource dataSource,
-			  Environment env) {
+	RequestMappingHandlerMapping handlerMapping(ApplicationContext app, DataSource dataSource,
+			  Environment env,MultiServiceController  multiServiceController,GenericController userController) {
 		RequestMappingHandlerMapping	handlerMapping = app.getBean(RequestMappingHandlerMapping.class);
 		userController = app.getBean(GenericController.class);
 		  multiServiceController=app.getBean(MultiServiceController.class);
@@ -127,6 +114,12 @@ public class Application {
 		return handlerMapping;
 	}
 
+	
+	
+	@Bean
+	 public MethodValidationPostProcessor methodValidationPostProcessor() {
+	      return new MethodValidationPostProcessor();
+	 }
 	@Bean
 	public FilterRegistrationBean<SimpleFilter> filterRegistrationBean() {
 		FilterRegistrationBean<SimpleFilter> registrationBean = new FilterRegistrationBean<>();
@@ -138,31 +131,5 @@ public class Application {
 		// set precedence
 		return registrationBean;
 	}
-	public WebConfig webconfig()
-	{
 		
-		return new WebConfig();
-	}
-	
-	@Bean
-	 public MethodValidationPostProcessor methodValidationPostProcessor() {
-	      return new MethodValidationPostProcessor();
-	 }
-	
-	@Bean(name="simpleMappingExceptionResolver")
-	  public SimpleMappingExceptionResolver
-	                  createSimpleMappingExceptionResolver() {
-	    SimpleMappingExceptionResolver r =
-	                new SimpleMappingExceptionResolver();
-
-	    Properties mappings = new Properties();
-	    mappings.setProperty("DatabaseException", "databaseError");
-	    mappings.setProperty("ConstraintViolationException", "constraintViolationException");
-	    mappings.setProperty("ServiceNotFoundException","serviceNotFoundException");
-	    r.setExceptionMappings(mappings);  // None by default
-	    r.setDefaultErrorView("error");    // No default
-	    r.setExceptionAttribute("ex");     // Default is "exception"
-	    r.setWarnLogCategory("example.MvcLogger");     // No default
-	    return r;
-	  }
 }
