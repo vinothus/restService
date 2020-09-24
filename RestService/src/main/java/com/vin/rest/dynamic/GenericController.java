@@ -65,12 +65,7 @@ public class GenericController {
 		this.controllerPath = controllerPath;
 	}
 
-	@GetMapping("/{id}")
-	public ResponseEntity<EmployeeEntity> getEmployeeById(@PathVariable("id") Long id) throws RecordNotFoundException {
-		EmployeeEntity entity = service.getEmployeeById(id);
-
-		return new ResponseEntity<EmployeeEntity>(entity, new HttpHeaders(), HttpStatus.OK);
-	}
+	 
 
 	public ResponseEntity<List<EmployeeEntity>> getAll(@RequestParam Map<String, String> params)
 			 {

@@ -109,8 +109,8 @@ public class Application {
 							multiServiceController, multiServiceController.getClass().getMethod("delData", String.class, String.class));
 			handlerMapping
 			.registerMapping(
-					RequestMappingInfo.paths("/").methods(RequestMethod.GET)
-							.produces(MediaType.APPLICATION_JSON_VALUE).build(),
+					RequestMappingInfo.paths("/login").methods(RequestMethod.GET)
+							.produces(MediaType.ALL_VALUE).build(),
 					userController, userController.getClass().getMethod("home"));
 			
 		} catch (  Exception e) {
