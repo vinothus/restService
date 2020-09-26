@@ -328,13 +328,17 @@ public class EmployeeRepositaryImpl {
 	public List<DbTable> initializeTable() {
 
 		loadSQLBuilderSchema();
+		// Service
 		DbColumn id;
 		DbColumn tableName;
-		DbColumn  serviceName;
-		DbColumn attrid ;
-		DbColumn  serid;
-		DbColumn  attrName;
-		DbColumn  colName;
+		DbColumn serviceName;
+		// Service_Attr
+		DbColumn attrid;
+		DbColumn serid;
+		DbColumn attrName;
+		DbColumn colName;
+
+		// Multi_Service
 		DbColumn multiseviceid;
 		DbColumn multisevice_id;
 		DbColumn multiseviceName;
@@ -342,31 +346,137 @@ public class EmployeeRepositaryImpl {
 		DbColumn multiseviceType;
 		DbColumn multiseviceRelationwithParam;
 		DbColumn sevicePriority;
-		
+
+		// User
+
+		DbColumn userid;
+		DbColumn userName;
+		DbColumn userApiKey;
+		DbColumn userPassword;
+		DbColumn userPhoneNo;
+		DbColumn userEmail;
+		DbColumn userAddress;
+
+		// DataStore
+
+		DbColumn dataStoreId;
+		DbColumn dataStoreUserId;
+		DbColumn dataStoreType;
+		DbColumn dataStoreName;
+		DbColumn datastoreUrl;
+		DbColumn datastoreDriver;
+
+		// Subscription
+		DbColumn subscriptionId;
+		DbColumn subscriptionUserId;
+		DbColumn subscriptionApiKey;
+		DbColumn subscriptionExpireDate;
+		DbColumn subscriptionType;
+
+		// ServiceConsumption
+
+		DbColumn ServiceConsumptionid;
+		DbColumn ServiceConsumptionUserId;
+		DbColumn ServiceConsumptionUrl;
+		DbColumn ServiceConsumptionType;
+		DbColumn ServiceConsumptionMethod;
+
+		// ServiceError
+		DbColumn ServiceErrorid;
+		DbColumn ServiceErrorUserId;
+		DbColumn ServiceErrorUrl;
+		DbColumn ServiceErrorType;
+		DbColumn ServiceErrorMethod;
+		DbColumn ServiceErrorMsg;
+
 		DbTable tableService = schemaObj.addTable("Service");
 		DbTable tableServiceAttr = schemaObj.addTable("Service_Attr");
 		DbTable tableMultiService = schemaObj.addTable("Multi_Service");
+		DbTable tableUser = schemaObj.addTable("User");
+		DbTable tableDataStore = schemaObj.addTable("Datastore");
+		DbTable tableSubscription = schemaObj.addTable("Subscription");
+		DbTable tableServiceConsumption = schemaObj.addTable("Service_Consumption");
+		DbTable tableServiceError = schemaObj.addTable("Service_Error");
+
+		// Service
+
 		id = tableService.addColumn("id", Types.INTEGER, 10);
 		id.primaryKey();
 		tableName = tableService.addColumn("tableName", Types.VARCHAR, 100);
 		serviceName = tableService.addColumn("serviceName", Types.VARCHAR, 100);
+
+		// Service_Attr
+
 		attrid = tableServiceAttr.addColumn("id", Types.INTEGER, 10);
 		attrid.primaryKey();
 		serid = tableServiceAttr.addColumn("service_id", Types.INTEGER, 10);
 		attrName = tableServiceAttr.addColumn("attrName", Types.VARCHAR, 100);
 		colName = tableServiceAttr.addColumn("colName", Types.VARCHAR, 100);
-		multiseviceid= tableMultiService.addColumn("id", Types.INTEGER, 10);
+
+		// Multi_Service
+
+		multiseviceid = tableMultiService.addColumn("id", Types.INTEGER, 10);
 		multiseviceid.primaryKey();
-		multisevice_id= tableMultiService.addColumn("service_id",  Types.VARCHAR, 100);
-		multiseviceName= tableMultiService.addColumn("multiservicename", Types.VARCHAR, 100);
-		multisevicePriority= tableMultiService.addColumn("priority", Types.INTEGER, 10);
-		multiseviceType= tableMultiService.addColumn("type",Types.VARCHAR, 100);
-		multiseviceRelationwithParam= tableMultiService.addColumn("relationwithparam", Types.VARCHAR, 100);
-		
+		multisevice_id = tableMultiService.addColumn("service_id", Types.VARCHAR, 100);
+		multiseviceName = tableMultiService.addColumn("multiservicename", Types.VARCHAR, 100);
+		multisevicePriority = tableMultiService.addColumn("priority", Types.INTEGER, 10);
+		multiseviceType = tableMultiService.addColumn("type", Types.VARCHAR, 100);
+		multiseviceRelationwithParam = tableMultiService.addColumn("relationwithparam", Types.VARCHAR, 100);
+
+		// User
+
+		userid = tableUser.addColumn("id", Types.INTEGER, 10);
+		userid.primaryKey();
+		userName = tableUser.addColumn("name", Types.VARCHAR, 100);
+		userApiKey = tableUser.addColumn("apikey", Types.VARCHAR, 100);
+		userPassword = tableUser.addColumn("password", Types.VARCHAR, 100);
+		userPhoneNo = tableUser.addColumn("phoneno", Types.VARCHAR, 100);
+		userEmail = tableUser.addColumn("email", Types.VARCHAR, 100);
+		userAddress = tableUser.addColumn("address", Types.VARCHAR, 100);
+
+		// DataStore
+		dataStoreId = tableDataStore.addColumn("id", Types.INTEGER, 10);
+		dataStoreId.primaryKey();
+		dataStoreUserId = tableDataStore.addColumn("uid", Types.INTEGER, 10);
+		dataStoreType = tableDataStore.addColumn("type", Types.VARCHAR, 100);
+		dataStoreName = tableDataStore.addColumn("name", Types.VARCHAR, 100);
+		datastoreUrl = tableDataStore.addColumn("url", Types.VARCHAR, 100);
+		datastoreDriver = tableDataStore.addColumn("driver", Types.VARCHAR, 100);
+
+		// Subscription
+
+		subscriptionId = tableSubscription.addColumn("id", Types.INTEGER, 10);
+		subscriptionId.primaryKey();
+		subscriptionUserId = tableSubscription.addColumn("uid", Types.INTEGER, 10);
+		subscriptionApiKey = tableSubscription.addColumn("apikey", Types.VARCHAR, 100);
+		subscriptionExpireDate = tableSubscription.addColumn("date", Types.DATE, 10);
+		subscriptionType = tableSubscription.addColumn("id", Types.VARCHAR, 100);
+
+		// ServiceConsumption
+		ServiceConsumptionid = tableServiceConsumption.addColumn("id", Types.INTEGER, 10);
+		ServiceConsumptionid.primaryKey();
+		ServiceConsumptionUserId = tableServiceConsumption.addColumn("uid", Types.INTEGER, 10);
+		ServiceConsumptionUrl = tableServiceConsumption.addColumn("url", Types.VARCHAR, 100);
+		ServiceConsumptionType = tableServiceConsumption.addColumn("type", Types.VARCHAR, 100);
+		ServiceConsumptionMethod = tableServiceConsumption.addColumn("method", Types.VARCHAR, 100);
+		// ServiceError
+
+		ServiceErrorid = tableServiceError.addColumn("id", Types.INTEGER, 10);
+		ServiceErrorUserId = tableServiceError.addColumn("uid", Types.INTEGER, 10);
+		ServiceErrorUrl = tableServiceError.addColumn("url", Types.INTEGER, 10);
+		ServiceErrorType = tableServiceError.addColumn("type", Types.INTEGER, 10);
+		ServiceErrorMethod = tableServiceError.addColumn("method", Types.INTEGER, 10);
+		ServiceErrorMsg = tableServiceError.addColumn("errormsg", Types.INTEGER, 10);
+
 		List<DbTable> initialTable = new ArrayList<DbTable>();
 		initialTable.add(tableService);
 		initialTable.add(tableServiceAttr);
 		initialTable.add(tableMultiService);
+		initialTable.add(tableUser);
+		initialTable.add(tableDataStore);
+		initialTable.add(tableSubscription);
+		initialTable.add(tableServiceConsumption);
+		initialTable.add(tableServiceError);
 		return initialTable;
 	}
 
