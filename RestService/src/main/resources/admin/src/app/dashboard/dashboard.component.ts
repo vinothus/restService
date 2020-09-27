@@ -60,6 +60,9 @@ export class DashboardComponent implements OnInit {
   constructor() { }
 
   ngOnInit() {
+	
+	console.log('dashboard init');
+	
     this.chartColor = "#FFFFFF";
     this.canvas = document.getElementById("bigDashboardChart");
     this.ctx = this.canvas.getContext("2d");

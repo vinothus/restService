@@ -14,7 +14,7 @@ import { ChartsModule } from 'ng2-charts/ng2-charts';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { ToastrModule } from 'ngx-toastr';
 import { UpgradeComponent } from '../../upgrade/upgrade.component';
-
+import {LoginGuard } from '../../login/login.guard';
 @NgModule({
   imports: [
     CommonModule,
@@ -33,7 +33,8 @@ import { UpgradeComponent } from '../../upgrade/upgrade.component';
     IconsComponent,
     MapsComponent,
     NotificationsComponent,
-  ]
+  ],
+  providers: [LoginGuard]
 })
 
 export class AdminLayoutModule {}
