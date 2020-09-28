@@ -1,5 +1,6 @@
 package com.vin.rest.dynamic;
 
+import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -66,7 +67,7 @@ public class GenericController {
 	}
 
 	 
-
+	@MethodName(MethodName="getAll")
 	public ResponseEntity<List<EmployeeEntity>> getAll(@RequestParam Map<String, String> params)
 			 {
 		log.info(params.toString());
@@ -74,7 +75,7 @@ public class GenericController {
 
 		return new ResponseEntity<List<EmployeeEntity>>(entity, new HttpHeaders(), HttpStatus.OK);
 	}
-
+	@MethodName(MethodName="getAllEmp")
 	public ResponseEntity<List<EmployeeEntity>> getAllEmp(@RequestBody String params)  {
 		log.info(params);
 		List<EmployeeEntity> entity = employeeRepositaryImpl.getAll();
@@ -86,7 +87,7 @@ public class GenericController {
 
 		return new GenericController();
 	}
-
+	@MethodName(MethodName="addData")
 	public ResponseEntity<Map<String, Object>> addData(@PathVariable("service") String service,
 			@RequestBody String params) throws Exception {
 		ObjectMapper mapper = new ObjectMapper();
@@ -102,7 +103,7 @@ public class GenericController {
 		return new ResponseEntity<Map<String, Object>>(employeeRepositaryImpl.insertData(service, jsonMap),
 				new HttpHeaders(), HttpStatus.OK);
 	}
-
+	@MethodName(MethodName="updateData")
 	public ResponseEntity<Map<String, Object>> updateData(@PathVariable("service") String service,
 			@RequestBody String params) throws Exception {
 		ObjectMapper mapper = new ObjectMapper();
@@ -118,7 +119,8 @@ public class GenericController {
 		return new ResponseEntity<Map<String, Object>>(employeeRepositaryImpl.updateData(service, jsonMap),
 				new HttpHeaders(), HttpStatus.OK);
 	}
-	@GetMapping(path="/myApps/{service}/getdata")
+	
+	@MethodName(MethodName="getDatum")
 	public ResponseEntity<List<Map<String, Object>>> getDatum(@PathVariable("service") String service,
 			@RequestParam   Map<String, String> params)    {
 		
@@ -140,14 +142,14 @@ public class GenericController {
 		return new ResponseEntity<List<Map<String, Object>>>(employeeRepositaryImpl.getDataForParams(service, params),
 				new HttpHeaders(), HttpStatus.OK);
 	}
-
+	@MethodName(MethodName="getData")
 	public ResponseEntity<Map<String, Object>> getData(@PathVariable("service") String service,
 			@PathVariable("uniquekey") @Valid @NotNull String uniquekey) throws Exception {
 
 		return new ResponseEntity<Map<String, Object>>(employeeRepositaryImpl.getData(service, uniquekey),
 				new HttpHeaders(), HttpStatus.OK);
 	}
-
+@MethodName(MethodName="delData")
 	public ResponseEntity<Map<String, Object>> delData(@PathVariable("service") String service,
 			@PathVariable("uniquekey") @Valid @NotNull String uniquekey) throws Exception {
 		return new ResponseEntity<Map<String, Object>>(employeeRepositaryImpl.deleteData(service, uniquekey),
@@ -159,16 +161,32 @@ public class GenericController {
 		
 		return new ResponseEntity<String>(employeeRepositaryImpl.refreshMataData(service),new HttpHeaders(), HttpStatus.OK)	;
 	}
-	
+	@MethodName(MethodName="clearCache")
 	public ResponseEntity<String>	 clearCache()
 	{
 		
 		return new ResponseEntity<String>(employeeRepositaryImpl.clearCache(),new HttpHeaders(), HttpStatus.OK)	;
 	}
 	
-	
+	@MethodName(MethodName="home")
 	    public String home() {
 	        System.out.println("Going home...");
 	        return "index";
 	    }
+
+		public static String getMethodName(String Name) {
+
+			Method methods[] = GenericController.class.getDeclaredMethods();
+			for (int i = 0; i < methods.length; i++) {
+				Method method = methods[i];
+				MethodName methodAnno = method.getDeclaredAnnotation(MethodName.class);
+				if (methodAnno != null) {
+					if (methodAnno.MethodName().equalsIgnoreCase(Name)) {
+						return method.getName();
+					}
+				}
+			}
+
+			return null;
+		}
 }

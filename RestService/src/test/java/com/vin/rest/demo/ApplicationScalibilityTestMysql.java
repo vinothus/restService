@@ -701,7 +701,7 @@ public class ApplicationScalibilityTestMysql {
 	   
 	    	if("DATE".contentEquals(type))
 	    	{
-	    		 return new java.sql.Date(1988, 17, 1).toString();
+	    		 return "STR_TO_DATE('06-01-2019', '%m-%d-%Y')";
 	    	}
 	    
 	    	if("TIME".contentEquals(type))
@@ -718,7 +718,7 @@ public class ApplicationScalibilityTestMysql {
 	    
 	    	if("BINARY".contentEquals(type))
 	    	{
-	    		return "0xABCDEF";
+	    		return "0";
 	    	}
 	   
 	    	if("VARBINARY".contentEquals(type))
@@ -783,7 +783,7 @@ public class ApplicationScalibilityTestMysql {
 	    
 	    	if( "BOOLEAN".contentEquals(type))
 	    	{
-	    		return "true";
+	    		return "1";
 	    	}
 	   
 	    	if( "ROWID".contentEquals(type))

@@ -300,6 +300,10 @@ public class EmployeeRepositaryImpl {
 					}else if(dbColumn.getTypeNameSQL().contains("VARCHAR"))
 					{
 						manualQuery=manualQuery+dbColumn.getName()+ " "+dbColumn.getTypeNameSQL()+"("+dbColumn.getTypeLength()+")";
+					}else
+					{
+						manualQuery=manualQuery+dbColumn.getName()+ " "+dbColumn.getTypeNameSQL();	
+						
 					}
 					if(isPrimary)
 					{

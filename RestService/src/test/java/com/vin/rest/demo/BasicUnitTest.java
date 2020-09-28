@@ -12,7 +12,6 @@ import org.junit.Test;
 import com.vin.rest.dynamic.MultiService;
 import com.vin.rest.dynamic.ServiceType;
 
-import jdk.internal.jline.internal.Log;
 
 public class BasicUnitTest {
 	

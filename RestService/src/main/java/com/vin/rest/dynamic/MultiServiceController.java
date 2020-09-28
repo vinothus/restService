@@ -1,6 +1,7 @@
 package com.vin.rest.dynamic;
 
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -40,6 +41,7 @@ public class MultiServiceController {
 	MultiServiceImpl multiserviceImpl;
 	@Autowired
 	Validator validator;
+	@MethodName(MethodName="addData")
 	public ResponseEntity<List<Map<String,Map<String, Object>>>> addData(@PathVariable("service") String service,
 			@RequestBody String params) throws Exception   {
 		ObjectMapper mapper = new ObjectMapper();
@@ -75,7 +77,7 @@ public class MultiServiceController {
 		return new ResponseEntity<List<Map<String,Map<String, Object>>>>(multiserviceImpl.insertMultiData(service, jsonMap),
 				new HttpHeaders(), HttpStatus.OK);
 	}
-
+	@MethodName(MethodName="updateData")
 	public ResponseEntity<List<Map<String,Map<String, Object>>>> updateData(@PathVariable("service") String service,
 			@RequestBody String params) throws Exception   {
 		ObjectMapper mapper = new ObjectMapper();
@@ -111,6 +113,7 @@ public class MultiServiceController {
 		return new ResponseEntity<List<Map<String,Map<String, Object>>>>(multiserviceImpl.updateMultiData(service, jsonMap),
 				new HttpHeaders(), HttpStatus.OK);
 	}
+	@MethodName(MethodName="getDatum")
 	public ResponseEntity<List<Map<String,List<Map<String, Object>>>>> getDatum(@PathVariable("service") String service,
 			@RequestParam   Map<String, String> params) throws JsonParseException, JsonMappingException, IOException    {
 		ObjectMapper mapper = new ObjectMapper();
@@ -126,18 +129,32 @@ public class MultiServiceController {
 		return new ResponseEntity<List<Map<String,List<Map<String, Object>>>>>(multiserviceImpl.getMultiDataForParams(service, params),
 				new HttpHeaders(), HttpStatus.OK);
 	}
-
+	@MethodName(MethodName="getData")
 	public ResponseEntity<List<Map<String,Map<String, Object>>>> getData(@PathVariable("service") String service,
 			@PathVariable("uniquekey") @Valid @NotNull String uniquekey) throws Exception {
 
 		return new ResponseEntity<List<Map<String,Map<String, Object>>>>(multiserviceImpl.getMultiData(service, uniquekey),
 				new HttpHeaders(), HttpStatus.OK);
 	}
-
+	@MethodName(MethodName="delData")
 	public ResponseEntity<List<Map<String,Map<String, Object>>>> delData(@PathVariable("service") String service,
 			@PathVariable("uniquekey") @Valid @NotNull String uniquekey) throws Exception {
 		return new ResponseEntity<List<Map<String,Map<String, Object>>>>(multiserviceImpl.deleteMultiData(service, uniquekey),
 				new HttpHeaders(), HttpStatus.OK);
 	}	
-	
+	public static String getMethodName(String Name) {
+
+		Method methods[] = GenericController.class.getDeclaredMethods();
+		for (int i = 0; i < methods.length; i++) {
+			Method method = methods[i];
+			MethodName methodAnno = method.getDeclaredAnnotation(MethodName.class);
+			if (methodAnno != null) {
+				if (methodAnno.MethodName().equalsIgnoreCase(Name)) {
+					return method.getName();
+				}
+			}
+		}
+
+		return null;
+	}
 }
