@@ -50,6 +50,8 @@
             <input type="password" class="form-control" formControlName="repassword" placeholder="Retype Password" required [ngClass]="{ 'is-invalid': submitted && f.repassword.errors }">
             <div *ngIf="submitted && f.repassword.errors" class="invalid-feedback">
                     <div *ngIf="f.repassword.errors['required']">Retype Password is required</div>
+                    <div *ngIf="f.repassword.errors['confirmPasswordValidator']">Passsword and
+				Confirm Password didn't match. </div>
                 </div>
         </div>
         
