@@ -1,18 +1,69 @@
-<div class="auth-wrapper">
+<div class="container  h-100" style="margin-top: 7%;">
+<div class="d-flex justify-content-center align-items-center container ">
+ <div class="row h-100 justify-content-center align-items-center"  style="width: 600px;">
+ <div class="card">
+    <h4 class="card-header">Register</h4>
+    <div class="card-body">
     <form class="form-register" [formGroup]="registerForm" (ngSubmit)="registerUser()">
-        <h3 class="h3 mb-3 font-weight-normal text-center">Register</h3>
+         
         <div class="form-group">
             <label>Name</label>
-            <input type="text" class="form-control" formControlName="name" placeholder="Enter name" required>
+            <input type="text" class="form-control" formControlName="name" placeholder="Enter name" required   [ngClass]="{ 'is-invalid': submitted && f.name.errors }">
+            <div *ngIf="submitted && f.name.errors" class="invalid-feedback">
+                    <div *ngIf="f.name.errors['required']">Username is required</div>
+                </div>
         </div>
         <div class="form-group">
             <label>Email address</label>
-            <input type="email" class="form-control" formControlName="email" placeholder="Enter email" required>
+            <input [class.is-invalid]="f.email.invalid && f.email.touched"  type="email" class="form-control" formControlName="email" placeholder="Enter email" required [ngClass]="{ 'is-invalid': submitted && f.email.errors }">
+            <div *ngIf="submitted && f.email.errors" class="invalid-feedback">
+                    <div *ngIf="f.email.errors['required']">Email is required</div>
+                     <div *ngIf="f.email.errors['email']">Email must be a valid email address</div>
+                </div>
         </div>
-        <div class="form-group">
+       
+         <div class="form-group">
+            <label>Phone Number</label>
+            <input type="text" class="form-control" formControlName="phoneno" placeholder="Phone Number" required [ngClass]="{ 'is-invalid': submitted && f.phoneno.errors }">
+            <div *ngIf="submitted && f.phoneno.errors" class="invalid-feedback">
+                    <div *ngIf="f.phoneno.errors['required']">Phone Number is required</div>
+                </div>
+        </div>
+         <div class="form-group">
+            <label>Address</label>
+             <textarea type="testarea" class="form-control" formControlName="address" placeholder="Type Address here" required [ngClass]="{ 'is-invalid': submitted && f.address.errors }"></textarea>
+            <div *ngIf="submitted && f.address.errors" class="invalid-feedback">
+                    <div *ngIf="f.address.errors['required']">Address is required</div>
+                </div>
+        </div>
+        
+         <div class="form-group">
             <label>Password</label>
-            <input type="password" class="form-control" formControlName="password" placeholder="Password" required>
+            <input type="password" class="form-control" formControlName="password" placeholder="Password" required [ngClass]="{ 'is-invalid': submitted && f.password.errors }">
+            <div *ngIf="submitted && f.password.errors" class="invalid-feedback">
+                    <div *ngIf="f.password.errors['required']">Password is required</div>
+                </div>
         </div>
-        <button type="submit" class="btn btn-block btn-primary">Register!</button>
+        
+         <div class="form-group">
+            <label>Retype Password</label>
+            <input type="password" class="form-control" formControlName="repassword" placeholder="Retype Password" required [ngClass]="{ 'is-invalid': submitted && f.repassword.errors }">
+            <div *ngIf="submitted && f.repassword.errors" class="invalid-feedback">
+                    <div *ngIf="f.repassword.errors['required']">Retype Password is required</div>
+                </div>
+        </div>
+        
+           <div class="form-group">
+        <button type="submit"[disabled]="loading" class="btn btn-primary">
+        <span *ngIf="loading" class="spinner-border spinner-border-sm mr-1"></span>
+        Register!</button>
+        <a routerLink="../login" class="btn btn-link">Login</a>
+        </div>
     </form>
 </div>
+</div>
+</div>
+</div>
+ 
+
+ 
