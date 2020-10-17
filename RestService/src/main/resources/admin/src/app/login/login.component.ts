@@ -56,7 +56,7 @@ get f() { return this.loginForm.controls; }
 	 this.submitted = true;
 	console.log(this.loginForm.controls.email.errors);
 	//console.log(this.loginForm.controls.password.errors['required']);
-	 localStorage.setItem('access_token', 'trail')
+	 //localStorage.setItem('access_token', 'trail')
 if (!this.loginForm.invalid) {
 	this.authService.login(this.loginForm.value);
             return;
