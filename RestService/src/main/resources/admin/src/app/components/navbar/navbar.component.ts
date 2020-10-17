@@ -152,4 +152,11 @@ export class NavbarComponent implements OnInit {
       }
       return 'Dashboard';
     }
+
+logout()
+{
+	
+	localStorage.removeItem('access_token');
+	this.router.navigate(['login']);	
+}
 }

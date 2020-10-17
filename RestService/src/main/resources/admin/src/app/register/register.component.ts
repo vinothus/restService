@@ -40,7 +40,7 @@ if (this.registerForm.invalid) {
         }
 	
     this.authService.register(this.registerForm.value).subscribe((res) => {
-      if (res.result) {
+      if (res.id) {
         this.registerForm.reset()
         this.router.navigate(['login']);
       }

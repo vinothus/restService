@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 
 import { Router } from '@angular/router';
-import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpErrorResponse,HttpParams } from '@angular/common/http';
 
 import { Observable, throwError } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
@@ -22,18 +22,30 @@ export class AuthService {
 
   register(user: User): Observable<any> {
 
-    return this.httpClient.post(`${this.API_URL}/users/register`, user).pipe(
+    return this.httpClient.post(`${window.location.origin}/myApps/user/addData`, user).pipe(
         catchError(this.handleError)
     )
   }
 
   login(user: User) {
-    return this.httpClient.post<any>(`${this.API_URL}/users/login`, user)
+	 const headers = new HttpHeaders({
+      'Content-Type': 'application/x-www-form-urlencoded',
+      'Authorization': 'Basic YW5ndWxhcjphbmd1bGFy'
+    });
+	const params = new HttpParams()
+      .set('email', user.email+'')
+      .set('password', user.password+'');
+	const options = {
+      headers,
+      params,
+      withCredentials: true
+    };
+    return this.httpClient.get<any>(`${window.location.origin}/myApps/user/getdata`,  { params: params })
       .subscribe((res: any) => {
-        localStorage.setItem('access_token', res.token)
-        this.getUserProfile(res._id).subscribe((res) => {
+        localStorage.setItem('access_token', res[0].id)
+        this.getUserProfile(res[0].id).subscribe((res) => {
           this.currentUser = res;
-          this.router.navigate(['users/profile/' + res.msg._id]);
+          this.router.navigate(['dashboard' , res.id]);
         })
       })
   }
@@ -49,12 +61,12 @@ export class AuthService {
 
   logout() {
     if (localStorage.removeItem('access_token') == null) {
-      this.router.navigate(['users/login']);
+      this.router.navigate(['login']);
     }
   }
 
   getUserProfile(id): Observable<any> {
-    return this.httpClient.get(`${this.API_URL}/users/profile/${id}`, { headers: this.headers }).pipe(
+    return this.httpClient.get(`${window.location.origin}/myApps/user/getdataForKey/${id}`, { headers: this.headers }).pipe(
       map((res: Response) => {
         return res || {}
       }),
