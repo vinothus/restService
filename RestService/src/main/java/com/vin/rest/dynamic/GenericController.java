@@ -37,6 +37,9 @@ import com.vin.rest.repository.EmployeeRepositaryImpl;
 import com.vin.rest.service.EmployeeService;
 import com.vin.validation.ParamMapValidator;
 import com.vin.validation.VinMap;
+
+import vin.rest.common.Constant;
+
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import javax.validation.Validator;
@@ -95,6 +98,7 @@ public class GenericController {
 		Map<String, String> jsonMap = new HashMap<>();
 		jsonMap = mapper.readValue(params, new TypeReference<Map<String, String>>() {
 		}); // converts JSON to Map
+		jsonMap.put(Constant.VIN_SERVICE, service);
 		Set<ConstraintViolation<HashMap>> constraintViolation = validator
 				.validate(new VinMap<String, String>(jsonMap));
 		if (!constraintViolation.isEmpty()) {
@@ -123,9 +127,13 @@ public class GenericController {
 	@MethodName(MethodName="getDatum")
 	public ResponseEntity<List<Map<String, Object>>> getDatum(@PathVariable("service") String service,
 			@RequestParam   Map<String, String> params)    {
+		 
+		params.put(Constant.VIN_SERVICE, service);
+		Set<ConstraintViolation<HashMap>> constraintViolation = validator
+				.validate(new VinMap<String, String>(params));
 		
 		  System.out.println("start validation"); System.out.println(validator);
-			Set<ConstraintViolation<HashMap>> constraintViolation = validator
+			Set<ConstraintViolation<HashMap>> constraintViolation1 = validator
 					.validate(new VinMap<String, String>(params));
 			for (Iterator iterator = constraintViolation.iterator(); iterator.hasNext();) {
 				ConstraintViolation<HashMap> constraintViolation2 = (ConstraintViolation<HashMap>) iterator.next();
@@ -189,4 +197,11 @@ public class GenericController {
 
 			return null;
 		}
+		@MethodName(MethodName="initGC")
+		public ResponseEntity<String>	initGC()
+		{
+			employeeRepositaryImpl.init();
+			return new ResponseEntity<String>("initilized",new HttpHeaders(), HttpStatus.OK)	;
+		}
+		
 }

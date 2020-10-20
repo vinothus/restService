@@ -68,6 +68,7 @@ public class EmployeeRepositaryImpl {
     
 	String[] nonscaling = {"NCLOB","BLOB","CLOB","NULL","OTHER","JAVA_OBJECT","ARRAY", "DISTINCT", "STRUCT", "REF", "DATALINK", "ROWID", "SQLXML", "?" };
 	List<String> invalidElement = new ArrayList<String>();
+	
 	public void init() {
 
 		try {
@@ -392,7 +393,27 @@ public class EmployeeRepositaryImpl {
 		DbColumn ServiceErrorType;
 		DbColumn ServiceErrorMethod;
 		DbColumn ServiceErrorMsg;
-
+        // VinValidation
+		
+		DbColumn VinValidationid;
+		DbColumn VinValidationuid;
+		DbColumn VinValidationserid;
+		DbColumn VinValidationattrid;
+		DbColumn VinValidationName;
+		DbColumn VinValidationClassName;
+		DbColumn VinValidationParamClassName;
+		
+		// VinProcessor
+		DbColumn VinProcessorid;
+		DbColumn VinProcessoruid;
+		DbColumn VinProcessorserid;
+		DbColumn VinProcessorattrid;
+		DbColumn VinProcessorName;
+		DbColumn VinProcessorClassName;
+		DbColumn VinProcessorParamClassName;
+		
+		
+		
 		DbTable tableService = schemaObj.addTable("Service");
 		DbTable tableServiceAttr = schemaObj.addTable("Service_Attr");
 		DbTable tableMultiService = schemaObj.addTable("Multi_Service");
@@ -401,6 +422,9 @@ public class EmployeeRepositaryImpl {
 		DbTable tableSubscription = schemaObj.addTable("Subscription");
 		DbTable tableServiceConsumption = schemaObj.addTable("Service_Consumption");
 		DbTable tableServiceError = schemaObj.addTable("Service_Error");
+		DbTable tableVinValidation = schemaObj.addTable("VinValidation");
+		DbTable tableVinProcessor = schemaObj.addTable("VinProcessor");
+		
 
 		// Service
 
@@ -466,12 +490,38 @@ public class EmployeeRepositaryImpl {
 		// ServiceError
 
 		ServiceErrorid = tableServiceError.addColumn("id", Types.INTEGER, 10);
+		ServiceErrorid.primaryKey();
 		ServiceErrorUserId = tableServiceError.addColumn("uid", Types.INTEGER, 10);
-		ServiceErrorUrl = tableServiceError.addColumn("url", Types.INTEGER, 10);
-		ServiceErrorType = tableServiceError.addColumn("type", Types.INTEGER, 10);
-		ServiceErrorMethod = tableServiceError.addColumn("method", Types.INTEGER, 10);
-		ServiceErrorMsg = tableServiceError.addColumn("errormsg", Types.INTEGER, 10);
+		ServiceErrorUrl = tableServiceError.addColumn("url", Types.VARCHAR, 100);
+		ServiceErrorType = tableServiceError.addColumn("type", Types.VARCHAR, 100);
+		ServiceErrorMethod = tableServiceError.addColumn("method", Types.VARCHAR, 100);
+		ServiceErrorMsg = tableServiceError.addColumn("errormsg", Types.VARCHAR, 100);
 
+		// VinValidation
+		
+		 VinValidationid=tableVinValidation.addColumn("id", Types.INTEGER, 10);
+		 VinValidationid.primaryKey();
+		 VinValidationuid=tableVinValidation.addColumn("uid", Types.INTEGER, 10);
+		 VinValidationserid=tableVinValidation.addColumn("service_id", Types.INTEGER, 10);
+		 VinValidationattrid=tableVinValidation.addColumn("attr_id", Types.INTEGER, 10);
+		 VinValidationName=tableVinValidation.addColumn("name", Types.VARCHAR, 100);
+		 VinValidationClassName=tableVinValidation.addColumn("classname", Types.VARCHAR, 100);
+		 VinValidationParamClassName=tableVinValidation.addColumn("paramclassname", Types.VARCHAR, 100);
+		 
+		
+		// VinProcessor
+		 
+		VinProcessorid=tableVinProcessor.addColumn("id", Types.INTEGER, 10);
+		VinProcessorid.primaryKey();
+		VinProcessoruid=tableVinProcessor.addColumn("uid", Types.INTEGER, 10);
+		VinProcessorserid=tableVinProcessor.addColumn("service_id", Types.INTEGER, 10);
+		VinProcessorattrid=tableVinProcessor.addColumn("attr_id", Types.INTEGER, 10);
+		VinProcessorName=tableVinProcessor.addColumn("name", Types.VARCHAR, 100);
+		VinProcessorClassName=tableVinProcessor.addColumn("classname", Types.VARCHAR, 100);
+		VinProcessorParamClassName=tableVinProcessor.addColumn("paramclassname", Types.VARCHAR, 100);
+		 
+		 
+		
 		List<DbTable> initialTable = new ArrayList<DbTable>();
 		initialTable.add(tableService);
 		initialTable.add(tableServiceAttr);
@@ -481,6 +531,9 @@ public class EmployeeRepositaryImpl {
 		initialTable.add(tableSubscription);
 		initialTable.add(tableServiceConsumption);
 		initialTable.add(tableServiceError);
+		initialTable.add(tableVinValidation);
+		initialTable.add(tableVinProcessor);
+		
 		return initialTable;
 	}
 
@@ -674,7 +727,8 @@ public class EmployeeRepositaryImpl {
 				
 				 tableNameT = schemaObj.addTable(tableName);
 				List<DbColumn> listArraycol = new ArrayList<>();
-				List<Map<String,Object>>	colums=jdbcTemplate.queryForList("desc "+tableName);
+				if(isPresentinDB(tableName))
+				{List<Map<String,Object>>	colums=jdbcTemplate.queryForList("desc "+tableName);
 				for (Iterator iterator2 = colums.iterator(); iterator2.hasNext();) {
 					 isTablePresent=true;
 					Map<String, Object> coluMaps = (Map<String, Object>) iterator2.next();
@@ -698,7 +752,12 @@ public class EmployeeRepositaryImpl {
 				tableColumnMap.put(tableNameT, listArraycol);
 				}
 				
-			}else {
+				}else {
+					
+					
+				}
+				
+				}else {
 				
 			ResultSet rs1 = md.getColumns(null, null,tableName.toUpperCase(), null);
 			ResultSet rs2 = md.getPrimaryKeys(null, null, tableName.toUpperCase());

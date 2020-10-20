@@ -94,6 +94,11 @@ public class Application {
 							.methods(RequestMethod.GET).produces(MediaType.APPLICATION_JSON_VALUE).build(),
 					userController, userController.getClass().getMethod(GenericController.getMethodName("clearCache")));
 			handlerMapping.registerMapping(
+					RequestMappingInfo.paths("/" + appName + "/initGC")
+							.methods(RequestMethod.GET).produces(MediaType.APPLICATION_JSON_VALUE).build(),
+					userController, userController.getClass().getMethod(GenericController.getMethodName("initGC")));
+			
+			handlerMapping.registerMapping(
 					RequestMappingInfo.paths("/" + appName + "/multiService/{service}/MultiDataForParams").methods(RequestMethod.GET)
 							.produces(MediaType.APPLICATION_JSON_VALUE).build(),
 							multiServiceController, multiServiceController.getClass().getMethod(MultiServiceController.getMethodName("getDatum"), String.class, Map.class));
