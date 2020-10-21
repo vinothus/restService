@@ -23,6 +23,7 @@ import java.util.logging.Logger;
 import org.hibernate.validator.internal.engine.ConstraintViolationImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.core.ConnectionCallback;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.stereotype.Component;
@@ -163,12 +164,21 @@ public class EmployeeRepositaryImpl {
 		Map<DbTable, List<DbColumn>> metaDatum = new HashMap<>();
 		DatabaseMetaData md;
 		ResultSet rs ;
-		Connection conn=null;
+		 
 		try {
-			conn=dataSource.getConnection();
-			md = conn.getMetaData();
+			md=	jdbcTemplate.execute(new ConnectionCallback<DatabaseMetaData>() {
+
+				@Override
+				public DatabaseMetaData doInConnection(Connection con) throws SQLException, DataAccessException {
+					// TODO Auto-generated method stub
+					return con.getMetaData();
+				}
+			});
+			
+			
 			if(md.getURL().contains("mysql"))
 			{
+				
 			List<Map<String,Object>>	tableresult=jdbcTemplate.queryForList("show tables");
 				for (Iterator iterator = tableresult.iterator(); iterator.hasNext();) {
 					Map<String, Object> map = (Map<String, Object>) iterator.next();
@@ -257,14 +267,6 @@ public class EmployeeRepositaryImpl {
 			e.printStackTrace();
 		}finally {
 			
-			if(conn!=null)
-			{
-				try {
-					conn.close();
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
-			}
 		}
 		return metaDatum;
 	}
@@ -663,6 +665,22 @@ public class EmployeeRepositaryImpl {
 			}
 		return isPresent;
 	}
+	
+	private boolean isPresentinDBOnly(String service) {
+
+		String selectQuery = " select tableName from Service where serviceName = '" + service + "'";
+		List<Map<String, Object>> data = new ArrayList<Map<String, Object>>();
+		boolean isPresent=false;
+		try {
+			data = jdbcTemplate.queryForList(selectQuery);
+		} catch (Exception e) {
+			log.info(e.getMessage());
+			return isPresent;
+		}
+		 
+		return isPresent;
+	}
+	
 	public String refreshMataData(String serviceName) throws RecordNotFoundException
 	{
 		List<Map<String, Object>> serviceDatum = jdbcTemplate
@@ -710,7 +728,7 @@ public class EmployeeRepositaryImpl {
 		DatabaseMetaData md;
 		DbTable tableNameT;
 		List<DbColumn> listArray = new ArrayList<>();
-		Connection conn=null;
+		 
 		boolean isPresent=false;
 		for (Map.Entry<DbTable, List<DbColumn>> entry : tableColumnMap.entrySet()) {
 			DbTable table = entry.getKey();
@@ -720,14 +738,22 @@ public class EmployeeRepositaryImpl {
 		}
 		try {
 			if(!isPresent) {
-			 conn= dataSource.getConnection();
-			md = conn.getMetaData();
+				
+				md=	jdbcTemplate.execute(new ConnectionCallback<DatabaseMetaData>() {
+
+					@Override
+					public DatabaseMetaData doInConnection(Connection con) throws SQLException, DataAccessException {
+						// TODO Auto-generated method stub
+						return con.getMetaData();
+					}
+				});
+			 
 			if(md.getURL().contains("mysql"))
 			{
 				
 				 tableNameT = schemaObj.addTable(tableName);
 				List<DbColumn> listArraycol = new ArrayList<>();
-				if(isPresentinDB(tableName))
+				if(isPresentinDBOnly(tableName))
 				{List<Map<String,Object>>	colums=jdbcTemplate.queryForList("desc "+tableName);
 				for (Iterator iterator2 = colums.iterator(); iterator2.hasNext();) {
 					 isTablePresent=true;
@@ -829,16 +855,6 @@ public class EmployeeRepositaryImpl {
 			e1.printStackTrace();
 		}finally
 		{
-			if(conn!=null)
-			{
-				
-				try {
-					conn.close();
-				} catch (SQLException e) {
-					 
-					e.printStackTrace();
-				}
-			}
 			
 		}
 	}
