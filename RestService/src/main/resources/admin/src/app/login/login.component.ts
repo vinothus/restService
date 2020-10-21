@@ -47,18 +47,23 @@ export class LoginComponent implements OnInit {
 	 this.loginForm= this.formBuilder.group({
      email: ['', [Validators.required, Validators.email,Validators.pattern('^[A-Za-z0-9._%+-]+@[a-z0-9.-]+\\.[A-Za-z]{2,4}$')]],
       password: ['', Validators.required]
-    })
+    });
+ 
+
  }
 
 get f() { return this.loginForm.controls; }
 
   loginUser() {
 	 this.submitted = true;
+this.loginForm.markAllAsTouched();
+this.loginForm.get("email").updateValueAndValidity();
+ 
 	console.log(this.loginForm.controls.email.errors);
 	//console.log(this.loginForm.controls.password.errors['required']);
 	 //localStorage.setItem('access_token', 'trail')
 if (!this.loginForm.invalid) {
-	this.authService.login(this.loginForm.value);
+	this.authService.login(this.loginForm.value,this.loginForm);
             return;
         }
    //this.authService.login(this.loginForm.value)
@@ -66,7 +71,7 @@ if (!this.loginForm.invalid) {
   
   }
 
-
+ 
 }
 function sendDataToServer(survey) {
   var resultAsString = JSON.stringify(survey.data);

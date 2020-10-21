@@ -7,7 +7,7 @@ import { Observable, throwError } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 
 import { User } from '../../model/user';
-
+import { FormBuilder, FormGroup,Validators  } from "@angular/forms";
 
 @Injectable({
   providedIn: 'root'
@@ -28,7 +28,7 @@ export class AuthService {
     )
   }
 
-  login(user: User) {
+  login(user: User, loginForm: FormGroup) {
 	 const headers = new HttpHeaders({
       'Content-Type': 'application/x-www-form-urlencoded',
       'Authorization': 'Basic YW5ndWxhcjphbmd1bGFy'
@@ -43,11 +43,18 @@ export class AuthService {
     };
     return this.httpClient.get<any>(`${window.location.origin}/${this.APP_NAME}/user/getdata`,  { params: params })
       .subscribe((res: any) => {
+	  loginForm.controls['email'].setErrors(null);
+	if(res[0]!=undefined){
         localStorage.setItem('access_token', res[0].id)
         this.getUserProfile(res[0].id).subscribe((res) => {
           this.currentUser = res;
           this.router.navigate(['dashboard' , res.id]);
         })
+      }else
+      {
+	 loginForm.controls['email'].setErrors({ emailValidation: true });
+     this.router.navigate(['login' ]);
+}
       })
   }
 
