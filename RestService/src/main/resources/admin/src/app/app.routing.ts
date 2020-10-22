@@ -8,10 +8,12 @@ import {LoginGuard } from './login/login.guard';
 
 import { LoginComponent } from './login/login.component';
 import { RegisterComponent } from './register/register.component';
+import { SupscriptionComponent } from './supscription/supscription.component';
 const routes: Routes =[
 	
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
+  {path: 'supscription',component:SupscriptionComponent },
   {
     path: '',
     redirectTo: 'dashboard',

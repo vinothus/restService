@@ -8,7 +8,8 @@ import { catchError, map } from 'rxjs/operators';
 
 import { User } from '../../model/user';
 import { FormBuilder, FormGroup,Validators  } from "@angular/forms";
-
+import { DOCUMENT } from '@angular/common';
+import {  Inject } from '@angular/core';
 @Injectable({
   providedIn: 'root'
 })
@@ -19,11 +20,19 @@ export class AuthService {
   headers = new HttpHeaders().set('Content-Type', 'application/json');
   currentUser = {};
 
-  constructor(private httpClient: HttpClient,public router: Router){}
+  constructor(@Inject(DOCUMENT)  private  document: Document,private httpClient: HttpClient,public router: Router){
+	 
+	
+	let url = document.location.protocol +'//'+ document.location.hostname + ':8080'; // for angular development
+	//let url =document.location.protocol +'//'+ document.location.hostname + ':'+document.location.port 
+	console.log(url);
+	console.log(document.location.protocol +'//'+ document.location.hostname + ':'+document.location.port);
+	this.API_URL=url;
+}
 
   register(user: User): Observable<any> {
 
-    return this.httpClient.post(`${window.location.origin}/${this.APP_NAME}/user/addData`, user).pipe(
+    return this.httpClient.post(this.API_URL+`/${this.APP_NAME}/user/addData`, user).pipe(
         catchError(this.handleError)
     )
   }
@@ -41,15 +50,22 @@ export class AuthService {
       params,
       withCredentials: true
     };
-    return this.httpClient.get<any>(`${window.location.origin}/${this.APP_NAME}/user/getdata`,  { params: params })
+    return this.httpClient.get<any>(this.API_URL+`/${this.APP_NAME}/user/getdata`,  { params: params })
       .subscribe((res: any) => {
 	  loginForm.controls['email'].setErrors(null);
 	if(res[0]!=undefined){
-        localStorage.setItem('access_token', res[0].id)
+		if(res[0].apikey!=undefined)
+       {
+	    localStorage.setItem('access_token', res[0].apikey)
         this.getUserProfile(res[0].id).subscribe((res) => {
-          this.currentUser = res;
-          this.router.navigate(['dashboard' , res.id]);
+        this.currentUser = res;
+        this.router.navigate(['dashboard' , res.id]);
+
         })
+       }else
+          {
+	 this.router.navigate(['supscription']);
+          }
       }else
       {
 	 loginForm.controls['email'].setErrors({ emailValidation: true });
@@ -74,7 +90,7 @@ export class AuthService {
   }
 
   getUserProfile(id): Observable<any> {
-    return this.httpClient.get(`${window.location.origin}/${this.APP_NAME}/user/getdataForKey/${id}`, { headers: this.headers }).pipe(
+    return this.httpClient.get(this.API_URL+`/${this.APP_NAME}/user/getdataForKey/${id}`, { headers: this.headers }).pipe(
       map((res: Response) => {
         return res || {}
       }),
@@ -100,7 +116,8 @@ getdata(service: string, params: Map<string,string>)
 	 
 	 const headers = new HttpHeaders({
       'Content-Type': 'application/x-www-form-urlencoded',
-      'Authorization': 'Basic YW5ndWxhcjphbmd1bGFy'
+      'Authorization': 'Basic YW5ndWxhcjphbmd1bGFy',
+      'Access-Control-Allow-Origin':'*',
     });
 
 	const params1 = new HttpParams();
@@ -117,7 +134,7 @@ getdata(service: string, params: Map<string,string>)
       withCredentials: true
     };
 	 
-	return this.httpClient.get<any>(`${window.location.origin}/${this.APP_NAME}/${service}/getdata?`+paramstr, { params: params1,headers:headers }).pipe(
+	return this.httpClient.get<any>(this.API_URL+`/${this.APP_NAME}/${service}/getdata?`+paramstr, { params: params1,headers:headers }).pipe(
       map((res: Response) => {
         return res || {}
       }),
@@ -139,7 +156,7 @@ getUniqueData(service: string, id: string)
       'Content-Type': 'application/x-www-form-urlencoded',
       'Authorization': 'Basic YW5ndWxhcjphbmd1bGFy'
     });
-const promise = this.httpClient.get(`${window.location.origin}/${this.APP_NAME}/${service}/getdataForKey/${id}`, { headers:headers }).toPromise();	
+const promise = this.httpClient.get(this.API_URL+`/${this.APP_NAME}/${service}/getdataForKey/${id}`, { headers:headers }).toPromise();	
  console.log(promise);  
     promise.then((data)=>{
       console.log("Promise resolved with: " + JSON.stringify(data));
@@ -156,7 +173,7 @@ deleteUniqueData(service: string, id: string)
       'Content-Type': 'application/x-www-form-urlencoded',
       'Authorization': 'Basic YW5ndWxhcjphbmd1bGFy'
     });
-const promise = this.httpClient.delete(`${window.location.origin}/${this.APP_NAME}/${service}/deleteData/${id}`, { headers:headers }).toPromise();	
+const promise = this.httpClient.delete(this.API_URL+`/${this.APP_NAME}/${service}/deleteData/${id}`, { headers:headers }).toPromise();	
  console.log(promise);  
     promise.then((data)=>{
       console.log("Promise resolved with: " + JSON.stringify(data));
@@ -173,7 +190,7 @@ addData(service: string, data: any)
     .set("Content-Type", "application/json")
     .set("Authorization", "Basic YW5ndWxhcjphbmd1bGFy");
  
-  const promise = this.httpClient.post(`${window.location.origin}/${this.APP_NAME}/${service}/addData`, data, { headers }).toPromise();	
+  const promise = this.httpClient.post(this.API_URL+`/${this.APP_NAME}/${service}/addData`, data, { headers }).toPromise();	
 	 console.log(promise);  
     promise.then((data)=>{
       console.log("Promise resolved with: " + JSON.stringify(data));
@@ -192,7 +209,7 @@ updateData(service: string, data: any)
     .set("Content-Type", "application/json")
     .set("Authorization", "Basic YW5ndWxhcjphbmd1bGFy");
 
-  const promise = this.httpClient.put(`${window.location.origin}/${this.APP_NAME}/${service}/updateData`,  data, { headers:headers }).toPromise();	
+  const promise = this.httpClient.put(this.API_URL+`/${this.APP_NAME}/${service}/updateData`,  data, { headers:headers }).toPromise();	
 	 console.log(promise);  
     promise.then((data)=>{
       console.log("Promise resolved with: " + JSON.stringify(data));

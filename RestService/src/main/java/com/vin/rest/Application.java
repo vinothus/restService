@@ -118,11 +118,11 @@ public class Application {
 					RequestMappingInfo.paths("/" + appName + "/multiService/{service}/deleteData/{uniquekey}")
 							.methods(RequestMethod.DELETE).produces(MediaType.APPLICATION_JSON_VALUE).build(),
 							multiServiceController, multiServiceController.getClass().getMethod(MultiServiceController.getMethodName("delData"), String.class, String.class));
-			handlerMapping
-			.registerMapping(
-					RequestMappingInfo.paths("/login").methods(RequestMethod.GET)
-							.produces(MediaType.ALL_VALUE).build(),
-					userController, userController.getClass().getMethod(GenericController.getMethodName("home")));
+			//handlerMapping
+			//.registerMapping(
+			//		RequestMappingInfo.paths("/login").methods(RequestMethod.GET)
+			//				.produces(MediaType.ALL_VALUE).build(),
+			//		userController, userController.getClass().getMethod(GenericController.getMethodName("home")));
 			
 		} catch (  Exception e) {
 			e.printStackTrace();

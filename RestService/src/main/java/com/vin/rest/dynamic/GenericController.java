@@ -18,6 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -125,6 +126,7 @@ public class GenericController {
 	}
 	
 	@MethodName(MethodName="getDatum")
+	@CrossOrigin
 	public ResponseEntity<List<Map<String, Object>>> getDatum(@PathVariable("service") String service,
 			@RequestParam   Map<String, String> params)    {
 		 
@@ -151,6 +153,7 @@ public class GenericController {
 				new HttpHeaders(), HttpStatus.OK);
 	}
 	@MethodName(MethodName="getData")
+	@CrossOrigin
 	public ResponseEntity<Map<String, Object>> getData(@PathVariable("service") String service,
 			@PathVariable("uniquekey") @Valid @NotNull String uniquekey) throws Exception {
 
@@ -158,6 +161,7 @@ public class GenericController {
 				new HttpHeaders(), HttpStatus.OK);
 	}
 @MethodName(MethodName="delData")
+@CrossOrigin
 	public ResponseEntity<Map<String, Object>> delData(@PathVariable("service") String service,
 			@PathVariable("uniquekey") @Valid @NotNull String uniquekey) throws Exception {
 		return new ResponseEntity<Map<String, Object>>(employeeRepositaryImpl.deleteData(service, uniquekey),
@@ -170,6 +174,7 @@ public class GenericController {
 		return new ResponseEntity<String>(employeeRepositaryImpl.refreshMataData(service),new HttpHeaders(), HttpStatus.OK)	;
 	}
 	@MethodName(MethodName="clearCache")
+	@CrossOrigin
 	public ResponseEntity<String>	 clearCache()
 	{
 		

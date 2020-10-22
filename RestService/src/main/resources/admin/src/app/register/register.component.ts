@@ -140,14 +140,18 @@ addValidator(){
 let map = new Map<string,string>();
 	map.set('email',this.registerForm.controls['email'].value);
 this.authService.getdata('user',map).subscribe((res) => {
-	   
-		if(res[0]!=
-		undefined&&res[0].id)
+	   if(res[0]!=undefined)
+	{	if(res[0].id!=undefined)
 	{
 		 let control = this.registerForm.controls['email'];
 	 control.setErrors({ emailValidation: true });	
 		 let err: ValidationErrors = { 'invalid': true };
           return bReturn ? of(null) : of(err);
+	}else 
+	   {
+		 control.setErrors(null);
+		 return false;
+		}
 	}else 
 	   {
 		 control.setErrors(null);
@@ -159,7 +163,7 @@ this.authService.getdata('user',map).subscribe((res) => {
          let control1 = this.registerForm.controls['email'];
 	 control1.setErrors({ emailValidation: true });	
           let err: ValidationErrors = { 'invalid': true };
-          return bReturn ? of(null) : of(err);
+         return bReturn ? of(null) : of(err);
       };
   }
 isFieldValid(field: string) {

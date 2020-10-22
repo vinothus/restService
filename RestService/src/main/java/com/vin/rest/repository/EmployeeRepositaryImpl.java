@@ -480,7 +480,7 @@ public class EmployeeRepositaryImpl {
 		subscriptionUserId = tableSubscription.addColumn("uid", Types.INTEGER, 10);
 		subscriptionApiKey = tableSubscription.addColumn("apikey", Types.VARCHAR, 100);
 		subscriptionExpireDate = tableSubscription.addColumn("date", Types.DATE, 10);
-		subscriptionType = tableSubscription.addColumn("id", Types.VARCHAR, 100);
+		subscriptionType = tableSubscription.addColumn("type", Types.VARCHAR, 100);
 
 		// ServiceConsumption
 		ServiceConsumptionid = tableServiceConsumption.addColumn("id", Types.INTEGER, 10);
