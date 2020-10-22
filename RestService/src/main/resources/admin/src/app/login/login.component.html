@@ -1,9 +1,73 @@
- 	<script src="https://unpkg.com/survey-angular"></script>
- 		<link href="https://unpkg.com/survey-angular/survey.min.css" type="text/css" rel="stylesheet"/>
- <div class="container  h-100" style="margin-top: 15%;">
-<div class="d-flex justify-content-center align-items-center container ">
 
-    <div class="row h-100 justify-content-center align-items-center"  style="width: 600px;">
+<nav
+	class="navbar navbar-expand-lg navbar-transparent  bg-primary  navbar-absolute">
+	<div class="container-fluid">
+		<div class="navbar-wrapper">
+
+			<a class="navbar-brand" href="#">Vin Rest</a>
+		</div>
+
+		<button class="navbar-toggler" type="button" data-toggle="collapse"
+			data-target="#navigation" aria-controls="navigation-index"
+			aria-expanded="false" aria-label="Toggle navigation">
+			<span class="navbar-toggler-bar navbar-kebab"></span> <span
+				class="navbar-toggler-bar navbar-kebab"></span> <span
+				class="navbar-toggler-bar navbar-kebab"></span>
+		</button>
+
+		<div class="collapse navbar-collapse justify-content-end"
+			id="navigation">
+
+
+			<ul class="navbar-nav">
+				<li class="nav-item"><a
+						routerLink="../dashboard"
+					class="nav-link"> <i class="now-ui-icons design_app"></i>
+						Dashboard
+				</a></li>
+				<li class="nav-item "><a
+					routerLink="../register"
+					class="nav-link"> <i class="now-ui-icons tech_mobile"></i>
+						Register
+				</a></li>
+				<li class="nav-item active "><a
+					routerLink="../login"
+					class="nav-link"> <i class="now-ui-icons users_circle-08"></i>
+						Login
+				</a></li>
+
+				<li class="nav-item  "><a
+					routerLink="../supscription"
+					class="nav-link"> <i
+						class="now-ui-icons now-ui-icons business_money-coins"></i>
+						Pricing
+				</a></li>
+
+				<li class="nav-item "><a
+						routerLink="../lock"
+					class="nav-link"> <i class="now-ui-icons ui-1_lock-circle-open"></i>
+						Lock
+				</a></li>
+				<li class="nav-item "><a
+						routerLink="../invoice"
+					class="nav-link"> <i class="now-ui-icons files_paper"></i>
+						Invoice
+				</a></li>
+			</ul>
+
+
+
+
+
+		</div>
+	</div>
+</nav>
+<div class="wrapper wrapper-full-page "
+	style="background:linear-gradient(to right, #0062E6, #33AEFF)">
+ <div class="container"  >
+ <br>
+  <br>
+ <div class="curvecut col-md-6 ml-auto mr-auto" style="padding-bottom: 150px;padding-top: 220px;">
 <div class="card">
     <h4 class="card-header">Login</h4>
     <div class="card-body">
@@ -48,7 +112,28 @@
         </form>
     </div>
 </div>
+ </div>
 </div>
+
 </div>
-</div>
-<div id='surveyElement'></div>
+ <div class="fixed-bottom">
+	<footer class="footer  footer-static footer-transparent">
+
+		<div class=" container-fluid ">
+			<nav>
+				<ul>
+					<li><a href="#"> Vin Rest</a></li>
+					<li><a href="#"> About Us </a></li>
+					<li><a href="#"> Blog </a></li>
+				</ul>
+			</nav>
+			<div class="copyright" id="copyright">
+				©2020  Designed by Vin Rest inc.
+			</div>
+		</div>
+
+
+
+	</footer>
+	 
+	</div>
