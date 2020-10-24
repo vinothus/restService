@@ -1246,14 +1246,14 @@ public class EmployeeRepositaryImpl {
 				String maxRecAttr = findMax("Service_Attr");
 				if (maxRecAttr != null && serviceAttrid == null) {
 					String serviceAttrQuery = " INSERT INTO Service_Attr (id, service_id , attrName, colName) values ((SELECT MAX( id )+1 FROM Service_Attr serA) ,'"
-							+ serviceid + "','" + dbColumn.getName().toLowerCase().replace("_", " ") + "','"
+							+ serviceid + "','" + dbColumn.getName().toLowerCase().replace("_", "") + "','"
 							+ dbColumn.getName() + "') ";
 					jdbcTemplate.execute(serviceAttrQuery);
 				} else if (maxRecAttr == null) {
 
 					{
 						String serviceAttrQuery = " INSERT INTO Service_Attr (id, service_id , attrName, colName) values (0 ,'"
-								+ serviceid + "','" + dbColumn.getName().toLowerCase().replace("_", " ") + "','"
+								+ serviceid + "','" + dbColumn.getName().toLowerCase().replace("_", "") + "','"
 								+ dbColumn.getName() + "') ";
 						jdbcTemplate.execute(serviceAttrQuery);
 					}
@@ -1291,14 +1291,14 @@ public class EmployeeRepositaryImpl {
 				String maxRecAttr = findMax("Service_Attr");
 				if (maxRecAttr != null && serviceAttrid == null) {
 					String serviceAttrQuery = " INSERT INTO Service_Attr (id, service_id , attrName, colName) values ((SELECT MAX( id )+1 FROM Service_Attr serA) ,'"
-							+ serviceid + "','" + dbColumn.getName().toLowerCase().replace("_", " ") + "','"
+							+ serviceid + "','" + dbColumn.getName().toLowerCase().replace("_", "") + "','"
 							+ dbColumn.getName() + "') ";
 					jdbcTemplate.execute(serviceAttrQuery);
 				} else if (maxRecAttr == null) {
 
 					{
 						String serviceAttrQuery = " INSERT INTO Service_Attr (id, service_id , attrName, colName) values (0 ,'"
-								+ serviceid + "','" + dbColumn.getName().toLowerCase().replace("_", " ") + "','"
+								+ serviceid + "','" + dbColumn.getName().toLowerCase().replace("_", "") + "','"
 								+ dbColumn.getName() + "') ";
 						jdbcTemplate.execute(serviceAttrQuery);
 					}

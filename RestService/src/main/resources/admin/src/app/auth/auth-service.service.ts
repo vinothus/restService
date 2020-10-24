@@ -54,6 +54,7 @@ export class AuthService {
       .subscribe((res: any) => {
 	  loginForm.controls['email'].setErrors(null);
 	if(res[0]!=undefined){
+		 localStorage.setItem('uid', res[0].id)
 		if(res[0].apikey!=undefined)
        {
 	    localStorage.setItem('access_token', res[0].apikey)
