@@ -44,6 +44,8 @@
     "popper.js": "1.14.6",
     "rellax": "1.7.2",
     "rxjs": "6.3.3",
+    "survey-angular": "^1.8.10",
+    "surveyjs": "^2.0.4",
     "tslib": "^1.11.1",
     "web-animations-js": "2.3.1",
     "zone.js": "0.8.27"

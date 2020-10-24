@@ -17,6 +17,17 @@ import { RegisterComponent } from './register/register.component';
 import { AuthInterceptor } from './auth.interceptor';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { SupscriptionComponent } from './supscription/supscription.component';
+import { UserprofileComponent } from './userprofile/userprofile.component';
+import { DatastoreComponent } from './datastore/datastore.component';
+import { TunnelingComponent } from './tunneling/tunneling.component';
+import { ServicetimingComponent } from './servicetiming/servicetiming.component';
+import { MetricschartComponent } from './metricschart/metricschart.component';
+import { ServiceerrorComponent } from './serviceerror/serviceerror.component';
+import { ServiceComponent } from './service/service.component';
+import { ServiceattributeComponent } from './serviceattribute/serviceattribute.component';
+import { MultiserviceComponent } from './multiservice/multiservice.component';
+import { ValidationComponent } from './validation/validation.component';
+import { ProcessorComponent } from './processor/processor.component';
 @NgModule({
   imports: [
 	ReactiveFormsModule,
@@ -34,7 +45,18 @@ import { SupscriptionComponent } from './supscription/supscription.component';
     AdminLayoutComponent,
     LoginComponent,
     RegisterComponent,
-    SupscriptionComponent
+    SupscriptionComponent,
+    UserprofileComponent,
+    DatastoreComponent,
+    TunnelingComponent,
+    ServicetimingComponent,
+    MetricschartComponent,
+    ServiceerrorComponent,
+    ServiceComponent,
+    ServiceattributeComponent,
+    MultiserviceComponent,
+    ValidationComponent,
+    ProcessorComponent
 
   ],
   providers: [
