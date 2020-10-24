@@ -113,6 +113,14 @@
       <td mat-cell *matCellDef="let element"> {{element.paramclassname }} </td>
     </ng-container>
 
+<!-- Action Column -->
+    <ng-container matColumnDef="action">
+      <th mat-header-cell *matHeaderCellDef> Action </th>
+      <td mat-cell *matCellDef="let element" class="action-link"> 
+        <mat-icon  (click)="openDialog('Add',element)" aria-hidden="false" aria-label="Example home icon">add_box</mat-icon>   <mat-icon  (click)="openDialog('Update',element)" aria-hidden="false" aria-label="Example home icon">edit</mat-icon>    <mat-icon  (click)="openDialog('Delete',element)" aria-hidden="false" aria-label="Example home icon">close</mat-icon>  
+      </td>
+    </ng-container>
+
     <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
     <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
      
@@ -127,16 +135,3 @@
     
   </div>
 </div>
- 
-<div class="container-fluid">
- <div class="row">
-<div class="col-md-12 ml-auto mr-auto" >
-
-
- 
-</div>
-  </div>
-
-
-
- </div>

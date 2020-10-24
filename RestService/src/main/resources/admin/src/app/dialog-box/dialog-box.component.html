@@ -1,0 +1,36 @@
+<!-- dialog-box.component.html -->
+<h1 mat-dialog-title> Action :: <strong>{{action}}</strong></h1>
+<div mat-dialog-content>
+<!--   <mat-form-field *ngIf="action != 'Delete'; else elseTemplate">
+    <input placeholder="{{action}} Name" matInput [(ngModel)]="local_data.name">
+  </mat-form-field>
+   <mat-form-field appearance="legacy">
+    <mat-label>Legacy form field</mat-label>
+    <input matInput placeholder="Placeholder">
+    <mat-icon matSuffix>sentiment_very_satisfied</mat-icon>
+    <mat-hint>Hint</mat-hint>
+  </mat-form-field> -->
+  <div class="row" *ngIf="action == 'Update';" >
+  <mat-form-field  *ngFor="let data of local_data| keyvalue">
+     <input  [formControl]="data.key"  value="{{data.value}}"  matInput [(ngModel)]="data.key">
+     <mat-icon matSuffix>edit</mat-icon>
+       <mat-hint>{{data.key}}</mat-hint>
+    
+  </mat-form-field>
+  </div>
+   <div class="row" *ngIf="action == 'Add'; " >
+  <mat-form-field  *ngFor="let data of local_data| keyvalue">
+     <input  [formControl]="data.key"    matInput [(ngModel)]="data.key">
+     <mat-icon matSuffix>add</mat-icon>
+       <mat-hint>{{data.key}}</mat-hint>
+    
+  </mat-form-field>
+  </div>
+  <div *ngIf="action == 'Delete'; ">
+    Sure to delete Record with id <b>{{local_data.id}}</b>?
+  </div>
+</div>
+<div mat-dialog-actions>
+  <button mat-button (click)="doAction()">{{action}}</button>
+  <button mat-button (click)="closeDialog()" mat-flat-button color="warn">Cancel</button>
+</div>

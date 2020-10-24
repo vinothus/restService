@@ -1,1 +1,129 @@
-<p>validation works!</p>
+ <div class="panel-header panel-header-sm" style="background: linear-gradient(90deg,#0c2646 0,#204065 60%,#2a5788);     height: 170px;">
+  
+   <div class="header text-center">
+    <h1 class="title">Validation Configuration</h1>
+   
+  </div>
+</div>
+ <div class="main-content">
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card">
+    <h4 class="card-header">Validation</h4>
+    <div class="card-body">
+        <form [formGroup]="UIForm" (ngSubmit)="FormSubmit()">
+         <div class="row">
+            <div class="form-group col">
+                <label for="username">ID</label>
+                <input  [class.is-invalid]="f.email.invalid && f.email.touched" type="text" formControlName="email"   placeholder="ID" class="form-control" [ngClass]="{ 'is-invalid': submitted && f.email.errors }" />
+                <div *ngIf="submitted && f.email.errors" class="invalid-feedback">
+                    <div *ngIf="f.email.errors['required']">Username is required</div>
+                      <div *ngIf="f.email.errors['email']">Email must be a valid email address</div>
+                      <div *ngIf="f.email.errors['emailValidation']">UserName or Password Error</div>
+                </div>
+            </div>
+            <div class="form-group col">
+                <label for="password">Name</label>
+                <input type="password" formControlName="password"   placeholder="Name" class="form-control" [ngClass]="{ 'is-invalid': submitted && f.password.errors }" />
+                <div *ngIf="submitted && f.password.errors" class="invalid-feedback">
+                    <div *ngIf="f.password.errors['required']">Password is required</div>
+                </div>
+            </div>
+            </div>
+            <div class="row">
+            <div class="form-group col">
+                <label for="username">Class Name</label>
+                <input  [class.is-invalid]="f.email.invalid && f.email.touched" type="text" formControlName="email"   placeholder="Class Name" class="form-control" [ngClass]="{ 'is-invalid': submitted && f.email.errors }" />
+                <div *ngIf="submitted && f.email.errors" class="invalid-feedback">
+                    <div *ngIf="f.email.errors['required']">Username is required</div>
+                      <div *ngIf="f.email.errors['email']">Email must be a valid email address</div>
+                      <div *ngIf="f.email.errors['emailValidation']">UserName or Password Error</div>
+                </div>
+            </div>
+            <div class="form-group col">
+                <label for="password">Param Class Name</label>
+                <input type="password" formControlName="password"   placeholder="Param Class Name" class="form-control" [ngClass]="{ 'is-invalid': submitted && f.password.errors }" />
+                <div *ngIf="submitted && f.password.errors" class="invalid-feedback">
+                    <div *ngIf="f.password.errors['required']">Password is required</div>
+                </div>
+            </div>
+            </div>
+            
+             
+            
+            <div class="form-group">
+            
+           
+            
+                <button [disabled]="loading" class="btn btn-primary">
+                    <span *ngIf="loading" class="spinner-border spinner-border-sm mr-1"></span>
+                    Save
+                </button>
+                 
+            </div>
+        </form>
+    </div>
+</div>
+    </div>
+    <div class="col-md-12">
+      <div class="card">
+        <div class="card-header">
+          <h4 class="card-title">Validation Configuration Grid</h4>
+        </div>
+        <div class="card-body">
+           <mat-form-field>
+  <mat-label>Filter</mat-label>
+  <input matInput (keyup)="applyFilter($event)" placeholder="Ex. ium" #input>
+</mat-form-field>
+<div class="mat-elevation-z8">
+  <table mat-table [dataSource]="dataSource">
+
+    <!-- Position Column -->
+    <ng-container matColumnDef="id">
+      <th mat-header-cell *matHeaderCellDef> No. </th>
+      <td mat-cell *matCellDef="let element"> {{element.id}} </td>
+    </ng-container>
+<ng-container matColumnDef="serviceid">
+      <th mat-header-cell *matHeaderCellDef> Attr ID </th>
+      <td  mat-cell *matCellDef="let element"> {{element.serviceid}} </td>
+    </ng-container>
+    <ng-container matColumnDef="attrid">
+      <th mat-header-cell *matHeaderCellDef>Service ID </th>
+      <td mat-cell *matCellDef="let element"> {{element.attrid}} </td>
+    </ng-container>
+ <ng-container matColumnDef="uid">
+      <th mat-header-cell *matHeaderCellDef> User Name </th>
+      <td mat-cell *matCellDef="let element"> {{element.uid}} </td>
+    </ng-container>
+    <!-- Name Column -->
+    <ng-container matColumnDef="name">
+      <th mat-header-cell *matHeaderCellDef> Name </th>
+      <td mat-cell *matCellDef="let element"> {{element.name}} </td>
+    </ng-container>
+
+    <!-- Weight Column -->
+    <ng-container matColumnDef="classname">
+      <th mat-header-cell *matHeaderCellDef> Class Name </th>
+      <td mat-cell *matCellDef="let element"> {{element.classname}} </td>
+    </ng-container>
+
+    <!-- Symbol Column -->
+    <ng-container matColumnDef="paramclassname">
+      <th mat-header-cell *matHeaderCellDef> Param Class Name </th>
+      <td mat-cell *matCellDef="let element"> {{element.paramclassname }} </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+     
+    
+  </table>
+
+  <mat-paginator [pageSizeOptions]="[5, 10,15, 20]" showFirstLastButtons></mat-paginator>
+</div>
+        </div>
+      </div>
+    </div>
+    
+  </div>
+</div>
