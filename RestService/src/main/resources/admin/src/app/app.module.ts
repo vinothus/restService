@@ -71,6 +71,7 @@ import {MatToolbarModule} from '@angular/material/toolbar';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {MatTreeModule} from '@angular/material/tree';
 import {OverlayModule} from '@angular/cdk/overlay';
+import { DialogBoxComponent } from './dialog-box/dialog-box.component';
 @NgModule({
   imports: [
 	ReactiveFormsModule,
@@ -143,7 +144,8 @@ import {OverlayModule} from '@angular/cdk/overlay';
     ServiceattributeComponent,
     MultiserviceComponent,
     ValidationComponent,
-    ProcessorComponent
+    ProcessorComponent,
+    DialogBoxComponent
 
   ],
   providers: [
