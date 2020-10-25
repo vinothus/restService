@@ -1,1 +1,69 @@
-<p>serviceattribute works!</p>
+ <div class="panel-header panel-header-sm" style="background: linear-gradient(90deg,#0c2646 0,#204065 60%,#2a5788);     height: 170px;">
+  
+   <div class="header text-center">
+    <h1 class="title">Rest Service Attribute Configuration</h1>
+   
+  </div>
+</div>
+ <div class="main-content">
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card">
+        <div class="card-header">
+          <h4 class="card-title">Rest Service Attribute Configuration Grid</h4>
+        </div>
+        <div class="card-body">
+           <mat-form-field>
+  <mat-label>Filter</mat-label>
+  <input matInput (keyup)="applyFilter($event)" placeholder="Ex. ium" #input>
+</mat-form-field>
+<div class="mat-elevation-z8">
+  <table mat-table [dataSource]="dataSource" matSort>
+
+    <!-- Position Column -->
+    <ng-container matColumnDef="id">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> ID </th>
+      <td mat-cell *matCellDef="let element"> {{element.id}} </td>
+    </ng-container>
+     <ng-container matColumnDef="serviceid">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Service ID </th>
+      <td mat-cell *matCellDef="let element"> {{element.serviceid}} </td>
+    </ng-container>
+<ng-container matColumnDef="attrname">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Attribute Name </th>
+      <td  mat-cell *matCellDef="let element"> {{element.attrname}} </td>
+    </ng-container>
+    <ng-container matColumnDef="colname">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Column Name </th>
+      <td mat-cell *matCellDef="let element"> {{element.colname}} </td>
+    </ng-container>
+ 
+  <ng-container matColumnDef="action">
+      <th mat-header-cell *matHeaderCellDef> Action </th>
+      <td mat-cell *matCellDef="let element" class="action-link"> 
+        <mat-icon  (click)="openDialog('Add',element)" aria-hidden="false" aria-label="Example home icon">add_box</mat-icon>   <mat-icon  (click)="openDialog('Update',element)" aria-hidden="false" aria-label="Example home icon">edit</mat-icon>    <mat-icon  (click)="openDialog('Delete',element)" aria-hidden="false" aria-label="Example home icon">close</mat-icon>  
+      </td>
+    </ng-container>
+
+     
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+     
+    
+  </table>
+<div *ngIf="isLoading" 
+   style="display: flex; justify-content: center; align-items: center; background: white;">
+  <mat-progress-spinner 
+    color="primary" 
+    mode="indeterminate">
+  </mat-progress-spinner>
+</div>
+  <mat-paginator [pageSizeOptions]="[5, 10,15, 20]" showFirstLastButtons></mat-paginator>
+</div>
+        </div>
+      </div>
+    </div>
+    
+  </div>
+</div>

@@ -342,6 +342,7 @@ public class EmployeeRepositaryImpl {
 		// Service_Attr
 		DbColumn attrid;
 		DbColumn serid;
+		DbColumn serUId;
 		DbColumn attrName;
 		DbColumn colName;
 
@@ -434,12 +435,14 @@ public class EmployeeRepositaryImpl {
 		id.primaryKey();
 		tableName = tableService.addColumn("tableName", Types.VARCHAR, 100);
 		serviceName = tableService.addColumn("serviceName", Types.VARCHAR, 100);
+		serUId = tableService.addColumn("uid", Types.INTEGER, 10);
 
 		// Service_Attr
 
 		attrid = tableServiceAttr.addColumn("id", Types.INTEGER, 10);
 		attrid.primaryKey();
 		serid = tableServiceAttr.addColumn("service_id", Types.INTEGER, 10);
+		//serUId = tableDataStore.addColumn("uid", Types.INTEGER, 10);
 		attrName = tableServiceAttr.addColumn("attrName", Types.VARCHAR, 100);
 		colName = tableServiceAttr.addColumn("colName", Types.VARCHAR, 100);
 

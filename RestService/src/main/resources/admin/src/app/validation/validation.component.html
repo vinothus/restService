@@ -9,64 +9,6 @@
   <div class="row">
     <div class="col-md-12">
       <div class="card">
-    <h4 class="card-header">Validation</h4>
-    <div class="card-body">
-        <form [formGroup]="UIForm" (ngSubmit)="FormSubmit()">
-         <div class="row">
-            <div class="form-group col">
-                <label for="username">ID</label>
-                <input  [class.is-invalid]="f.email.invalid && f.email.touched" type="text" formControlName="email"   placeholder="ID" class="form-control" [ngClass]="{ 'is-invalid': submitted && f.email.errors }" />
-                <div *ngIf="submitted && f.email.errors" class="invalid-feedback">
-                    <div *ngIf="f.email.errors['required']">Username is required</div>
-                      <div *ngIf="f.email.errors['email']">Email must be a valid email address</div>
-                      <div *ngIf="f.email.errors['emailValidation']">UserName or Password Error</div>
-                </div>
-            </div>
-            <div class="form-group col">
-                <label for="password">Name</label>
-                <input type="password" formControlName="password"   placeholder="Name" class="form-control" [ngClass]="{ 'is-invalid': submitted && f.password.errors }" />
-                <div *ngIf="submitted && f.password.errors" class="invalid-feedback">
-                    <div *ngIf="f.password.errors['required']">Password is required</div>
-                </div>
-            </div>
-            </div>
-            <div class="row">
-            <div class="form-group col">
-                <label for="username">Class Name</label>
-                <input  [class.is-invalid]="f.email.invalid && f.email.touched" type="text" formControlName="email"   placeholder="Class Name" class="form-control" [ngClass]="{ 'is-invalid': submitted && f.email.errors }" />
-                <div *ngIf="submitted && f.email.errors" class="invalid-feedback">
-                    <div *ngIf="f.email.errors['required']">Username is required</div>
-                      <div *ngIf="f.email.errors['email']">Email must be a valid email address</div>
-                      <div *ngIf="f.email.errors['emailValidation']">UserName or Password Error</div>
-                </div>
-            </div>
-            <div class="form-group col">
-                <label for="password">Param Class Name</label>
-                <input type="password" formControlName="password"   placeholder="Param Class Name" class="form-control" [ngClass]="{ 'is-invalid': submitted && f.password.errors }" />
-                <div *ngIf="submitted && f.password.errors" class="invalid-feedback">
-                    <div *ngIf="f.password.errors['required']">Password is required</div>
-                </div>
-            </div>
-            </div>
-            
-             
-            
-            <div class="form-group">
-            
-           
-            
-                <button [disabled]="loading" class="btn btn-primary">
-                    <span *ngIf="loading" class="spinner-border spinner-border-sm mr-1"></span>
-                    Save
-                </button>
-                 
-            </div>
-        </form>
-    </div>
-</div>
-    </div>
-    <div class="col-md-12">
-      <div class="card">
         <div class="card-header">
           <h4 class="card-title">Validation Configuration Grid</h4>
         </div>
@@ -76,41 +18,49 @@
   <input matInput (keyup)="applyFilter($event)" placeholder="Ex. ium" #input>
 </mat-form-field>
 <div class="mat-elevation-z8">
-  <table mat-table [dataSource]="dataSource">
+  <table mat-table [dataSource]="dataSource" matSort>
 
     <!-- Position Column -->
     <ng-container matColumnDef="id">
-      <th mat-header-cell *matHeaderCellDef> No. </th>
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> ID </th>
       <td mat-cell *matCellDef="let element"> {{element.id}} </td>
     </ng-container>
 <ng-container matColumnDef="serviceid">
-      <th mat-header-cell *matHeaderCellDef> Attr ID </th>
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Attr ID </th>
       <td  mat-cell *matCellDef="let element"> {{element.serviceid}} </td>
     </ng-container>
     <ng-container matColumnDef="attrid">
-      <th mat-header-cell *matHeaderCellDef>Service ID </th>
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Service ID </th>
       <td mat-cell *matCellDef="let element"> {{element.attrid}} </td>
     </ng-container>
  <ng-container matColumnDef="uid">
-      <th mat-header-cell *matHeaderCellDef> User Name </th>
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> User Name </th>
       <td mat-cell *matCellDef="let element"> {{element.uid}} </td>
     </ng-container>
     <!-- Name Column -->
     <ng-container matColumnDef="name">
-      <th mat-header-cell *matHeaderCellDef> Name </th>
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Name </th>
       <td mat-cell *matCellDef="let element"> {{element.name}} </td>
     </ng-container>
 
     <!-- Weight Column -->
-    <ng-container matColumnDef="classname">
-      <th mat-header-cell *matHeaderCellDef> Class Name </th>
+    <ng-container matColumnDef="classname" >
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Class Name </th>
       <td mat-cell *matCellDef="let element"> {{element.classname}} </td>
     </ng-container>
 
     <!-- Symbol Column -->
     <ng-container matColumnDef="paramclassname">
-      <th mat-header-cell *matHeaderCellDef> Param Class Name </th>
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Param Class Name </th>
       <td mat-cell *matCellDef="let element"> {{element.paramclassname }} </td>
+    </ng-container>
+
+<!-- Action Column -->
+    <ng-container matColumnDef="action">
+      <th mat-header-cell *matHeaderCellDef> Action </th>
+      <td mat-cell *matCellDef="let element" class="action-link"> 
+        <mat-icon  (click)="openDialog('Add',element)" aria-hidden="false" aria-label="Example home icon">add_box</mat-icon>   <mat-icon  (click)="openDialog('Update',element)" aria-hidden="false" aria-label="Example home icon">edit</mat-icon>    <mat-icon  (click)="openDialog('Delete',element)" aria-hidden="false" aria-label="Example home icon">close</mat-icon>  
+      </td>
     </ng-container>
 
     <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
@@ -118,7 +68,13 @@
      
     
   </table>
-
+<div *ngIf="isLoading" 
+   style="display: flex; justify-content: center; align-items: center; background: white;">
+  <mat-progress-spinner 
+    color="primary" 
+    mode="indeterminate">
+  </mat-progress-spinner>
+</div>
   <mat-paginator [pageSizeOptions]="[5, 10,15, 20]" showFirstLastButtons></mat-paginator>
 </div>
         </div>

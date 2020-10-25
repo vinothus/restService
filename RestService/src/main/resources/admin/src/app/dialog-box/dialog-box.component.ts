@@ -51,6 +51,10 @@ this.UIForm.get(this.primaryKey).disable();
 
   doAction(){
 	this.submitted = true;
+	if(this.action=='Update'||this.action=='Delete')
+	{
+		this.UIForm.get(this.primaryKey).enable();
+	}
 	if (!this.UIForm.invalid) {
     this.dialogRef.close({event:this.action,data:this.UIForm.value});
 }
