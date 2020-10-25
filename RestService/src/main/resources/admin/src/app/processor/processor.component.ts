@@ -15,19 +15,22 @@ import { DialogBoxComponent } from '../dialog-box/dialog-box.component';
 export class ProcessorComponent implements OnInit, AfterViewInit {
 	//displayedColumns: string[];// = ['position', 'name', 'weight', 'symbol'];
 	displayedColumns: string[];//=["id","uid","serviceid","attrid","name","classname","paramclassname"];
+	componentName: string='Processor Configuration';
 	model = {};
 	dataSource: any;
 	data: any;
+	primaryKey: string='id';
+	isLoading = true;
+	serviceName: string ='vinprocessor';
 	@ViewChild(MatPaginator) paginator: MatPaginator;
 	@ViewChild(MatSort) sort: MatSort;
-	 @ViewChild(MatTableDataSource,{static:true}) table: MatTableDataSource<any>;
+	// @ViewChild(MatTableDataSource,{static:true}) table: MatTableDataSource<any>;
 
 	  ProcessorForm: FormGroup;
     loading = false;
     submitted = false;
 	ngAfterViewInit() {
-		this.dataSource.paginator = this.paginator;
-		this.dataSource.sort = this.sort;
+		
 		
 	}
 	constructor( public dialog: MatDialog, public formBuilder: FormBuilder,  public authService: AuthService) {
@@ -39,7 +42,7 @@ export class ProcessorComponent implements OnInit, AfterViewInit {
 		let map = new Map<string,string>();
 		let uid=localStorage.getItem('uid');
 		map.set('uid',uid);
-		this.authService.getdata('vinprocessor',map).subscribe((res) => {
+		this.authService.getdata(this.serviceName,map).subscribe((res) => {
 			this.data =res;
 		 
 		console.log(this.displayedColumns);
@@ -55,6 +58,9 @@ export class ProcessorComponent implements OnInit, AfterViewInit {
 		this.columnClick('serviceid');
 		this.columnClick('attrid');
 		// this.data[0].name='vinoth';
+		this.dataSource.paginator = this.paginator;
+		this.dataSource.sort = this.sort;
+		this.isLoading = false;
     });
 		 
 		 
@@ -64,19 +70,27 @@ export class ProcessorComponent implements OnInit, AfterViewInit {
 	
 	openDialog(action,obj) {
     obj.action = action;
+    let width='700px';
+	if(action == 'Delete'){
+		 width='400px';
+		}
+    obj.componentName = this.componentName;
+    obj.primaryKey=this.primaryKey;
     const dialogRef = this.dialog.open(DialogBoxComponent, {
-      width: '250px',
+      width: width,
       data:obj
     });
 
     dialogRef.afterClosed().subscribe(result => {
-      if(result.event == 'Add'){
+	if(result!=undefined)
+     { if(result.event == 'Add'){
         this.addRowData(result.data);
       }else if(result.event == 'Update'){
         this.updateRowData(result.data);
       }else if(result.event == 'Delete'){
         this.deleteRowData(result.data);
       }
+     }
     });
   }
 	
@@ -108,28 +122,78 @@ ProcessorSubmit(){
 }
 
  addRowData(row_obj){
-    var d = new Date();
-    this.dataSource.push({
-      id:d.getTime(),
-      name:row_obj.name
+	this.isLoading = true;
+	delete row_obj[this.primaryKey];
+	const promise =this.authService.addData(this.serviceName,row_obj);
+	promise.then((data)=>{
+      console.log("Promise resolved with: " + JSON.stringify(data));
+      this.reinit();
+     
+    }).catch((error)=>{
+      console.log("Promise rejected with " + JSON.stringify(error));
+     this.isLoading = false;
+      
     });
-    this.table._renderChangesSubscription;
     
+ 
   }
   updateRowData(row_obj){
-    this.dataSource = this.dataSource.filter((value,key)=>{
-      if(value.id == row_obj.id){
-        value.name = row_obj.name;
-      }
-      return true;
+	this.isLoading = true;
+  const promise= this.authService.updateData(this.serviceName,row_obj);
+   promise.then((data)=>{
+      console.log("Promise resolved with: " + JSON.stringify(data));
+      this.reinit();
+     
+    }).catch((error)=>{
+      console.log("Promise rejected with " + JSON.stringify(error));
+      this.isLoading = false;
+      
     });
+	
+   
   }
   deleteRowData(row_obj){
-    this.dataSource = this.dataSource.filter((value,key)=>{
-      return value.id != row_obj.id;
+	this.isLoading = true;
+   const promise=   this.authService.deleteUniqueData(this.serviceName,row_obj[this.primaryKey]);
+   promise.then((data)=>{
+      console.log("Promise resolved with: " + JSON.stringify(data));
+  this.reinit();
+     return data;
+    }).catch((error)=>{
+      console.log("Promise rejected with " + JSON.stringify(error));
+      this.isLoading = false;
+      
     });
+   
   }
+reinit()
+{
+	
+	let map = new Map<string,string>();
+		let uid=localStorage.getItem('uid');
+		map.set('uid',uid);
+		this.authService.getdata(this.serviceName,map).subscribe((res) => {
+			this.data =res;
+		 
+		console.log(this.displayedColumns);
+        this.displayedColumns = [];
 
+		for (var key in this.data[0]) {
+
+			this.displayedColumns.push(key);
+		}
+		this.displayedColumns.push('action');
+		this.dataSource = new MatTableDataSource<any>(this.data );
+		this.columnClick('uid');
+		this.columnClick('serviceid');
+		this.columnClick('attrid');
+		this.dataSource.paginator = this.paginator;
+		this.dataSource.sort = this.sort;
+		this.isLoading = false;
+		// this.data[0].name='vinoth';
+    });
+	
+}
 }
 
 

@@ -92,6 +92,7 @@ public class GenericController {
 		return new GenericController();
 	}
 	@MethodName(MethodName="addData")
+	@CrossOrigin
 	public ResponseEntity<Map<String, Object>> addData(@PathVariable("service") String service,
 			@RequestBody String params) throws Exception {
 		ObjectMapper mapper = new ObjectMapper();
@@ -109,6 +110,7 @@ public class GenericController {
 				new HttpHeaders(), HttpStatus.OK);
 	}
 	@MethodName(MethodName="updateData")
+	@CrossOrigin
 	public ResponseEntity<Map<String, Object>> updateData(@PathVariable("service") String service,
 			@RequestBody String params) throws Exception {
 		ObjectMapper mapper = new ObjectMapper();
@@ -203,6 +205,7 @@ public class GenericController {
 			return null;
 		}
 		@MethodName(MethodName="initGC")
+		@CrossOrigin
 		public ResponseEntity<String>	initGC()
 		{
 			employeeRepositaryImpl.init();

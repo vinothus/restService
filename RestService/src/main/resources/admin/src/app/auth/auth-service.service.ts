@@ -176,13 +176,7 @@ deleteUniqueData(service: string, id: string)
     });
 const promise = this.httpClient.delete(this.API_URL+`/${this.APP_NAME}/${service}/deleteData/${id}`, { headers:headers }).toPromise();	
  console.log(promise);  
-    promise.then((data)=>{
-      console.log("Promise resolved with: " + JSON.stringify(data));
-     return data;
-    }).catch((error)=>{
-      console.log("Promise rejected with " + JSON.stringify(error));
-      
-    });
+   return promise;
 }
 addData(service: string, data: any)
 {
@@ -193,13 +187,8 @@ addData(service: string, data: any)
  
   const promise = this.httpClient.post(this.API_URL+`/${this.APP_NAME}/${service}/addData`, data, { headers }).toPromise();	
 	 console.log(promise);  
-    promise.then((data)=>{
-      console.log("Promise resolved with: " + JSON.stringify(data));
-     return data;
-    }).catch((error)=>{
-      console.log("Promise rejected with " + JSON.stringify(error));
-      
-    });
+  
+return promise;
 	
 }	
 updateData(service: string, data: any)
@@ -212,14 +201,7 @@ updateData(service: string, data: any)
 
   const promise = this.httpClient.put(this.API_URL+`/${this.APP_NAME}/${service}/updateData`,  data, { headers:headers }).toPromise();	
 	 console.log(promise);  
-    promise.then((data)=>{
-      console.log("Promise resolved with: " + JSON.stringify(data));
-     return data;
-    }).catch((error)=>{
-      console.log("Promise rejected with " + JSON.stringify(error));
-      
-    });
-	
+   return promise;
 }
 
 }

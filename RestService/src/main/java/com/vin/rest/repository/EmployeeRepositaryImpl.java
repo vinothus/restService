@@ -576,7 +576,7 @@ public class EmployeeRepositaryImpl {
 								}
 							} else {
 
-								primaryKey = findMax(tableName);
+								primaryKey = findMax(table.getName());
 								if(primaryKey==null)
 								{
 									primaryKey="0";
@@ -634,7 +634,7 @@ public class EmployeeRepositaryImpl {
 		if(!isPresentinDB(service))
 		{
 			String tableName=service.replace(" ", "_");
-		setTableColumn(tableName.toUpperCase());
+		setTableColumn(tableName);
 		}
 	}
 
@@ -657,7 +657,7 @@ public class EmployeeRepositaryImpl {
 				if (data.get(0).get("tableName") != null) {
 					try {
 						tableName = (String) data.get(0).get("tableName");
-						setTableColumn(tableName.toUpperCase());
+						setTableColumn(tableName);
 					} catch (Exception e) {
 
 					}
@@ -668,11 +668,45 @@ public class EmployeeRepositaryImpl {
 	
 	private boolean isPresentinDBOnly(String service) {
 
-		String selectQuery = " select tableName from Service where serviceName = '" + service + "'";
+		String selectQuery = " show tables ";
 		List<Map<String, Object>> data = new ArrayList<Map<String, Object>>();
 		boolean isPresent=false;
 		try {
 			data = jdbcTemplate.queryForList(selectQuery);
+			for (Iterator iterator = data.iterator(); iterator.hasNext();) {
+				Map<String, Object> rowMap = (Map<String, Object>) iterator.next();
+				for (Map.Entry<String, Object> entry : rowMap.entrySet()) {
+
+					if (String.valueOf(entry.getValue()).equalsIgnoreCase(service)) {
+						return true;
+					}
+				}
+
+			}
+		} catch (Exception e) {
+			log.info(e.getMessage());
+			return isPresent;
+		}
+		 
+		return isPresent;
+	}
+	private String getTableName(String service) {
+
+		String selectQuery = " show tables ";
+		List<Map<String, Object>> data = new ArrayList<Map<String, Object>>();
+		String isPresent=null;
+		try {
+			data = jdbcTemplate.queryForList(selectQuery);
+			for (Iterator iterator = data.iterator(); iterator.hasNext();) {
+				Map<String, Object> rowMap = (Map<String, Object>) iterator.next();
+				for (Map.Entry<String, Object> entry : rowMap.entrySet()) {
+
+					if (String.valueOf(entry.getValue()).equalsIgnoreCase(service)) {
+						return String.valueOf(entry.getValue());
+					}
+				}
+
+			}
 		} catch (Exception e) {
 			log.info(e.getMessage());
 			return isPresent;
@@ -750,10 +784,10 @@ public class EmployeeRepositaryImpl {
 			 
 			if(md.getURL().contains("mysql"))
 			{
-				
+				tableName=getTableName(tableName);
 				 tableNameT = schemaObj.addTable(tableName);
 				List<DbColumn> listArraycol = new ArrayList<>();
-				if(isPresentinDBOnly(tableName))
+				if(tableName!=null)
 				{List<Map<String,Object>>	colums=jdbcTemplate.queryForList("desc "+tableName);
 				for (Iterator iterator2 = colums.iterator(); iterator2.hasNext();) {
 					 isTablePresent=true;

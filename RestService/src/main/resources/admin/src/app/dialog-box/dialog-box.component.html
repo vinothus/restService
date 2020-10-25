@@ -1,6 +1,10 @@
 <!-- dialog-box.component.html -->
-<h1 mat-dialog-title> Action :: <strong>{{action}}</strong></h1>
-<div mat-dialog-content>
+ <div class="header text-center">
+
+   <h1 class="title" mat-dialog-title> <strong> {{action}}  {{componentName}}</strong></h1>
+  </div>
+
+<div mat-dialog-content  style="width: 100%; margin: 0px;">
 <!--   <mat-form-field *ngIf="action != 'Delete'; else elseTemplate">
     <input placeholder="{{action}} Name" matInput [(ngModel)]="local_data.name">
   </mat-form-field>
@@ -10,27 +14,61 @@
     <mat-icon matSuffix>sentiment_very_satisfied</mat-icon>
     <mat-hint>Hint</mat-hint>
   </mat-form-field> -->
-  <div class="row" *ngIf="action == 'Update';" >
-  <mat-form-field  *ngFor="let data of local_data| keyvalue">
-     <input  [formControl]="data.key"  value="{{data.value}}"  matInput [(ngModel)]="data.key">
+  
+  <form [formGroup]="UIForm"   class="row" *ngIf="action == 'Update';">
+  <div class="form-group  input-group col-md-12"   *ngFor="let data of local_data| keyvalue" >
+   <!--  <label for="{{data.key}}">{{data.key}}</label> -->
+    <div class="input-group-prepend" style="height: 38px; border-right: 1px solid #ced4da !important; width: 100px;">
+          <span class="input-group-text" style="color: #000000; width: 100px; overflow: hidden;   white-space: nowrap;    text-overflow: ellipsis; " id="inputGroupPrepend2{{data.key}}">{{data.key}}&nbsp;</span>
+        </div>
+    <input type="text"  value="{{data.value}}" formControlName="{{data.key}}" class="form-control" id="{{data.key}}" aria-describedby="Help" placeholder="{{data.key}}">
+     <mat-icon    aria-hidden="false" aria-label="Example home icon">edit</mat-icon> 
+  <!--   <small id="{{data.key}}Help" class="form-text text-muted">please enter {{data.key}}</small> -->
+  <div *ngIf="submitted && f[data.key].errors" class="invalid-feedback">
+                    <div *ngIf="f[data.key].errors['required']">{{data.key}} is required</div>
+                     
+                </div>
+  </div>
+  
+</form>
+  <form [formGroup]="UIForm"   class="row" *ngIf="action == 'Add';">
+  <div class="form-group input-group col-md-12"  *ngFor="let data of local_data| keyvalue" >
+   <!--  <label for="{{data.key}}">{{data.key}}</label> -->
+     <div class="input-group-prepend"  style="height: 38px; border-right: 1px solid #ced4da !important;">
+          <span class="input-group-text" style="color: #000000; width: 100px; overflow: hidden;   white-space: nowrap;    text-overflow: ellipsis; " id="inputGroupPrepend2{{data.key}}">{{data.key}}&nbsp;</span>
+        </div>
+    <input type="text" formControlName="{{data.key}}"  class="form-control" id="{{data.key}}" aria-describedby="Help" placeholder="{{data.key}}">
+     <mat-icon    aria-hidden="false" aria-label="Example home icon">add_box</mat-icon> 
+  <!--   <small id="{{data.key}}Help" class="form-text text-muted">please enter {{data.key}}</small> -->
+  <div *ngIf="submitted && f[data.key].errors" class="invalid-feedback">
+                    <div *ngIf="f[data.key].errors['required']">{{data.key}} is required</div>
+                     
+                </div>
+  </div>
+  
+</form>
+  <!-- <div class="row" *ngIf="action == 'Update';" >
+  <mat-form-field  mat-dialog-content  style="width: 275px;" *ngFor="let data of local_data| keyvalue">
+     <input  [formControl]="data.key" formControlName="{{data.key}}" value="{{data.value}}"  matInput [(ngModel)]="data.key">
      <mat-icon matSuffix>edit</mat-icon>
        <mat-hint>{{data.key}}</mat-hint>
     
   </mat-form-field>
   </div>
    <div class="row" *ngIf="action == 'Add'; " >
-  <mat-form-field  *ngFor="let data of local_data| keyvalue">
-     <input  [formControl]="data.key"    matInput [(ngModel)]="data.key">
+  <mat-form-field mat-dialog-content  style="width: 290px;"  *ngFor="let data of local_data| keyvalue">
+     <input  [formControl]="data.key" formControlName="{{data.key}}"   matInput [(ngModel)]="data.key">
      <mat-icon matSuffix>add</mat-icon>
        <mat-hint>{{data.key}}</mat-hint>
     
   </mat-form-field>
-  </div>
+  </div> -->
   <div *ngIf="action == 'Delete'; ">
     Sure to delete Record with id <b>{{local_data.id}}</b>?
+    <br>
   </div>
 </div>
-<div mat-dialog-actions>
-  <button mat-button (click)="doAction()">{{action}}</button>
+<div  class="header text-center">
+  <button mat-button (click)="doAction()">{{action}}</button>&nbsp;
   <button mat-button (click)="closeDialog()" mat-flat-button color="warn">Cancel</button>
 </div>
