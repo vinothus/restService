@@ -156,7 +156,7 @@ public class GenericController {
 	public ResponseEntity<String>	refreshMataData(@PathVariable("service") String service,@PathVariable("apiKey") String apiKey,@PathVariable("dataStoreKey") String dataStoreKey) throws RecordNotFoundException
 	{
 		
-		return new ResponseEntity<String>(employeeRepositaryImpl.refreshMataData(service),new HttpHeaders(), HttpStatus.OK)	;
+		return new ResponseEntity<String>(employeeRepositaryImpl.refreshMataData(service,apiKey,dataStoreKey),new HttpHeaders(), HttpStatus.OK)	;
 	}
 	@MethodName(MethodName="clearCache")
 	@CrossOrigin

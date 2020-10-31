@@ -61,6 +61,11 @@ public class EmployeeRepositaryImpl {
 	JdbcTemplate jdbcTemplate;
 	static DbSchema schemaObj;
 	static DbSpec specficationObj;
+	
+	public static Map<String,Map<String, String>> userServiceTableMap= new ConcurrentHashMap<>();
+	public static Map<String,Map<DbTable, List<DbColumn>>> userTableColumnMap= new ConcurrentHashMap<>();
+	static Map<String,Map<String, Map<String, String>>> userServiceAttrbMap= new ConcurrentHashMap<>();
+	
 	public static Map<String, String> serviceTableMap= new ConcurrentHashMap<>();
 	public static Map<DbTable, List<DbColumn>> tableColumnMap= new ConcurrentHashMap<>();
 	static Map<String, Map<String, String>> serviceAttrbMap= new ConcurrentHashMap<>();
@@ -73,16 +78,16 @@ public class EmployeeRepositaryImpl {
 
 		try {
 			//tableColumnMap = getMetaDatum();
-			initGoldenTables();
+			initGoldenTables("SYSTEM","SYSTEM");
 
-			getServiceTableMap();
+			getServiceTableMap("SYSTEM","SYSTEM");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 
 	}
 
-	private void initGoldenTables() throws Exception {
+	private void initGoldenTables(String apiKey, String dataStoreKey) throws Exception {
 		List<DbTable> serviceTables = initializeTable();
 		boolean serviceTabisPresent = false;
 		for (Iterator<DbTable> iterator = serviceTables.iterator(); iterator.hasNext();) {
@@ -100,16 +105,16 @@ public class EmployeeRepositaryImpl {
 		if (!serviceTabisPresent) {
 			for (Iterator<DbTable> iterator = serviceTables.iterator(); iterator.hasNext();) {
 				DbTable dbTable = iterator.next();
-				if(!isTablePresent(dbTable.getName()))
+				if(!isTablePresent(dbTable.getName(), apiKey,  dataStoreKey))
 				{
-					createDbTable(dbTable);
+					createDbTable(dbTable, apiKey,  dataStoreKey);
 					}
 
 			}
 
 		}
-		tableColumnMap = getMetaDatum();
-		insertServiceTables();
+		tableColumnMap = getMetaDatum( apiKey,  dataStoreKey);
+		insertServiceTables( apiKey,  dataStoreKey);
 
 	}
 
@@ -125,7 +130,7 @@ public class EmployeeRepositaryImpl {
 
 
 
-	public Map<DbTable, List<DbColumn>> getMetaDatum()  {
+	public Map<DbTable, List<DbColumn>> getMetaDatum(String apiKey, String dataStoreKey)  {
 		loadSQLBuilderSchema();
 		Map<DbTable, List<DbColumn>> metaDatum = new HashMap<>();
 		DatabaseMetaData md;
@@ -238,7 +243,7 @@ public class EmployeeRepositaryImpl {
 		return metaDatum;
 	}
 
-	public void createDbTable(DbTable tableName) {
+	public void createDbTable(DbTable tableName,String apiKey, String dataStoreKey) {
 		log.info("\n=======Creating '" + tableName.getName() + "' In The Database=======\n");
 		loadSQLBuilderSchema();
 		try {
@@ -517,7 +522,7 @@ public class EmployeeRepositaryImpl {
 		String tableName = serviceTableMap.get(service);
 		int updatedata=0;
 		
-		setGDValues(service, tableName);
+		setGDValues(service, tableName, apiKey,  dataStoreKey);
 		tableName = serviceTableMap.get(service);
 		if (tableName == null) {
 			throw new ServiceNotFoundException(serviceNTFEx);
@@ -548,7 +553,7 @@ public class EmployeeRepositaryImpl {
 								}
 							} else {
 
-								primaryKey = findMax(table.getName());
+								primaryKey = findMax(table.getName(), apiKey,  dataStoreKey);
 								if(primaryKey==null)
 								{
 									primaryKey="0";
@@ -599,22 +604,22 @@ public class EmployeeRepositaryImpl {
 	}
 
 	
-	private void arrangeGoldenDataForTable(String tableName) {
+	private void arrangeGoldenDataForTable(String tableName,String apiKey, String dataStoreKey) {
 		loadSQLBuilderSchema();
-		setTableColumn(tableName);
+		setTableColumn(tableName, apiKey,  dataStoreKey);
 		
 	}
-	private void arrangeGoldenData(String service) {
+	private void arrangeGoldenData(String service,String apiKey, String dataStoreKey) {
 		loadSQLBuilderSchema();
-		if(!isPresentinDB(service))
+		if(!isPresentinDB(service, apiKey,  dataStoreKey))
 		{
 			String tableName=service.replace(" ", "_");
-		setTableColumn(tableName);
+		setTableColumn(tableName, apiKey,  dataStoreKey);
 		}
 	}
 
 	 
-	private boolean isPresentinDB(String service) {
+	private boolean isPresentinDB(String service,String apiKey, String dataStoreKey) {
 
 		String selectQuery = " select tableName from Service where serviceName = '" + service + "'";
 		List<Map<String, Object>> data = new ArrayList<Map<String, Object>>();
@@ -633,7 +638,7 @@ public class EmployeeRepositaryImpl {
 				if (data.get(0).get("tableName") != null) {
 					try {
 						tableName = (String) data.get(0).get("tableName");
-						setTableColumn(tableName);
+						setTableColumn(tableName, apiKey,  dataStoreKey);
 					} catch (Exception e) {
 
 					}
@@ -642,7 +647,7 @@ public class EmployeeRepositaryImpl {
 		return isPresent;
 	}
 	
-	private boolean isPresentinDBOnly(String service) {
+	private boolean isPresentinDBOnly(String service,String apiKey, String dataStoreKey) {
 
 		String selectQuery = " show tables ";
 		List<Map<String, Object>> data = new ArrayList<Map<String, Object>>();
@@ -666,7 +671,7 @@ public class EmployeeRepositaryImpl {
 		 
 		return isPresent;
 	}
-	private String getTableName(String service) {
+	private String getTableName(String service,String apiKey, String dataStoreKey) {
 
 		String selectQuery = " show tables ";
 		List<Map<String, Object>> data = new ArrayList<Map<String, Object>>();
@@ -691,7 +696,7 @@ public class EmployeeRepositaryImpl {
 		return isPresent;
 	}
 	
-	public String refreshMataData(String serviceName) throws RecordNotFoundException
+	public String refreshMataData(String serviceName,String apiKey, String dataStoreKey) throws RecordNotFoundException
 	{
 		List<Map<String, Object>> serviceDatum = jdbcTemplate
 				.queryForList("select id, tableName, serviceName from Service where serviceName= '"+serviceName+"'");
@@ -709,7 +714,7 @@ public class EmployeeRepositaryImpl {
 			}
 		}
 		String id=getID(serviceDatum.get(0),"id");
-		serviceAttrbMap(id, serviceName);
+		serviceAttrbMap(id, serviceName, apiKey,  dataStoreKey);
 		
 		return id;
 	}
@@ -733,7 +738,7 @@ public class EmployeeRepositaryImpl {
 		return id;
 	}
 
-	private void setTableColumn(String tableName) {
+	private void setTableColumn(String tableName,String apiKey, String dataStoreKey) {
 		boolean isTablePresent=false;
 		DatabaseMetaData md;
 		DbTable tableNameT;
@@ -760,7 +765,7 @@ public class EmployeeRepositaryImpl {
 			 
 			if(md.getURL().contains("mysql"))
 			{
-				tableName=getTableName(tableName);
+				tableName=getTableName(tableName, apiKey,  dataStoreKey);
 				 tableNameT = schemaObj.addTable(tableName);
 				List<DbColumn> listArraycol = new ArrayList<>();
 				if(tableName!=null)
@@ -851,16 +856,16 @@ public class EmployeeRepositaryImpl {
 				if (!serviceTabisPresent) {
 					for (Iterator<DbTable> iterator = serviceTables.iterator(); iterator.hasNext();) {
 						DbTable dbTable = iterator.next();
-						if(!isTablePresent(dbTable.getName()))
+						if(!isTablePresent(dbTable.getName(), apiKey,  dataStoreKey))
 						{
-							createDbTable(dbTable);
+							createDbTable(dbTable, apiKey,  dataStoreKey);
 							}
 						tableColumnMap.put(dbTable, dbTable.getColumns());
 					}
 
 				}
 			 
-			setServiceTableMap(tableName);
+			setServiceTableMap(tableName, apiKey,  dataStoreKey);
 		} catch (SQLException e1) {
 			e1.printStackTrace();
 		}finally
@@ -872,7 +877,7 @@ public class EmployeeRepositaryImpl {
 	public Map<String, Object> updateData(String service, Map<String, String> params,String apiKey, String dataStoreKey) throws Exception {
 		ObjectMapper mapper = new ObjectMapper();
 		String tableName = serviceTableMap.get(service);
-		setGDValues(service, tableName);
+		setGDValues(service, tableName, apiKey,  dataStoreKey);
 		tableName = serviceTableMap.get(service);
 		if (tableName == null) {
 			throw new ServiceNotFoundException(serviceNTFEx);
@@ -992,7 +997,7 @@ public class EmployeeRepositaryImpl {
 
 		SelectQuery selectQuery = new SelectQuery();
 		String tableName = serviceTableMap.get(serviceName);
-		setGDValues(serviceName, tableName);
+		setGDValues(serviceName, tableName, apiKey,  dataStoreKey);
 		tableName = serviceTableMap.get(serviceName);
 		if (tableName == null) {
 			throw new ServiceNotFoundException(serviceNTFEx);
@@ -1042,7 +1047,7 @@ public class EmployeeRepositaryImpl {
 
 		DeleteQuery deleteQuery = null;
 		String tableName = serviceTableMap.get(serviceName);
-		setGDValues(serviceName, tableName);
+		setGDValues(serviceName, tableName, apiKey,  dataStoreKey);
 		tableName = serviceTableMap.get(serviceName);
 		if (tableName == null) {
 			throw new ServiceNotFoundException(serviceNTFEx);
@@ -1092,7 +1097,7 @@ public class EmployeeRepositaryImpl {
 		}
 		SelectQuery selectQuery = new SelectQuery();
 		String tableName = serviceTableMap.get(serviceName);
-		setGDValues(serviceName, tableName);
+		setGDValues(serviceName, tableName, apiKey,  dataStoreKey);
 		tableName = serviceTableMap.get(serviceName);
 		 
 		if (tableName == null) {
@@ -1142,9 +1147,9 @@ public class EmployeeRepositaryImpl {
 		return result;
 	}
 
-	private void setGDValues(String serviceName, String tableName) {
+	private void setGDValues(String serviceName, String tableName,String apiKey, String dataStoreKey) {
 		if (tableName == null) {
-			arrangeGoldenData(serviceName);
+			arrangeGoldenData(serviceName, apiKey,  dataStoreKey);
 
 		} else {
 			boolean isPresent = false;
@@ -1155,12 +1160,12 @@ public class EmployeeRepositaryImpl {
 				}
 			}
 			if (!isPresent) {
-				arrangeGoldenDataForTable(tableName);
+				arrangeGoldenDataForTable(tableName, apiKey,  dataStoreKey);
 			}
 		}
 	}
 
-	public void getServiceTableMap() {
+	public void getServiceTableMap(String apiKey, String dataStoreKey) {
 
 		 
 		List<Map<String, Object>> serviceDatum = jdbcTemplate
@@ -1175,12 +1180,12 @@ public class EmployeeRepositaryImpl {
 				
 				id=(	(BigDecimal) map.get("id")).toString();
 			}
-			serviceAttrbMap(id, (String) map.get("serviceName"));
+			serviceAttrbMap(id, (String) map.get("serviceName"), apiKey,  dataStoreKey);
 
 		}
 		 
 	}
-	public void setServiceTableMap(String tableName) {
+	public void setServiceTableMap(String tableName,String apiKey, String dataStoreKey) {
 
 		
 		List<Map<String, Object>> serviceDatum = jdbcTemplate
@@ -1199,7 +1204,7 @@ public class EmployeeRepositaryImpl {
 				
 				id=(	(BigDecimal) map.get("id")).toString();
 			}
-			serviceAttrbMap(id, (String) map.get("serviceName"));
+			serviceAttrbMap(id, (String) map.get("serviceName"), apiKey,  dataStoreKey);
 
 		}
 		 if(!isPresent)
@@ -1215,9 +1220,9 @@ public class EmployeeRepositaryImpl {
 					}
 				  if(isPresentTable)
 				{
-					  insertServiceTables(tableName);
-				      setServiceTableMap(tableName);
-				      insertServiceTables(tableName);
+					  insertServiceTables(tableName, apiKey,  dataStoreKey);
+				      setServiceTableMap(tableName, apiKey,  dataStoreKey);
+				      insertServiceTables(tableName, apiKey,  dataStoreKey);
 				}
 				
 			} catch (Exception e) {
@@ -1227,7 +1232,7 @@ public class EmployeeRepositaryImpl {
 		 }
 	}
 
-	public void serviceAttrbMap(String id, String serviceName) {
+	public void serviceAttrbMap(String id, String serviceName,String apiKey, String dataStoreKey) {
 
 		Map<String, String> studentAttrbMap = new TreeMap<String, String>(String.CASE_INSENSITIVE_ORDER);
 		List<Map<String, Object>> serviceDatum = jdbcTemplate
@@ -1242,20 +1247,20 @@ public class EmployeeRepositaryImpl {
 		}
 		 
 	}
-	private void insertServiceTables(String tableName) throws Exception {
+	private void insertServiceTables(String tableName,String apiKey, String dataStoreKey) throws Exception {
 
 			String serviceInsertQuery = "INSERT INTO   Service (id ,tableName , serviceName )   values( (SELECT MAX( id )+1 FROM Service ser) , '"
 					+ tableName + "', '" + tableName.toLowerCase().replace("_", " ") + "'  )";
-			String serviceid = getServiceID(tableName);
-			String maxRec = findMax("Service");
+			String serviceid = getServiceID(tableName, apiKey,  dataStoreKey);
+			String maxRec = findMax("Service", apiKey,  dataStoreKey);
 			if (maxRec != null && serviceid == null) {
 				jdbcTemplate.execute(serviceInsertQuery);
-				serviceid = getServiceID(tableName);
+				serviceid = getServiceID(tableName, apiKey,  dataStoreKey);
 			} else if (maxRec == null) {
 				serviceInsertQuery = "INSERT INTO   Service (id ,tableName , serviceName )   values( 0, '" + tableName
 						+ "', '" + tableName.toLowerCase().replace("_", " ") + "'  )";
 				jdbcTemplate.execute(serviceInsertQuery);
-				serviceid = getServiceID(tableName);
+				serviceid = getServiceID(tableName, apiKey,  dataStoreKey);
 			}
 
 			for (Map.Entry<DbTable, List<DbColumn>> entry : tableColumnMap.entrySet()) {
@@ -1264,8 +1269,8 @@ public class EmployeeRepositaryImpl {
 			List<DbColumn> column = entry.getValue();
 			for (Iterator<DbColumn> iterator = column.iterator(); iterator.hasNext();) {
 				DbColumn dbColumn = iterator.next();
-				String serviceAttrid = getServiceAttrID(serviceid, dbColumn.getName());
-				String maxRecAttr = findMax("Service_Attr");
+				String serviceAttrid = getServiceAttrID(serviceid, dbColumn.getName(), apiKey,  dataStoreKey);
+				String maxRecAttr = findMax("Service_Attr", apiKey,  dataStoreKey);
 				if (maxRecAttr != null && serviceAttrid == null) {
 					String serviceAttrQuery = " INSERT INTO Service_Attr (id, service_id , attrName, colName) values ((SELECT MAX( id )+1 FROM Service_Attr serA) ,'"
 							+ serviceid + "','" + dbColumn.getName().toLowerCase().replace("_", "") + "','"
@@ -1286,7 +1291,7 @@ public class EmployeeRepositaryImpl {
 		
 
 	}
-	private void insertServiceTables() throws Exception {
+	private void insertServiceTables(String apiKey, String dataStoreKey) throws Exception {
 
 		for (Map.Entry<DbTable, List<DbColumn>> entry : tableColumnMap.entrySet()) {
 			DbTable table = entry.getKey();
@@ -1294,23 +1299,23 @@ public class EmployeeRepositaryImpl {
 
 			String serviceInsertQuery = "INSERT INTO   Service (id ,tableName , serviceName )   values( (SELECT MAX( id )+1 FROM Service ser) , '"
 					+ tableName + "', '" + tableName.toLowerCase().replace("_", " ") + "'  )";
-			String serviceid = getServiceID(tableName);
-			String maxRec = findMax("Service");
+			String serviceid = getServiceID(tableName, apiKey,  dataStoreKey);
+			String maxRec = findMax("Service", apiKey,  dataStoreKey);
 			if (maxRec != null && serviceid == null) {
 				jdbcTemplate.execute(serviceInsertQuery);
-				serviceid = getServiceID(tableName);
+				serviceid = getServiceID(tableName, apiKey,  dataStoreKey);
 			} else if (maxRec == null) {
 				serviceInsertQuery = "INSERT INTO   Service (id ,tableName , serviceName )   values( 0, '" + tableName
 						+ "', '" + tableName.toLowerCase().replace("_", " ") + "'  )";
 				jdbcTemplate.execute(serviceInsertQuery);
-				serviceid = getServiceID(tableName);
+				serviceid = getServiceID(tableName, apiKey,  dataStoreKey);
 			}
 
 			List<DbColumn> column = entry.getValue();
 			for (Iterator<DbColumn> iterator = column.iterator(); iterator.hasNext();) {
 				DbColumn dbColumn = iterator.next();
-				String serviceAttrid = getServiceAttrID(serviceid, dbColumn.getName());
-				String maxRecAttr = findMax("Service_Attr");
+				String serviceAttrid = getServiceAttrID(serviceid, dbColumn.getName(), apiKey,  dataStoreKey);
+				String maxRecAttr = findMax("Service_Attr", apiKey,  dataStoreKey);
 				if (maxRecAttr != null && serviceAttrid == null) {
 					String serviceAttrQuery = " INSERT INTO Service_Attr (id, service_id , attrName, colName) values ((SELECT MAX( id )+1 FROM Service_Attr serA) ,'"
 							+ serviceid + "','" + dbColumn.getName().toLowerCase().replace("_", "") + "','"
@@ -1331,7 +1336,7 @@ public class EmployeeRepositaryImpl {
 
 	}
 
-	private String getServiceID(String tableName) {
+	private String getServiceID(String tableName,String apiKey, String dataStoreKey) {
 
 		String selectQuery = " select id from Service where tableName = '" + tableName + "'";
 		List<Map<String, Object>> data = new ArrayList<Map<String, Object>>();
@@ -1356,7 +1361,7 @@ public class EmployeeRepositaryImpl {
 		return serID;
 	}
 
-	private String getServiceAttrID(String serviceId, String attributeName) {
+	private String getServiceAttrID(String serviceId, String attributeName,String apiKey, String dataStoreKey) {
 
 		String selectQuery = " select id  from Service_Attr where service_id  = '" + serviceId + "' and colName ='"
 				+ attributeName + "'";
@@ -1384,7 +1389,7 @@ public class EmployeeRepositaryImpl {
 		return attrID;
 	}
 
-	private String findMax(String table) {
+	private String findMax(String table,String apiKey, String dataStoreKey) {
 		String query = "SELECT MAX( id )+1 as id FROM " + table;
 		Map<String, Object> data = new HashMap<String, Object>();
 		try {
@@ -1883,7 +1888,7 @@ public class EmployeeRepositaryImpl {
 		return "Cache Cleared";
 	}
 	
-	public boolean isTablePresent(String tableName) {
+	public boolean isTablePresent(String tableName,String apiKey, String dataStoreKey) {
 		List<Map<String, Object>> map = new ArrayList<>();
 		try {
 			map = jdbcTemplate.queryForList("desc " + tableName);
