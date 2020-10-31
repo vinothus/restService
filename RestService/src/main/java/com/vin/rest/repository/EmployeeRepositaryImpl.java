@@ -56,8 +56,7 @@ import com.vin.validation.ServiceConstraintViolation;
 public class EmployeeRepositaryImpl {
 
 	Logger log = Logger.getLogger(EmployeeRepositaryImpl.class.getName());
-	@Autowired
-	DataSource dataSource;
+	 
 	@Autowired
 	JdbcTemplate jdbcTemplate;
 	static DbSchema schemaObj;
@@ -114,39 +113,9 @@ public class EmployeeRepositaryImpl {
 
 	}
 
-	public EmployeeEntity getEmployeeByName(String name) {
+ 
 
-		List<Map<String, Object>> result = jdbcTemplate
-				.queryForList("select * from TBL_EMPLOYEES where first_name = ? ", new Object[] { name });
-		 
-		EmployeeEntity employeeEntity = null;
-		for (Iterator<Map<String, Object>> iterator = result.iterator(); iterator.hasNext();) {
-			Map<String, Object> map = iterator.next();
-			employeeEntity = new EmployeeEntity();
-			employeeEntity.setEmail(map.get("email").toString());
-			employeeEntity.setFirstName(map.get("first_name").toString());
-			employeeEntity.setLastName(map.get("last_name").toString());
-			employeeEntity.setId(Long.parseLong(map.get("id").toString()));
-		}
-		return employeeEntity;
-	}
-
-	public List<EmployeeEntity> getAll() {
-		List<EmployeeEntity> listEmp = new ArrayList<EmployeeEntity>();
-		List<Map<String, Object>> result = jdbcTemplate.queryForList("select * from TBL_EMPLOYEES  ");
-		 
-		EmployeeEntity employeeEntity = null;
-		for (Iterator<Map<String, Object>> iterator = result.iterator(); iterator.hasNext();) {
-			Map<String, Object> map = iterator.next();
-			employeeEntity = new EmployeeEntity();
-			employeeEntity.setEmail(map.get("email").toString());
-			employeeEntity.setFirstName(map.get("first_name").toString());
-			employeeEntity.setLastName(map.get("last_name").toString());
-			employeeEntity.setId(Long.parseLong(map.get("id").toString()));
-			listEmp.add(employeeEntity);
-		}
-		return listEmp;
-	}
+ 
 
 	private  void loadSQLBuilderSchema() {
 		specficationObj = new DbSpec();
@@ -154,10 +123,7 @@ public class EmployeeRepositaryImpl {
 		schemaObj = specficationObj.addDefaultSchema();
 	}
 
-	public List<Map<String, Object>> getServiceDataByName(String name) throws Exception {
-		 
-		return getDataForParams(name, new HashMap<>());
-	}
+
 
 	public Map<DbTable, List<DbColumn>> getMetaDatum()  {
 		loadSQLBuilderSchema();
@@ -166,6 +132,7 @@ public class EmployeeRepositaryImpl {
 		ResultSet rs ;
 		 
 		try {
+			//user Database
 			md=	jdbcTemplate.execute(new ConnectionCallback<DatabaseMetaData>() {
 
 				@Override
@@ -178,7 +145,7 @@ public class EmployeeRepositaryImpl {
 			
 			if(md.getURL().contains("mysql"))
 			{
-				
+				//user Database  and system database
 			List<Map<String,Object>>	tableresult=jdbcTemplate.queryForList("show tables");
 				for (Iterator iterator = tableresult.iterator(); iterator.hasNext();) {
 					Map<String, Object> map = (Map<String, Object>) iterator.next();
@@ -278,6 +245,7 @@ public class EmployeeRepositaryImpl {
 
 			String createTableQuery = new CreateTableQuery(tableName, true).validate().toString();
 			log.info("\nGenerated Sql Query?= " + createTableQuery + "\n");
+			// system Database
 			jdbcTemplate.execute(createTableQuery);
 		}  catch (Exception sqlException) {
 			if(sqlException instanceof java.sql.SQLSyntaxErrorException || sqlException instanceof org.springframework.jdbc.BadSqlGrammarException)
@@ -320,6 +288,7 @@ public class EmployeeRepositaryImpl {
 				manualQuery=manualQuery+" )";
 				System.out.println(manualQuery);
 				try {
+					// system database
 				jdbcTemplate.execute(manualQuery);
 				}catch(Exception e)
 				{
@@ -542,7 +511,7 @@ public class EmployeeRepositaryImpl {
 		return initialTable;
 	}
 
-	public Map<String, Object> insertData(String service, Map<String, String> params) throws Exception {
+	public Map<String, Object> insertData(String service, Map<String, String> params,String apiKey, String dataStoreKey) throws Exception {
 		loadSQLBuilderSchema();
 		ObjectMapper mapper = new ObjectMapper();
 		String tableName = serviceTableMap.get(service);
@@ -574,7 +543,7 @@ public class EmployeeRepositaryImpl {
 							if ((params.get(attribParamMap.get(dbColumn.getName())) != null)) {
 								isPrimaryKey = true;
 								primaryKey =( mapper.writeValueAsString(params.get(attribParamMap.get(dbColumn.getName()))) );
-								if (getData(service, primaryKey).size() > 0) {
+								if (getData(service, primaryKey, apiKey,  dataStoreKey).size() > 0) {
 									isUpdate = true;
 								}
 							} else {
@@ -601,9 +570,12 @@ public class EmployeeRepositaryImpl {
 				if (primaryKey != null) {
 
 					if (!isUpdate) {
+						if(dataStoreKey.equalsIgnoreCase("SYSTEM"))
+						{
 					 updatedata=	jdbcTemplate.update(insertQuery.toString());
+						}
 					} else {
-						updateData(service, params);
+						updateData(service, params, apiKey,  dataStoreKey);
 					}
 
 				} else {
@@ -615,11 +587,11 @@ public class EmployeeRepositaryImpl {
 
 		}
 		primaryKey = replaceDoubleQute(primaryKey);
-		Map<String, Object>  datatrt=getData(service, primaryKey);
+		Map<String, Object>  datatrt=getData(service, primaryKey, apiKey,  dataStoreKey);
 		if(datatrt==null||datatrt.isEmpty())
 		{
 			if(updatedata==1&&primaryKey.equals("0"))
-			{datatrt=	getDataForParams(service, new HashMap<String, String>()).get(0);}
+			{datatrt=	getDataForParams(service, new HashMap<String, String>(), apiKey,  dataStoreKey).get(0);}
 		}
 		
 		return datatrt;
@@ -648,6 +620,7 @@ public class EmployeeRepositaryImpl {
 		List<Map<String, Object>> data = new ArrayList<Map<String, Object>>();
 		boolean isPresent=false;
 		try {
+			//system database
 			data = jdbcTemplate.queryForList(selectQuery);
 		} catch (Exception e) {
 			log.info(e.getMessage());
@@ -896,7 +869,7 @@ public class EmployeeRepositaryImpl {
 		}
 	}
 
-	public Map<String, Object> updateData(String service, Map<String, String> params) throws Exception {
+	public Map<String, Object> updateData(String service, Map<String, String> params,String apiKey, String dataStoreKey) throws Exception {
 		ObjectMapper mapper = new ObjectMapper();
 		String tableName = serviceTableMap.get(service);
 		setGDValues(service, tableName);
@@ -941,7 +914,10 @@ public class EmployeeRepositaryImpl {
 				try {
 					if(!(primaryKey==null||primaryKey.isEmpty()||primaryKey.equalsIgnoreCase("null")))
 					{
-						isUpdate = jdbcTemplate.update(updateQuery.toString());
+						if(dataStoreKey.equalsIgnoreCase("SYSTEM"))
+						{
+							isUpdate = jdbcTemplate.update(updateQuery.toString());
+						}
 					}
 				} catch (Exception e) {
 				}
@@ -992,12 +968,12 @@ public class EmployeeRepositaryImpl {
 		params=new HashMap<String, String>();
 		primaryKey = replaceDoubleQute(primaryKey);
 		params.put(primaryKeyAttr,primaryKey);
-			return getDataForParams(service, params).get(0);
+			return getDataForParams(service, params, apiKey,  dataStoreKey).get(0);
 		} else {
 			try {
 				if(primaryKey==null||primaryKey.isEmpty()||primaryKey.equalsIgnoreCase("null"))
 				{
-					return insertData(service, params);
+					return insertData(service, params, apiKey,  dataStoreKey);
 				}
 			} catch (Exception e) {
 				throw new Exception("update Failed");
@@ -1006,13 +982,13 @@ public class EmployeeRepositaryImpl {
 				throw new Exception("update Failed");
 			}else
 			{
-				return getDataForParams(service, params).get(0);
+				return getDataForParams(service, params,apiKey,  dataStoreKey).get(0);
 			}
 		}
 
 }
 
-	public Map<String, Object> getData(String serviceName, String primaryKeyValue) throws Exception {
+	public Map<String, Object> getData(String serviceName, String primaryKeyValue,String apiKey, String dataStoreKey) throws Exception {
 
 		SelectQuery selectQuery = new SelectQuery();
 		String tableName = serviceTableMap.get(serviceName);
@@ -1050,7 +1026,10 @@ public class EmployeeRepositaryImpl {
 		}
 		Map<String, Object> result = new HashMap<String, Object>();
 		try {
+			if(dataStoreKey.equalsIgnoreCase("SYSTEM"))
+			{
 			result = jdbcTemplate.queryForMap(selectQuery.validate().toString());
+			}
 
 		} catch (Exception e) {
 
@@ -1059,7 +1038,7 @@ public class EmployeeRepositaryImpl {
 		return result;
 	}
 
-	public Map<String, Object> deleteData(String serviceName, String primaryKeyValue) throws Exception {
+	public Map<String, Object> deleteData(String serviceName, String primaryKeyValue,String apiKey, String dataStoreKey) throws Exception {
 
 		DeleteQuery deleteQuery = null;
 		String tableName = serviceTableMap.get(serviceName);
@@ -1090,10 +1069,13 @@ public class EmployeeRepositaryImpl {
 			}
 		}
 		log.info(deleteQuery.validate().toString());
-		Map<String, Object> retValue = getData(serviceName, primaryKeyValue);
+		Map<String, Object> retValue = getData(serviceName, primaryKeyValue, apiKey,  dataStoreKey);
 		int result = 0;
 		try {
+			if(dataStoreKey.equalsIgnoreCase("SYSTEM"))
+			{
 			result = jdbcTemplate.update(deleteQuery.validate().toString());
+			}
 		} catch (Exception e) {
 		}
 		if (result > 0) {
@@ -1104,7 +1086,7 @@ public class EmployeeRepositaryImpl {
 
 	}
 
-	public List<Map<String, Object>> getDataForParams(String serviceName, Map<String, String> params)    {
+	public List<Map<String, Object>> getDataForParams(String serviceName, Map<String, String> params,String apiKey, String dataStoreKey)    {
 		for (int i = 0; i < nonscaling.length; i++) {
 			invalidElement.add(nonscaling[i]);
 		}
@@ -1147,7 +1129,10 @@ public class EmployeeRepositaryImpl {
 		}
 		List<Map<String, Object>> result = new ArrayList<Map<String, Object>>();
 		try {
+			if(dataStoreKey.equalsIgnoreCase("SYSTEM"))
+			{
 			result = jdbcTemplate.queryForList(selectQuery.validate().toString());
+			}
 
 		} catch (Exception e) {
 
@@ -1551,6 +1536,9 @@ public class EmployeeRepositaryImpl {
 	public boolean isValidForSelect(String type)
 	{
 
+		if ("TEXT".equalsIgnoreCase(type)) {
+			return true;
+		}
 		if ("BIT".equalsIgnoreCase(type)) {
 			return true;
 		}

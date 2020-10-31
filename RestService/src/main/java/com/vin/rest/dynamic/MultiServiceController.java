@@ -43,7 +43,7 @@ public class MultiServiceController {
 	Validator validator;
 	@MethodName(MethodName="addData")
 	public ResponseEntity<List<Map<String,Map<String, Object>>>> addData(@PathVariable("service") String service,
-			@RequestBody String params) throws Exception   {
+			@RequestBody String params,@PathVariable("apiKey") String apiKey,@PathVariable("dataStoreKey") String dataStoreKey) throws Exception   {
 		ObjectMapper mapper = new ObjectMapper();
 
 		List<Map<String,Map<String, String>>> jsonMap = new ArrayList<>();
@@ -74,12 +74,12 @@ public class MultiServiceController {
 			}
 		}
 		
-		return new ResponseEntity<List<Map<String,Map<String, Object>>>>(multiserviceImpl.insertMultiData(service, jsonMap),
+		return new ResponseEntity<List<Map<String,Map<String, Object>>>>(multiserviceImpl.insertMultiData(service, jsonMap, apiKey,  dataStoreKey),
 				new HttpHeaders(), HttpStatus.OK);
 	}
 	@MethodName(MethodName="updateData")
 	public ResponseEntity<List<Map<String,Map<String, Object>>>> updateData(@PathVariable("service") String service,
-			@RequestBody String params) throws Exception   {
+			@RequestBody String params,@PathVariable("apiKey") String apiKey,@PathVariable("dataStoreKey") String dataStoreKey) throws Exception   {
 		ObjectMapper mapper = new ObjectMapper();
 
 		List<Map<String,Map<String, String>>> jsonMap = new ArrayList<>();
@@ -110,12 +110,12 @@ public class MultiServiceController {
 			}
 		}
 		 
-		return new ResponseEntity<List<Map<String,Map<String, Object>>>>(multiserviceImpl.updateMultiData(service, jsonMap),
+		return new ResponseEntity<List<Map<String,Map<String, Object>>>>(multiserviceImpl.updateMultiData(service, jsonMap, apiKey,  dataStoreKey),
 				new HttpHeaders(), HttpStatus.OK);
 	}
 	@MethodName(MethodName="getDatum")
 	public ResponseEntity<List<Map<String,List<Map<String, Object>>>>> getDatum(@PathVariable("service") String service,
-			@RequestParam   Map<String, String> params) throws JsonParseException, JsonMappingException, IOException    {
+			@RequestParam   Map<String, String> params,@PathVariable("apiKey") String apiKey,@PathVariable("dataStoreKey") String dataStoreKey) throws JsonParseException, JsonMappingException, IOException    {
 		ObjectMapper mapper = new ObjectMapper();
 		List<Map<String,Map<String, String>>> jsonMap = new ArrayList<>();
 		params.put("ServiceKey", service);
@@ -126,20 +126,20 @@ public class MultiServiceController {
 			}
 			
 			 
-		return new ResponseEntity<List<Map<String,List<Map<String, Object>>>>>(multiserviceImpl.getMultiDataForParams(service, params),
+		return new ResponseEntity<List<Map<String,List<Map<String, Object>>>>>(multiserviceImpl.getMultiDataForParams(service, params, apiKey,  dataStoreKey),
 				new HttpHeaders(), HttpStatus.OK);
 	}
 	@MethodName(MethodName="getData")
 	public ResponseEntity<List<Map<String,Map<String, Object>>>> getData(@PathVariable("service") String service,
-			@PathVariable("uniquekey") @Valid @NotNull String uniquekey) throws Exception {
+			@PathVariable("uniquekey") @Valid @NotNull String uniquekey,@PathVariable("apiKey") String apiKey,@PathVariable("dataStoreKey") String dataStoreKey) throws Exception {
 
-		return new ResponseEntity<List<Map<String,Map<String, Object>>>>(multiserviceImpl.getMultiData(service, uniquekey),
+		return new ResponseEntity<List<Map<String,Map<String, Object>>>>(multiserviceImpl.getMultiData(service, uniquekey, apiKey,  dataStoreKey),
 				new HttpHeaders(), HttpStatus.OK);
 	}
 	@MethodName(MethodName="delData")
 	public ResponseEntity<List<Map<String,Map<String, Object>>>> delData(@PathVariable("service") String service,
-			@PathVariable("uniquekey") @Valid @NotNull String uniquekey) throws Exception {
-		return new ResponseEntity<List<Map<String,Map<String, Object>>>>(multiserviceImpl.deleteMultiData(service, uniquekey),
+			@PathVariable("uniquekey") @Valid @NotNull String uniquekey,@PathVariable("apiKey") String apiKey,@PathVariable("dataStoreKey") String dataStoreKey) throws Exception {
+		return new ResponseEntity<List<Map<String,Map<String, Object>>>>(multiserviceImpl.deleteMultiData(service, uniquekey, apiKey,  dataStoreKey),
 				new HttpHeaders(), HttpStatus.OK);
 	}	
 	public static String getMethodName(String Name) {

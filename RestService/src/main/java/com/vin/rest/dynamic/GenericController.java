@@ -70,23 +70,6 @@ public class GenericController {
 		this.controllerPath = controllerPath;
 	}
 
-	 
-	@MethodName(MethodName="getAll")
-	public ResponseEntity<List<EmployeeEntity>> getAll(@RequestParam Map<String, String> params)
-			 {
-		log.info(params.toString());
-		List<EmployeeEntity> entity = employeeRepositaryImpl.getAll();
-
-		return new ResponseEntity<List<EmployeeEntity>>(entity, new HttpHeaders(), HttpStatus.OK);
-	}
-	@MethodName(MethodName="getAllEmp")
-	public ResponseEntity<List<EmployeeEntity>> getAllEmp(@RequestBody String params)  {
-		log.info(params);
-		List<EmployeeEntity> entity = employeeRepositaryImpl.getAll();
-
-		return new ResponseEntity<List<EmployeeEntity>>(entity, new HttpHeaders(), HttpStatus.OK);
-	}
-
 	public GenericController getObject() {
 
 		return new GenericController();
@@ -94,7 +77,7 @@ public class GenericController {
 	@MethodName(MethodName="addData")
 	@CrossOrigin
 	public ResponseEntity<Map<String, Object>> addData(@PathVariable("service") String service,
-			@RequestBody String params) throws Exception {
+			@RequestBody String params,@PathVariable("apiKey") String apiKey,@PathVariable("dataStoreKey") String dataStoreKey) throws Exception {
 		ObjectMapper mapper = new ObjectMapper();
 
 		Map<String, String> jsonMap = new HashMap<>();
@@ -106,13 +89,13 @@ public class GenericController {
 		if (!constraintViolation.isEmpty()) {
 			throw new ConstraintViolationException(constraintViolation);
 		}
-		return new ResponseEntity<Map<String, Object>>(employeeRepositaryImpl.insertData(service, jsonMap),
+		return new ResponseEntity<Map<String, Object>>(employeeRepositaryImpl.insertData(service, jsonMap, apiKey, dataStoreKey),
 				new HttpHeaders(), HttpStatus.OK);
 	}
 	@MethodName(MethodName="updateData")
 	@CrossOrigin
 	public ResponseEntity<Map<String, Object>> updateData(@PathVariable("service") String service,
-			@RequestBody String params) throws Exception {
+			@RequestBody String params,@PathVariable("apiKey") String apiKey,@PathVariable("dataStoreKey") String dataStoreKey) throws Exception {
 		ObjectMapper mapper = new ObjectMapper();
 
 		Map<String, String> jsonMap = new HashMap<>();
@@ -123,14 +106,14 @@ public class GenericController {
 		if (!constraintViolation.isEmpty()) {
 			throw new ConstraintViolationException(constraintViolation);
 		}
-		return new ResponseEntity<Map<String, Object>>(employeeRepositaryImpl.updateData(service, jsonMap),
+		return new ResponseEntity<Map<String, Object>>(employeeRepositaryImpl.updateData(service, jsonMap, apiKey, dataStoreKey),
 				new HttpHeaders(), HttpStatus.OK);
 	}
 	
 	@MethodName(MethodName="getDatum")
 	@CrossOrigin
 	public ResponseEntity<List<Map<String, Object>>> getDatum(@PathVariable("service") String service,
-			@RequestParam   Map<String, String> params)    {
+			@RequestParam   Map<String, String> params,@PathVariable("apiKey") String apiKey,@PathVariable("dataStoreKey") String dataStoreKey)    {
 		 
 		params.put(Constant.VIN_SERVICE, service);
 		Set<ConstraintViolation<HashMap>> constraintViolation = validator
@@ -151,33 +134,33 @@ public class GenericController {
 		 
 		System.out.println("end validation");
 		
-		return new ResponseEntity<List<Map<String, Object>>>(employeeRepositaryImpl.getDataForParams(service, params),
+		return new ResponseEntity<List<Map<String, Object>>>(employeeRepositaryImpl.getDataForParams(service, params, apiKey, dataStoreKey),
 				new HttpHeaders(), HttpStatus.OK);
 	}
 	@MethodName(MethodName="getData")
 	@CrossOrigin
 	public ResponseEntity<Map<String, Object>> getData(@PathVariable("service") String service,
-			@PathVariable("uniquekey") @Valid @NotNull String uniquekey) throws Exception {
+			@PathVariable("uniquekey") @Valid @NotNull String uniquekey,@PathVariable("apiKey") String apiKey,@PathVariable("dataStoreKey") String dataStoreKey) throws Exception {
 
-		return new ResponseEntity<Map<String, Object>>(employeeRepositaryImpl.getData(service, uniquekey),
+		return new ResponseEntity<Map<String, Object>>(employeeRepositaryImpl.getData(service, uniquekey, apiKey, dataStoreKey),
 				new HttpHeaders(), HttpStatus.OK);
 	}
 @MethodName(MethodName="delData")
 @CrossOrigin
 	public ResponseEntity<Map<String, Object>> delData(@PathVariable("service") String service,
-			@PathVariable("uniquekey") @Valid @NotNull String uniquekey) throws Exception {
-		return new ResponseEntity<Map<String, Object>>(employeeRepositaryImpl.deleteData(service, uniquekey),
+			@PathVariable("uniquekey") @Valid @NotNull String uniquekey,@PathVariable("apiKey") String apiKey,@PathVariable("dataStoreKey") String dataStoreKey) throws Exception {
+		return new ResponseEntity<Map<String, Object>>(employeeRepositaryImpl.deleteData(service, uniquekey, apiKey, dataStoreKey),
 				new HttpHeaders(), HttpStatus.OK);
 	}
 
-	public ResponseEntity<String>	refreshMataData(@PathVariable("service") String service) throws RecordNotFoundException
+	public ResponseEntity<String>	refreshMataData(@PathVariable("service") String service,@PathVariable("apiKey") String apiKey,@PathVariable("dataStoreKey") String dataStoreKey) throws RecordNotFoundException
 	{
 		
 		return new ResponseEntity<String>(employeeRepositaryImpl.refreshMataData(service),new HttpHeaders(), HttpStatus.OK)	;
 	}
 	@MethodName(MethodName="clearCache")
 	@CrossOrigin
-	public ResponseEntity<String>	 clearCache()
+	public ResponseEntity<String>	 clearCache(@PathVariable("apiKey") String apiKey,@PathVariable("dataStoreKey") String dataStoreKey)
 	{
 		
 		return new ResponseEntity<String>(employeeRepositaryImpl.clearCache(),new HttpHeaders(), HttpStatus.OK)	;
@@ -206,7 +189,7 @@ public class GenericController {
 		}
 		@MethodName(MethodName="initGC")
 		@CrossOrigin
-		public ResponseEntity<String>	initGC()
+		public ResponseEntity<String>	initGC(@PathVariable("apiKey") String apiKey,@PathVariable("dataStoreKey") String dataStoreKey)
 		{
 			employeeRepositaryImpl.init();
 			return new ResponseEntity<String>("initilized",new HttpHeaders(), HttpStatus.OK)	;

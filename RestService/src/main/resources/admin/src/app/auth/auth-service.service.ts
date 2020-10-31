@@ -32,7 +32,7 @@ export class AuthService {
 
   register(user: User): Observable<any> {
 
-    return this.httpClient.post(this.API_URL+`/${this.APP_NAME}/user/addData`, user).pipe(
+    return this.httpClient.post(this.API_URL+`/${this.APP_NAME}/system/system/user/addData`, user).pipe(
         catchError(this.handleError)
     )
   }
@@ -50,7 +50,7 @@ export class AuthService {
       params,
       withCredentials: true
     };
-    return this.httpClient.get<any>(this.API_URL+`/${this.APP_NAME}/user/getdata`,  { params: params })
+    return this.httpClient.get<any>(this.API_URL+`/${this.APP_NAME}/system/system/user/getdata`,  { params: params })
       .subscribe((res: any) => {
 	  loginForm.controls['email'].setErrors(null);
 	if(res[0]!=undefined){
@@ -91,7 +91,7 @@ export class AuthService {
   }
 
   getUserProfile(id): Observable<any> {
-    return this.httpClient.get(this.API_URL+`/${this.APP_NAME}/user/getdataForKey/${id}`, { headers: this.headers }).pipe(
+    return this.httpClient.get(this.API_URL+`/${this.APP_NAME}/system/system/user/getdataForKey/${id}`, { headers: this.headers }).pipe(
       map((res: Response) => {
         return res || {}
       }),
@@ -135,7 +135,7 @@ getdata(service: string, params: Map<string,string>)
       withCredentials: true
     };
 	 
-	return this.httpClient.get<any>(this.API_URL+`/${this.APP_NAME}/${service}/getdata?`+paramstr, { params: params1,headers:headers }).pipe(
+	return this.httpClient.get<any>(this.API_URL+`/${this.APP_NAME}/system/system/${service}/getdata?`+paramstr, { params: params1,headers:headers }).pipe(
       map((res: Response) => {
         return res || {}
       }),
@@ -157,7 +157,7 @@ getUniqueData(service: string, id: string)
       'Content-Type': 'application/x-www-form-urlencoded',
       'Authorization': 'Basic YW5ndWxhcjphbmd1bGFy'
     });
-const promise = this.httpClient.get(this.API_URL+`/${this.APP_NAME}/${service}/getdataForKey/${id}`, { headers:headers }).toPromise();	
+const promise = this.httpClient.get(this.API_URL+`/${this.APP_NAME}/system/system/${service}/getdataForKey/${id}`, { headers:headers }).toPromise();	
  console.log(promise);  
     promise.then((data)=>{
       console.log("Promise resolved with: " + JSON.stringify(data));
@@ -174,7 +174,7 @@ deleteUniqueData(service: string, id: string)
       'Content-Type': 'application/x-www-form-urlencoded',
       'Authorization': 'Basic YW5ndWxhcjphbmd1bGFy'
     });
-const promise = this.httpClient.delete(this.API_URL+`/${this.APP_NAME}/${service}/deleteData/${id}`, { headers:headers }).toPromise();	
+const promise = this.httpClient.delete(this.API_URL+`/${this.APP_NAME}/system/system/${service}/deleteData/${id}`, { headers:headers }).toPromise();	
  console.log(promise);  
    return promise;
 }
@@ -185,7 +185,7 @@ addData(service: string, data: any)
     .set("Content-Type", "application/json")
     .set("Authorization", "Basic YW5ndWxhcjphbmd1bGFy");
  
-  const promise = this.httpClient.post(this.API_URL+`/${this.APP_NAME}/${service}/addData`, data, { headers }).toPromise();	
+  const promise = this.httpClient.post(this.API_URL+`/${this.APP_NAME}/system/system/${service}/addData`, data, { headers }).toPromise();	
 	 console.log(promise);  
   
 return promise;
@@ -199,7 +199,7 @@ updateData(service: string, data: any)
     .set("Content-Type", "application/json")
     .set("Authorization", "Basic YW5ndWxhcjphbmd1bGFy");
 
-  const promise = this.httpClient.put(this.API_URL+`/${this.APP_NAME}/${service}/updateData`,  data, { headers:headers }).toPromise();	
+  const promise = this.httpClient.put(this.API_URL+`/${this.APP_NAME}/system/system/${service}/updateData`,  data, { headers:headers }).toPromise();	
 	 console.log(promise);  
    return promise;
 }

@@ -47,13 +47,6 @@ public class EmployeeController
         return new ResponseEntity<List<EmployeeEntity>>(list, new HttpHeaders(), HttpStatus.OK);
     }
     
-	@GetMapping("/name/{name}")
-	public ResponseEntity<EmployeeEntity> getEmployeeByName(@PathVariable("name") String name)
-			throws RecordNotFoundException {
-		EmployeeEntity entity = employeeRepositaryImpl.getEmployeeByName(name);// = service.getEmployeeById(id);
-
-		return new ResponseEntity<EmployeeEntity>(entity, new HttpHeaders(), HttpStatus.OK);
-	}
 	 
  
     @GetMapping("/id/{id}")
@@ -79,13 +72,7 @@ public class EmployeeController
     }
  
     
-    @GetMapping("/service/{name}")
-	public ResponseEntity<List<Map<String,Object>>> getServiceDataByName(@PathVariable("name") String name)
-			throws Exception {
-    	List<Map<String,Object>> entity = employeeRepositaryImpl.getServiceDataByName(name);// = service.getEmployeeById(id);
-
-		return new ResponseEntity<List<Map<String,Object>>>((List<Map<String, Object>>) entity, new HttpHeaders(), HttpStatus.OK);
-	}
+ 
     @PostConstruct
     public void init() {
     	log.info("Test post construct");

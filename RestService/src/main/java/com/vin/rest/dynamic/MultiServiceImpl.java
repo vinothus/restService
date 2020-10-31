@@ -50,7 +50,7 @@ public class MultiServiceImpl {
 		
 	}
 	public List<Map<String, Map<String, Object>>> insertMultiData(String service,
-			List<Map<String, Map<String, String>>> jsonMap) throws Exception {
+			List<Map<String, Map<String, String>>> jsonMap,String apiKey, String dataStoreKey) throws Exception {
 		List<MultiService> serviceComponent= MultiServiceMap.get(service);
 		if(serviceComponent==null)
 		{
@@ -134,7 +134,7 @@ public class MultiServiceImpl {
 					}
 				
 					if (data != null) {
-						Map<String, Object> dataReturn = singleServiceImpl.insertData(singleService, data);
+						Map<String, Object> dataReturn = singleServiceImpl.insertData(singleService, data, apiKey,  dataStoreKey);
 
 						Map<String, String> datareturn = new HashMap<>();
 						String params = mapper.writeValueAsString(dataReturn);
@@ -159,7 +159,7 @@ public class MultiServiceImpl {
 	}
 
 	public List<Map<String, Map<String, Object>>> updateMultiData(String service,
-			List<Map<String, Map<String, String>>> jsonMap) throws Exception {
+			List<Map<String, Map<String, String>>> jsonMap,String apiKey, String dataStoreKey) throws Exception {
 		List<MultiService> serviceComponent= MultiServiceMap.get(service);
 		if(serviceComponent==null)
 		{
@@ -242,7 +242,7 @@ public class MultiServiceImpl {
 					}
 				}}
 				if (data != null) {
-				Map<String, Object> dataReturn=singleServiceImpl.updateData(singleService, data);
+				Map<String, Object> dataReturn=singleServiceImpl.updateData(singleService, data, apiKey,  dataStoreKey);
 				
 				 Map<String, String> datareturn=new HashMap<>();
 				String params = mapper.writeValueAsString(dataReturn);
@@ -302,7 +302,7 @@ public class MultiServiceImpl {
 			MultiServiceMap.put(multiServiceName, serviceList);
 		}
 	}
-	public List<Map<String, List<Map<String, Object>>>> getMultiDataForParams(String service, Map<String, String> params) throws JsonParseException, JsonMappingException, IOException {
+	public List<Map<String, List<Map<String, Object>>>> getMultiDataForParams(String service, Map<String, String> params,String apiKey, String dataStoreKey) throws JsonParseException, JsonMappingException, IOException {
 		List<MultiService> serviceComponent= MultiServiceMap.get(service);
 		ObjectMapper mapper = new ObjectMapper();
 		List<Map<String, List<Map<String, Object>>>> returnData=new ArrayList<>();
@@ -322,7 +322,7 @@ public class MultiServiceImpl {
 					{
 					if(relation.contains("none"))
 					{
-						List<Map<String, Object>> dataReturn=singleServiceImpl.getDataForParams(singleService, new HashMap<String, String>());
+						List<Map<String, Object>> dataReturn=singleServiceImpl.getDataForParams(singleService, new HashMap<String, String>(), apiKey,  dataStoreKey);
 						retObj.put(singleService, dataReturn);
 						returnData.add(retObj);
 						
@@ -336,7 +336,7 @@ public class MultiServiceImpl {
 
 							String[] serviceParam=relationlpstr.split(":");
 							params.put(serviceParam[0],(String)params.get(serviceParam[1]));
-							List<Map<String, Object>> dataReturn=singleServiceImpl.getDataForParams(singleService, params);
+							List<Map<String, Object>> dataReturn=singleServiceImpl.getDataForParams(singleService, params, apiKey,  dataStoreKey);
 							sumazationList.addAll(dataReturn);
 							retObj.put(singleService, sumazationList);
 							returnData.add(retObj);
@@ -372,7 +372,7 @@ public class MultiServiceImpl {
 														.hasNext();) {
 													Map<String, String> map2 = (Map<String, String>) iterator3.next();
 													params.put(serviceParam[2],(String) (map2.get(serviceParam[1])));
-													List<Map<String, Object>> dataReturn=singleServiceImpl.getDataForParams(singleService, params);
+													List<Map<String, Object>> dataReturn=singleServiceImpl.getDataForParams(singleService, params, apiKey,  dataStoreKey);
 													sumazationList.addAll(dataReturn);
 													retObj.put(singleService, sumazationList);
 												}
@@ -391,7 +391,7 @@ public class MultiServiceImpl {
 										 */
 									}else {
 										
-										List<Map<String, Object>> dataReturn=singleServiceImpl.getDataForParams(singleService, params);
+										List<Map<String, Object>> dataReturn=singleServiceImpl.getDataForParams(singleService, params, apiKey,  dataStoreKey);
 										sumazationList.addAll(dataReturn);
 										retObj.put(singleService, sumazationList);
 										
@@ -427,7 +427,7 @@ public class MultiServiceImpl {
 													.hasNext();) {
 												Map<String, String> map2 = (Map<String, String>) iterator3.next();
 												params.put(serviceParam[2],(String) (map2.get(serviceParam[1])));
-												List<Map<String, Object>> dataReturn=singleServiceImpl.getDataForParams(singleService, params);
+												List<Map<String, Object>> dataReturn=singleServiceImpl.getDataForParams(singleService, params, apiKey,  dataStoreKey);
 												sumazationList.addAll(dataReturn);
 												retObj.put(singleService, sumazationList);
 											}
@@ -438,7 +438,7 @@ public class MultiServiceImpl {
 									}
 								}else {
 									
-									List<Map<String, Object>> dataReturn=singleServiceImpl.getDataForParams(singleService, params);
+									List<Map<String, Object>> dataReturn=singleServiceImpl.getDataForParams(singleService, params, apiKey,  dataStoreKey);
 									sumazationList.addAll(dataReturn);
 									retObj.put(singleService, sumazationList);
 								
@@ -449,18 +449,18 @@ public class MultiServiceImpl {
 					}else if(relation.contains(":")) {
 						String[] serviceParam=relation.split(":");
 						params.put(serviceParam[0],(String)params.get(serviceParam[1]));
-						List<Map<String, Object>> dataReturn=singleServiceImpl.getDataForParams(singleService, params);
+						List<Map<String, Object>> dataReturn=singleServiceImpl.getDataForParams(singleService, params, apiKey,  dataStoreKey);
 						sumazationList.addAll(dataReturn);
 						retObj.put(singleService, sumazationList);
 						returnData.add(retObj);
 					}else {
-						List<Map<String, Object>> dataReturn=singleServiceImpl.getDataForParams(singleService, params);
+						List<Map<String, Object>> dataReturn=singleServiceImpl.getDataForParams(singleService, params, apiKey,  dataStoreKey);
 						sumazationList.addAll(dataReturn);
 						retObj.put(singleService, sumazationList);
 						returnData.add(retObj);
 					}
 					}else {
-						List<Map<String, Object>> dataReturn=singleServiceImpl.getDataForParams(singleService, params);
+						List<Map<String, Object>> dataReturn=singleServiceImpl.getDataForParams(singleService, params, apiKey,  dataStoreKey);
 						sumazationList.addAll(dataReturn);
 						retObj.put(singleService, sumazationList);
 						returnData.add(retObj);
@@ -471,7 +471,7 @@ public class MultiServiceImpl {
 		return returnData;
 	}
 
-	public List<Map<String, Map<String, Object>>> getMultiData(String service, @Valid @NotNull String uniquekey) throws Exception  {
+	public List<Map<String, Map<String, Object>>> getMultiData(String service, @Valid @NotNull String uniquekey,String apiKey, String dataStoreKey) throws Exception  {
 		List<MultiService> serviceComponent= MultiServiceMap.get(service);
 		ObjectMapper mapper = new ObjectMapper();
 		List<Map<String, Map<String, Object>>> returnData=new ArrayList<>();
@@ -490,7 +490,7 @@ public class MultiServiceImpl {
 					{
 					if(relation.contains("none"))
 					{
-						Map<String, Object> dataReturn=singleServiceImpl.getData(singleService, uniquekey);
+						Map<String, Object> dataReturn=singleServiceImpl.getData(singleService, uniquekey, apiKey,  dataStoreKey);
 						retObj.put(singleService,dataReturn);
 						returnData.add(retObj);	
 					}
@@ -521,12 +521,12 @@ public class MultiServiceImpl {
 										if (key != null) {
 											uniquekey = key;
 											Map<String, Object> dataReturn = singleServiceImpl.getData(singleService,
-													uniquekey);
+													uniquekey, apiKey,  dataStoreKey);
 											retObj.put(singleService, dataReturn);
 											returnData.add(retObj);
 										} else {
 											Map<String, Object> dataReturn = singleServiceImpl.getData(singleService,
-													uniquekey);
+													uniquekey, apiKey,  dataStoreKey);
 											retObj.put(singleService, dataReturn);
 											returnData.add(retObj);
 										}
@@ -561,12 +561,12 @@ public class MultiServiceImpl {
 									if (key != null) {
 										uniquekey = key;
 										Map<String, Object> dataReturn = singleServiceImpl.getData(singleService,
-												uniquekey);
+												uniquekey, apiKey,  dataStoreKey);
 										retObj.put(singleService, dataReturn);
 										returnData.add(retObj);
 									} else {
 										Map<String, Object> dataReturn = singleServiceImpl.getData(singleService,
-												uniquekey);
+												uniquekey, apiKey,  dataStoreKey);
 										retObj.put(singleService, dataReturn);
 										returnData.add(retObj);
 									}
@@ -575,13 +575,13 @@ public class MultiServiceImpl {
 						}
 						
 					}else {
-						Map<String, Object> dataReturn=singleServiceImpl.getData(singleService, uniquekey);
+						Map<String, Object> dataReturn=singleServiceImpl.getData(singleService, uniquekey, apiKey,  dataStoreKey);
 						retObj.put(singleService,dataReturn);
 						returnData.add(retObj);
 					}
 					}else
 					{
-						Map<String, Object> dataReturn=singleServiceImpl.getData(singleService, uniquekey);
+						Map<String, Object> dataReturn=singleServiceImpl.getData(singleService, uniquekey, apiKey,  dataStoreKey);
 						retObj.put(singleService,dataReturn);
 						returnData.add(retObj);
 						
@@ -592,7 +592,7 @@ public class MultiServiceImpl {
 		return returnData;
 	}
 
-	public List<Map<String, Map<String, Object>>> deleteMultiData(String service, @Valid @NotNull String uniquekey) throws Exception {
+	public List<Map<String, Map<String, Object>>> deleteMultiData(String service, @Valid @NotNull String uniquekey,String apiKey, String dataStoreKey) throws Exception {
 		List<MultiService> serviceComponent= MultiServiceMap.get(service);
 		ObjectMapper mapper = new ObjectMapper();
 		if(serviceComponent==null)
@@ -611,7 +611,7 @@ public class MultiServiceImpl {
 					{
 					if(relation.contains("none"))
 					{
-						Map<String, Object> dataReturn=singleServiceImpl.deleteData(singleService, uniquekey);
+						Map<String, Object> dataReturn=singleServiceImpl.deleteData(singleService, uniquekey, apiKey,  dataStoreKey);
 						retObj.put(singleService,dataReturn);
 						returnData.add(retObj);	
 					}
@@ -637,7 +637,7 @@ public class MultiServiceImpl {
 											}
 									}
 							}
-							Map<String, Object> dataReturn=singleServiceImpl.deleteData(singleService, uniquekey);
+							Map<String, Object> dataReturn=singleServiceImpl.deleteData(singleService, uniquekey, apiKey,  dataStoreKey);
 							retObj.put(singleService,dataReturn);
 							returnData.add(retObj);
 						
@@ -663,7 +663,7 @@ public class MultiServiceImpl {
 										}
 								}
 						}
-						Map<String, Object> dataReturn=singleServiceImpl.deleteData(singleService, uniquekey);
+						Map<String, Object> dataReturn=singleServiceImpl.deleteData(singleService, uniquekey, apiKey,  dataStoreKey);
 						retObj.put(singleService,dataReturn);
 						returnData.add(retObj);
 					}
