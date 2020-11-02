@@ -194,6 +194,18 @@ reinit()
     });
 	
 }
+
+isequalsAction(colName: string) 
+{
+	
+	console.log('colName :'+colName);
+	console.log('colName :'+(colName=='action'));
+	if(colName=='action')
+	{return false;}
+	else
+		{return true;}
+}
+
 }
 
 
