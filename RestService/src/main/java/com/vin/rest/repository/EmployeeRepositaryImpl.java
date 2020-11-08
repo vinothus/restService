@@ -22,10 +22,12 @@ import java.util.logging.Logger;
 
 import org.hibernate.validator.internal.engine.ConstraintViolationImpl;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ConnectionCallback;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.ResultSetExtractor;
+import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 import javax.sql.DataSource;
@@ -56,12 +58,13 @@ import com.vin.validation.ServiceConstraintViolation;
 public class EmployeeRepositaryImpl {
 
 	Logger log = Logger.getLogger(EmployeeRepositaryImpl.class.getName());
-	 
+	@Autowired
+	private Environment env;
 	@Autowired
 	JdbcTemplate jdbcTemplate;
 	static DbSchema schemaObj;
 	static DbSpec specficationObj;
-	
+	Map<String, JdbcTemplate> jdbcTemplateMap= new ConcurrentHashMap<>();
 	public static Map<String,Map<String, String>> userServiceTableMap= new ConcurrentHashMap<>();
 	public static Map<String,Map<DbTable, List<DbColumn>>> userTableColumnMap= new ConcurrentHashMap<>();
 	static Map<String,Map<String, Map<String, String>>> userServiceAttrbMap= new ConcurrentHashMap<>();
@@ -313,13 +316,31 @@ public class EmployeeRepositaryImpl {
 		DbColumn id;
 		DbColumn tableName;
 		DbColumn serviceName;
+		DbColumn serviceBussinessName;
+		DbColumn addFlag;
+		DbColumn updateFlag;
+		DbColumn deleteFlag;
+		DbColumn retriveFlag;
+		DbColumn workFlowFlag;
+		DbColumn addBuName;
+		DbColumn upBuName;
+		DbColumn delName;
+		DbColumn serviceEnable;
+		DbColumn serviceUIDesign;
 		// Service_Attr
 		DbColumn attrid;
 		DbColumn serid;
 		DbColumn serUId;
 		DbColumn attrName;
 		DbColumn colName;
-
+		DbColumn attrEnable;
+		DbColumn attrBuName;
+		DbColumn attrBuIcon;
+		DbColumn attrCusValidation;
+		DbColumn attrminLength;
+		DbColumn attrMaxLength;
+		DbColumn attrRegXvalidation;
+		DbColumn attrIsMandatory;
 		// Multi_Service
 		DbColumn multiseviceid;
 		DbColumn multisevice_id;
@@ -328,7 +349,8 @@ public class EmployeeRepositaryImpl {
 		DbColumn multiseviceType;
 		DbColumn multiseviceRelationwithParam;
 		DbColumn sevicePriority;
-
+		DbColumn multiserviceBussinessName;
+		DbColumn multiserviceEnable;
 		// User
 
 		DbColumn userid;
@@ -410,7 +432,17 @@ public class EmployeeRepositaryImpl {
 		tableName = tableService.addColumn("tableName", Types.VARCHAR, 100);
 		serviceName = tableService.addColumn("serviceName", Types.VARCHAR, 100);
 		serUId = tableService.addColumn("uid", Types.INTEGER, 10);
-
+		serviceBussinessName=tableService.addColumn("serviceBussinessName", Types.VARCHAR, 100);
+		 addFlag=tableService.addColumn("addFlag", Types.VARCHAR, 10);
+		 updateFlag=tableService.addColumn("updateFlag", Types.VARCHAR, 10);
+		 deleteFlag=tableService.addColumn("deleteFlag", Types.VARCHAR, 10);
+		 retriveFlag=tableService.addColumn("retriveFlag", Types.VARCHAR, 10);
+		 workFlowFlag=tableService.addColumn("workFlowFlag", Types.VARCHAR, 100);
+		 addBuName=tableService.addColumn("addBuName", Types.VARCHAR, 100);
+		 upBuName=tableService.addColumn("upBuName", Types.VARCHAR, 100);
+		 delName=tableService.addColumn("delName", Types.VARCHAR, 100);
+		 serviceEnable=tableService.addColumn("serviceEnable", Types.VARCHAR, 10);
+		 serviceUIDesign=tableService.addColumn("serviceUIDesign", Types.VARCHAR, 100);
 		// Service_Attr
 
 		attrid = tableServiceAttr.addColumn("id", Types.INTEGER, 10);
@@ -419,6 +451,14 @@ public class EmployeeRepositaryImpl {
 		//serUId = tableDataStore.addColumn("uid", Types.INTEGER, 10);
 		attrName = tableServiceAttr.addColumn("attrName", Types.VARCHAR, 100);
 		colName = tableServiceAttr.addColumn("colName", Types.VARCHAR, 100);
+		 attrEnable= tableServiceAttr.addColumn("colName", Types.VARCHAR, 100);
+		 attrBuName= tableServiceAttr.addColumn("attrEnable", Types.VARCHAR, 10);
+		 attrBuIcon= tableServiceAttr.addColumn("attrBuIcon", Types.VARCHAR, 100);
+		 attrCusValidation= tableServiceAttr.addColumn("attrCusValidation", Types.VARCHAR, 100);
+		 attrminLength= tableServiceAttr.addColumn("attrminLength", Types.VARCHAR, 100);
+		 attrMaxLength= tableServiceAttr.addColumn("attrMaxLength", Types.VARCHAR, 100);
+		 attrRegXvalidation= tableServiceAttr.addColumn("attrRegXvalidation", Types.VARCHAR, 100);
+		 attrIsMandatory= tableServiceAttr.addColumn("attrIsMandatory", Types.VARCHAR, 10);
 
 		// Multi_Service
 
@@ -429,7 +469,8 @@ public class EmployeeRepositaryImpl {
 		multisevicePriority = tableMultiService.addColumn("priority", Types.INTEGER, 10);
 		multiseviceType = tableMultiService.addColumn("type", Types.VARCHAR, 100);
 		multiseviceRelationwithParam = tableMultiService.addColumn("relationwithparam", Types.VARCHAR, 100);
-
+		multiserviceBussinessName= tableMultiService.addColumn("multiserviceBussinessName", Types.VARCHAR, 100);
+		multiserviceEnable= tableMultiService.addColumn("multiserviceEnable", Types.VARCHAR, 10);
 		// User
 
 		userid = tableUser.addColumn("id", Types.INTEGER, 10);
@@ -521,7 +562,6 @@ public class EmployeeRepositaryImpl {
 		ObjectMapper mapper = new ObjectMapper();
 		String tableName = serviceTableMap.get(service);
 		int updatedata=0;
-		
 		setGDValues(service, tableName, apiKey,  dataStoreKey);
 		tableName = serviceTableMap.get(service);
 		if (tableName == null) {
@@ -604,6 +644,28 @@ public class EmployeeRepositaryImpl {
 	}
 
 	
+	private void testJDBC(JdbcTemplate userJdbcTemplate) {
+		 
+		List<Map<String,Object>> data=userJdbcTemplate.queryForList(" show tables ");
+		System.out.println(data);
+	}
+
+	private JdbcTemplate setUserDataStore(JdbcTemplate userJdbcTemplate, String apiKey, String dataStoreKey) {
+		DriverManagerDataSource dataSource = new DriverManagerDataSource();
+		if(dataStoreKey.equalsIgnoreCase("SYSTEM"))
+		{
+			
+		    dataSource.setDriverClassName(env.getProperty("spring.datasource.driver-class-name"));
+		    dataSource.setUrl(env.getProperty("spring.datasource.url"));
+		    dataSource.setUsername(env.getProperty("spring.datasource.username"));
+		    dataSource.setPassword(env.getProperty("spring.datasource.password"));
+		    userJdbcTemplate=new JdbcTemplate();
+		    userJdbcTemplate.setDataSource(dataSource);
+		    jdbcTemplateMap.put(dataStoreKey, userJdbcTemplate);
+		}
+		return userJdbcTemplate;
+	}
+
 	private void arrangeGoldenDataForTable(String tableName,String apiKey, String dataStoreKey) {
 		loadSQLBuilderSchema();
 		setTableColumn(tableName, apiKey,  dataStoreKey);
@@ -1095,6 +1157,12 @@ public class EmployeeRepositaryImpl {
 		for (int i = 0; i < nonscaling.length; i++) {
 			invalidElement.add(nonscaling[i]);
 		}
+		JdbcTemplate userJdbcTemplate=jdbcTemplateMap.get(apiKey);
+		/*
+		 * if(userJdbcTemplate==null) {
+		 * userJdbcTemplate=setUserDataStore(userJdbcTemplate,apiKey,dataStoreKey);
+		 * testJDBC(userJdbcTemplate); }
+		 */
 		SelectQuery selectQuery = new SelectQuery();
 		String tableName = serviceTableMap.get(serviceName);
 		setGDValues(serviceName, tableName, apiKey,  dataStoreKey);
