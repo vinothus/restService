@@ -267,7 +267,7 @@ public class MultiServiceImpl {
 	}
 
 	private void arrangeMultServiceGD(String serviceName) throws JsonParseException, JsonMappingException, IOException {
-		List<Map<String, Object>> serviceDatum = jdbcTemplate.queryForList("select ms.id as id, s.serviceName as serviceName, ms.multiservicename as multiservicename, ms.priority as priority ,ms.type,relationwithparam from multi_service ms , service s where multiservicename= '"+serviceName+"'  and s.id=ms.service_id ");
+		List<Map<String, Object>> serviceDatum = jdbcTemplate.queryForList("select ms.id as id, s.serviceName as serviceName, ms.multiservicename as multiservicename, ms.priority as priority ,ms.type,relationwithparam from Multi_Service ms , Service s where multiservicename= '"+serviceName+"'  and s.id=ms.service_id ");
 		List<Map<String, String>> serviceStrDatum=new ArrayList<>();
 		 ObjectMapper mapper = new ObjectMapper();
 			String params = mapper.writeValueAsString(serviceDatum);
