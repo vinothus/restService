@@ -24,6 +24,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.fasterxml.jackson.core.JsonParseException;
@@ -43,7 +44,7 @@ public class MultiServiceController {
 	Validator validator;
 	@MethodName(MethodName="addData")
 	public ResponseEntity<List<Map<String,Map<String, Object>>>> addData(@PathVariable("service") String service,
-			@RequestBody String params,@PathVariable("apiKey") String apiKey,@PathVariable("dataStoreKey") String dataStoreKey) throws Exception   {
+			@RequestBody String params,@PathVariable("apiKey") String apiKey,@PathVariable("dataStoreKey") String dataStoreKey,@RequestHeader(value="passToken", defaultValue = "none") String passToken) throws Exception   {
 		ObjectMapper mapper = new ObjectMapper();
 
 		List<Map<String,Map<String, String>>> jsonMap = new ArrayList<>();
@@ -74,12 +75,12 @@ public class MultiServiceController {
 			}
 		}
 		
-		return new ResponseEntity<List<Map<String,Map<String, Object>>>>(multiserviceImpl.insertMultiData(service, jsonMap, apiKey,  dataStoreKey),
+		return new ResponseEntity<List<Map<String,Map<String, Object>>>>(multiserviceImpl.insertMultiData(service, jsonMap, apiKey,  dataStoreKey,passToken),
 				new HttpHeaders(), HttpStatus.OK);
 	}
 	@MethodName(MethodName="updateData")
 	public ResponseEntity<List<Map<String,Map<String, Object>>>> updateData(@PathVariable("service") String service,
-			@RequestBody String params,@PathVariable("apiKey") String apiKey,@PathVariable("dataStoreKey") String dataStoreKey) throws Exception   {
+			@RequestBody String params,@PathVariable("apiKey") String apiKey,@PathVariable("dataStoreKey") String dataStoreKey,@RequestHeader(value="passToken", defaultValue = "none") String passToken) throws Exception   {
 		ObjectMapper mapper = new ObjectMapper();
 
 		List<Map<String,Map<String, String>>> jsonMap = new ArrayList<>();
@@ -110,12 +111,12 @@ public class MultiServiceController {
 			}
 		}
 		 
-		return new ResponseEntity<List<Map<String,Map<String, Object>>>>(multiserviceImpl.updateMultiData(service, jsonMap, apiKey,  dataStoreKey),
+		return new ResponseEntity<List<Map<String,Map<String, Object>>>>(multiserviceImpl.updateMultiData(service, jsonMap, apiKey,  dataStoreKey,passToken),
 				new HttpHeaders(), HttpStatus.OK);
 	}
 	@MethodName(MethodName="getDatum")
 	public ResponseEntity<List<Map<String,List<Map<String, Object>>>>> getDatum(@PathVariable("service") String service,
-			@RequestParam   Map<String, String> params,@PathVariable("apiKey") String apiKey,@PathVariable("dataStoreKey") String dataStoreKey) throws JsonParseException, JsonMappingException, IOException    {
+			@RequestParam   Map<String, String> params,@PathVariable("apiKey") String apiKey,@PathVariable("dataStoreKey") String dataStoreKey,@RequestHeader(value="passToken", defaultValue = "none") String passToken) throws JsonParseException, JsonMappingException, IOException    {
 		ObjectMapper mapper = new ObjectMapper();
 		List<Map<String,Map<String, String>>> jsonMap = new ArrayList<>();
 		params.put("ServiceKey", service);
@@ -126,20 +127,20 @@ public class MultiServiceController {
 			}
 			
 			 
-		return new ResponseEntity<List<Map<String,List<Map<String, Object>>>>>(multiserviceImpl.getMultiDataForParams(service, params, apiKey,  dataStoreKey),
+		return new ResponseEntity<List<Map<String,List<Map<String, Object>>>>>(multiserviceImpl.getMultiDataForParams(service, params, apiKey,  dataStoreKey,passToken),
 				new HttpHeaders(), HttpStatus.OK);
 	}
 	@MethodName(MethodName="getData")
 	public ResponseEntity<List<Map<String,Map<String, Object>>>> getData(@PathVariable("service") String service,
-			@PathVariable("uniquekey") @Valid @NotNull String uniquekey,@PathVariable("apiKey") String apiKey,@PathVariable("dataStoreKey") String dataStoreKey) throws Exception {
+			@PathVariable("uniquekey") @Valid @NotNull String uniquekey,@PathVariable("apiKey") String apiKey,@PathVariable("dataStoreKey") String dataStoreKey,@RequestHeader(value="passToken", defaultValue = "none") String passToken) throws Exception {
 
-		return new ResponseEntity<List<Map<String,Map<String, Object>>>>(multiserviceImpl.getMultiData(service, uniquekey, apiKey,  dataStoreKey),
+		return new ResponseEntity<List<Map<String,Map<String, Object>>>>(multiserviceImpl.getMultiData(service, uniquekey, apiKey,  dataStoreKey,passToken),
 				new HttpHeaders(), HttpStatus.OK);
 	}
 	@MethodName(MethodName="delData")
 	public ResponseEntity<List<Map<String,Map<String, Object>>>> delData(@PathVariable("service") String service,
-			@PathVariable("uniquekey") @Valid @NotNull String uniquekey,@PathVariable("apiKey") String apiKey,@PathVariable("dataStoreKey") String dataStoreKey) throws Exception {
-		return new ResponseEntity<List<Map<String,Map<String, Object>>>>(multiserviceImpl.deleteMultiData(service, uniquekey, apiKey,  dataStoreKey),
+			@PathVariable("uniquekey") @Valid @NotNull String uniquekey,@PathVariable("apiKey") String apiKey,@PathVariable("dataStoreKey") String dataStoreKey,@RequestHeader(value="passToken", defaultValue = "none") String passToken) throws Exception {
+		return new ResponseEntity<List<Map<String,Map<String, Object>>>>(multiserviceImpl.deleteMultiData(service, uniquekey, apiKey,  dataStoreKey,passToken),
 				new HttpHeaders(), HttpStatus.OK);
 	}	
 	public static String getMethodName(String Name) {

@@ -8,6 +8,7 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Types;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -48,6 +49,7 @@ import com.healthmarketscience.sqlbuilder.dbspec.basic.DbSchema;
 import com.healthmarketscience.sqlbuilder.dbspec.basic.DbSpec;
 import com.healthmarketscience.sqlbuilder.dbspec.basic.DbTable;
 import com.vin.rest.dynamic.MultiServiceImpl;
+import com.vin.rest.exception.DatabaseAuthException;
 import com.vin.rest.exception.RecordNotFoundException;
 import com.vin.rest.exception.ServiceNotFoundException;
 import com.vin.rest.model.EmployeeEntity;
@@ -60,8 +62,8 @@ public class EmployeeRepositaryImpl {
 	Logger log = Logger.getLogger(EmployeeRepositaryImpl.class.getName());
 	@Autowired
 	private Environment env;
-	@Autowired
-	JdbcTemplate jdbcTemplate;
+	//@Autowired
+	//JdbcTemplate jdbcTemplate;
 	static DbSchema schemaObj;
 	static DbSpec specficationObj;
 	Map<String, JdbcTemplate> jdbcTemplateMap= new ConcurrentHashMap<>();
@@ -69,9 +71,9 @@ public class EmployeeRepositaryImpl {
 	public static Map<String,Map<DbTable, List<DbColumn>>> userTableColumnMap= new ConcurrentHashMap<>();
 	static Map<String,Map<String, Map<String, String>>> userServiceAttrbMap= new ConcurrentHashMap<>();
 	
-	public static Map<String, String> serviceTableMap= new ConcurrentHashMap<>();
-	public static Map<DbTable, List<DbColumn>> tableColumnMap= new ConcurrentHashMap<>();
-	static Map<String, Map<String, String>> serviceAttrbMap= new ConcurrentHashMap<>();
+	//public static Map<String, String> serviceTableMap= new ConcurrentHashMap<>();
+	//public static Map<DbTable, List<DbColumn>> tableColumnMap= new ConcurrentHashMap<>();
+	//static Map<String, Map<String, String>> serviceAttrbMap= new ConcurrentHashMap<>();
     String serviceNTFEx="Service not found Exception";
     
 	String[] nonscaling = {"NCLOB","BLOB","CLOB","NULL","OTHER","JAVA_OBJECT","ARRAY", "DISTINCT", "STRUCT", "REF", "DATALINK", "ROWID", "SQLXML", "?" };
@@ -81,7 +83,7 @@ public class EmployeeRepositaryImpl {
 
 		try {
 			//tableColumnMap = getMetaDatum();
-			initGoldenTables("SYSTEM","SYSTEM");
+			initGoldenTables("SYSTEM","SYSTEM","none");
 
 			getServiceTableMap("SYSTEM","SYSTEM");
 		} catch (Exception e) {
@@ -90,12 +92,15 @@ public class EmployeeRepositaryImpl {
 
 	}
 
-	private void initGoldenTables(String apiKey, String dataStoreKey) throws Exception {
+	private void initGoldenTables(String apiKey, String dataStoreKey,String passToken) throws Exception {
 		List<DbTable> serviceTables = initializeTable();
 		boolean serviceTabisPresent = false;
 		for (Iterator<DbTable> iterator = serviceTables.iterator(); iterator.hasNext();) {
 			DbTable dbTable = iterator.next();
-			for (Map.Entry<DbTable, List<DbColumn>> entry : tableColumnMap.entrySet()) {
+			for (Map.Entry<String,Map<DbTable, List<DbColumn>>> entryUsr : userTableColumnMap.entrySet()) {
+				String userApiKey=entryUsr.getKey();
+				Map<DbTable, List<DbColumn>> tableColumnMapUsr=entryUsr.getValue();
+			for (Map.Entry<DbTable, List<DbColumn>> entry : tableColumnMapUsr.entrySet()) {
 				DbTable table = entry.getKey();
 
 				if (dbTable.getName().equalsIgnoreCase(table.getName())) {
@@ -103,12 +108,13 @@ public class EmployeeRepositaryImpl {
 					log.info("Table Already Present: ");
 				}
 			}
+			}
 
 		}
 		if (!serviceTabisPresent) {
 			for (Iterator<DbTable> iterator = serviceTables.iterator(); iterator.hasNext();) {
 				DbTable dbTable = iterator.next();
-				if(!isTablePresent(dbTable.getName(), apiKey,  dataStoreKey))
+				if(!isTablePresent(dbTable.getName(), apiKey,  dataStoreKey,passToken))
 				{
 					createDbTable(dbTable, apiKey,  dataStoreKey);
 					}
@@ -116,8 +122,10 @@ public class EmployeeRepositaryImpl {
 			}
 
 		}
-		tableColumnMap = getMetaDatum( apiKey,  dataStoreKey);
+		userTableColumnMap=getMetaDatumUsr( apiKey,  dataStoreKey,passToken);
+		//tableColumnMap = getMetaDatum( apiKey,  dataStoreKey,passToken);
 		insertServiceTables( apiKey,  dataStoreKey);
+		insertServiceTablesUsr( apiKey,  dataStoreKey);
 
 	}
 
@@ -125,23 +133,78 @@ public class EmployeeRepositaryImpl {
 
  
 
-	private  void loadSQLBuilderSchema() {
-		specficationObj = new DbSpec();
+	private void insertServiceTablesUsr(String apiKey, String dataStoreKey) throws Exception {
+		String userId=getUidForapiKey( apiKey);
+		String dsId =getdsidFordsName(dataStoreKey);
+		for (Map.Entry<String,Map<DbTable,List<DbColumn>>> entryUsr : userTableColumnMap.entrySet()) {
+             String userApi= entryUsr.getKey();
+             Map<DbTable,List<DbColumn>> tablecolumnMap=entryUsr.getValue();
+		for (Map.Entry<DbTable, List<DbColumn>> entry : tablecolumnMap.entrySet()) {
+			DbTable table = entry.getKey();
+			String tableName = table.getName();
+
+			String serviceInsertQuery = "INSERT INTO   Service (id ,tableName , serviceName, uid , dsid )   values( (SELECT MAX( id )+1 FROM Service ser) , '"
+					+ tableName + "', '" + tableName.toLowerCase().replace("_", " ") + "' , '"+userId+"' , '"+dsId+"' )";
+			String serviceid = getServiceID(tableName, apiKey,  dataStoreKey,userId,dsId);
+			String maxRec = findMax("Service", apiKey,  "system","none");
+			if (maxRec != null && serviceid == null) {
+				setUserDataStore(apiKey, "system","none").execute(serviceInsertQuery);
+				serviceid = getServiceID(tableName, apiKey,  dataStoreKey,userId,dsId);
+			} else if (maxRec == null) {
+				serviceInsertQuery = "INSERT INTO   Service (id ,tableName , serviceName , uid , dsid )   values( 0, '" + tableName
+						+ "', '" + tableName.toLowerCase().replace("_", " ") + "' , '"+userId+"' , '"+dsId+"'  )";
+				setUserDataStore(apiKey, "system","none").execute(serviceInsertQuery);
+				serviceid = getServiceID(tableName, apiKey,  dataStoreKey,userId,dsId);
+			}
+
+			List<DbColumn> column = entry.getValue();
+			for (Iterator<DbColumn> iterator = column.iterator(); iterator.hasNext();) {
+				DbColumn dbColumn = iterator.next();
+				String serviceAttrid = getServiceAttrID(serviceid, dbColumn.getName(), apiKey,  dataStoreKey);
+				String maxRecAttr = findMax("Service_Attr", apiKey,  "system","none");
+				if (maxRecAttr != null && serviceAttrid == null) {
+					String serviceAttrQuery = " INSERT INTO Service_Attr (id, service_id , attrName, colName) values ((SELECT MAX( id )+1 FROM Service_Attr serA) ,'"
+							+ serviceid + "','" + dbColumn.getName().toLowerCase().replace("_", "") + "','"
+							+ dbColumn.getName() + "') ";
+					setUserDataStore(apiKey, "system","none").execute(serviceAttrQuery);
+				} else if (maxRecAttr == null) {
+
+					{
+						String serviceAttrQuery = " INSERT INTO Service_Attr (id, service_id , attrName, colName) values (0 ,'"
+								+ serviceid + "','" + dbColumn.getName().toLowerCase().replace("_", "") + "','"
+								+ dbColumn.getName() + "') ";
+						setUserDataStore(apiKey, "system","none").execute(serviceAttrQuery);
+					}
+
+				}
+			}
+		}
+		}
+
+	
 		
-		schemaObj = specficationObj.addDefaultSchema();
 	}
 
-
-
-	public Map<DbTable, List<DbColumn>> getMetaDatum(String apiKey, String dataStoreKey)  {
+	private Map<String, Map<DbTable, List<DbColumn>>> getMetaDatumUsr(String apiKey, String dataStoreKey,
+			String passToken) {
 		loadSQLBuilderSchema();
-		Map<DbTable, List<DbColumn>> metaDatum = new HashMap<>();
+		Map<String,Map<DbTable, List<DbColumn>>> metaDatum = new HashMap<>();
+		Map<DbTable, List<DbColumn>> metaDatumUsr = new HashMap<>();
 		DatabaseMetaData md;
-		ResultSet rs ;
+		DatabaseMetaData mdsys = null;
+		ResultSet rs ,rs3 ;
 		 
 		try {
 			//user Database
-			md=	jdbcTemplate.execute(new ConnectionCallback<DatabaseMetaData>() {
+			md=setUserDataStore(apiKey, dataStoreKey, passToken).execute(new ConnectionCallback<DatabaseMetaData>() {
+
+				@Override
+				public DatabaseMetaData doInConnection(Connection con) throws SQLException, DataAccessException {
+					// TODO Auto-generated method stub
+					return con.getMetaData();
+				}
+			});
+			mdsys=setUserDataStore(apiKey, "system", passToken).execute(new ConnectionCallback<DatabaseMetaData>() {
 
 				@Override
 				public DatabaseMetaData doInConnection(Connection con) throws SQLException, DataAccessException {
@@ -150,11 +213,23 @@ public class EmployeeRepositaryImpl {
 				}
 			});
 			
-			
 			if(md.getURL().contains("mysql"))
 			{
 				//user Database  and system database
-			List<Map<String,Object>>	tableresult=jdbcTemplate.queryForList("show tables");
+			List<Map<String,Object>>	tableresult=setUserDataStore(apiKey, dataStoreKey, passToken).queryForList("show tables");
+			if (!dataStoreKey.equalsIgnoreCase("system")) {
+				if (setUserDataStore(apiKey, "system", passToken).execute(new ConnectionCallback<DatabaseMetaData>() {
+
+					@Override
+					public DatabaseMetaData doInConnection(Connection con) throws SQLException, DataAccessException {
+						// TODO Auto-generated method stub
+						return con.getMetaData();
+					}
+				}).getURL().contains("mysql")) {// system metadata table  setup
+					tableresult.addAll(setUserDataStore(apiKey, "system","none").queryForList("show tables"));
+				}
+
+			}
 				for (Iterator iterator = tableresult.iterator(); iterator.hasNext();) {
 					Map<String, Object> map = (Map<String, Object>) iterator.next();
 					System.out.println(map);
@@ -164,7 +239,233 @@ public class EmployeeRepositaryImpl {
 					DbTable tableNameT = schemaObj.addTable(entry.getValue().toString());
 					List<DbColumn> listArray = new ArrayList<>();
 					 
-					List<Map<String,Object>>	colums=jdbcTemplate.queryForList("desc "+entry.getValue());
+					List<Map<String,Object>>	colums=setUserDataStore(apiKey, dataStoreKey, passToken).queryForList("desc "+entry.getValue());
+					
+					if (!dataStoreKey.equalsIgnoreCase("system")) {
+						if (setUserDataStore(apiKey, "system", passToken).execute(new ConnectionCallback<DatabaseMetaData>() {
+
+							@Override
+							public DatabaseMetaData doInConnection(Connection con) throws SQLException, DataAccessException {
+								// TODO Auto-generated method stub
+								return con.getMetaData();
+							}
+						}).getURL().contains("mysql")) {// system metadata column setup
+							colums.addAll(setUserDataStore(apiKey, "system","none").queryForList("desc "+entry.getValue()));
+						}
+
+					}
+					
+					
+					for (Iterator iterator2 = colums.iterator(); iterator2.hasNext();) {
+						Map<String, Object> coluMaps = (Map<String, Object>) iterator2.next();
+						coluMaps.get("Field");
+						coluMaps.get("Type");
+						coluMaps.get("Key");
+						 
+						DbColumn column1 = tableNameT.addColumn((String)coluMaps.get("Field"),
+								getSqlTypeWithoutScal((String)coluMaps.get("Type"))	, getLength((String)coluMaps.get("Type")));
+						column1.setDefaultValue(getSqlTypeName((String)coluMaps.get("Type")));
+						if(coluMaps.get("Key").equals("PRI"))
+							{
+							column1.primaryKey();
+							}
+						listArray.add(column1);
+						 
+					}
+					metaDatumUsr.put(tableNameT, listArray);
+			    } 
+				} 	 
+			} 
+			else {	 
+			//dataSource.getConnection().setCatalog("cameldb");
+		    rs = md.getTables(null, null, "%", new String[] { "TABLE",
+				"VIEW"/*
+						 * , "SYSTEM TABLE", "GLOBAL TEMPORARY", "LOCAL TEMPORARY", "ALIAS", "SYNONYM"
+						 */ });
+		    rs3 = mdsys.getTables(null, null, "%", new String[] { "TABLE",
+					"VIEW"/*
+							 * , "SYSTEM TABLE", "GLOBAL TEMPORARY", "LOCAL TEMPORARY", "ALIAS", "SYNONYM"
+							 */ });
+		    
+		while (rs.next()) {
+
+			DbTable tableNameT = schemaObj.addTable(rs.getString("TABLE_NAME"));
+			String tableName = rs.getString("TABLE_NAME");
+			log.info(tableName);
+			if(tableName.contains("/")||tableName.contains("$"))
+			{
+				continue;
+			}
+			SelectQuery selectQuery = new SelectQuery();
+			List<DbColumn> listArray = new ArrayList<>();
+			ResultSet rs1 = md.getColumns(null, null,tableName, null);
+			ResultSet rs2 = md.getPrimaryKeys(null, null, tableName);
+			String primaryKey = "";
+			while (rs2.next()) {
+				primaryKey = rs2.getString("COLUMN_NAME");
+			}
+			rs2.close();
+
+			while (rs1.next()) {
+				DbColumn column1 = null ;
+				try {
+				 column1 = tableNameT.addColumn(rs1.getString("COLUMN_NAME"),
+						Integer.parseInt(rs1.getString("DATA_TYPE")), Integer.parseInt(rs1.getString("COLUMN_SIZE")));
+				}catch(Exception e)
+				{
+					 column1 = tableNameT.addColumn(rs1.getString("COLUMN_NAME"),
+								4, Integer.parseInt(rs1.getString("COLUMN_SIZE")));
+				}
+
+				if (rs1.getString("COLUMN_NAME").equals(primaryKey)) {
+					column1.primaryKey();
+				}
+				listArray.add(column1);
+				log.info(rs1.getString("DATA_TYPE"));
+				log.info(rs1.getString("COLUMN_NAME"));
+				log.info(rs1.getString("COLUMN_SIZE"));
+
+			}
+			rs1.close();
+			log.info(selectQuery.addAllTableColumns(tableNameT).validate().toString());
+			metaDatumUsr.put(tableNameT, listArray);
+			
+		}
+		
+		while (rs3.next()&&!dataStoreKey.equalsIgnoreCase("system")) {
+
+			DbTable tableNameT = schemaObj.addTable(rs3.getString("TABLE_NAME"));
+			String tableName = rs3.getString("TABLE_NAME");
+			log.info(tableName);
+			if(tableName.contains("/")||tableName.contains("$"))
+			{
+				continue;
+			}
+			SelectQuery selectQuery = new SelectQuery();
+			List<DbColumn> listArray = new ArrayList<>();
+			ResultSet rs1 = md.getColumns(null, null,tableName, null);
+			ResultSet rs2 = md.getPrimaryKeys(null, null, tableName);
+			String primaryKey = "";
+			while (rs2.next()) {
+				primaryKey = rs2.getString("COLUMN_NAME");
+			}
+			rs2.close();
+
+			while (rs1.next()) {
+				DbColumn column1 = null ;
+				try {
+				 column1 = tableNameT.addColumn(rs1.getString("COLUMN_NAME"),
+						Integer.parseInt(rs1.getString("DATA_TYPE")), Integer.parseInt(rs1.getString("COLUMN_SIZE")));
+				}catch(Exception e)
+				{
+					 column1 = tableNameT.addColumn(rs1.getString("COLUMN_NAME"),
+								4, Integer.parseInt(rs1.getString("COLUMN_SIZE")));
+				}
+
+				if (rs1.getString("COLUMN_NAME").equals(primaryKey)) {
+					column1.primaryKey();
+				}
+				listArray.add(column1);
+				log.info(rs1.getString("DATA_TYPE"));
+				log.info(rs1.getString("COLUMN_NAME"));
+				log.info(rs1.getString("COLUMN_SIZE"));
+
+			}
+			rs1.close();
+			log.info(selectQuery.addAllTableColumns(tableNameT).validate().toString());
+			metaDatumUsr.put(tableNameT, listArray);
+			
+		}
+		rs3.close();
+		rs.close();
+			
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}finally {
+			
+		}
+		metaDatum.put(dataStoreKey, metaDatumUsr);
+		return metaDatum;
+	}
+
+	private  void loadSQLBuilderSchema() {
+		specficationObj = new DbSpec();
+		
+		schemaObj = specficationObj.addDefaultSchema();
+	}
+
+
+
+	public Map<DbTable, List<DbColumn>> getMetaDatum(String apiKey, String dataStoreKey,String passToken)  {
+		loadSQLBuilderSchema();
+		Map<DbTable, List<DbColumn>> metaDatum = new HashMap<>();
+		DatabaseMetaData md;
+		DatabaseMetaData mdsys = null;
+		ResultSet rs ,rs3 ;
+		 
+		try {
+			//user Database
+			md=setUserDataStore(apiKey, dataStoreKey, passToken).execute(new ConnectionCallback<DatabaseMetaData>() {
+
+				@Override
+				public DatabaseMetaData doInConnection(Connection con) throws SQLException, DataAccessException {
+					// TODO Auto-generated method stub
+					return con.getMetaData();
+				}
+			});
+			mdsys=setUserDataStore(apiKey, "system", passToken).execute(new ConnectionCallback<DatabaseMetaData>() {
+
+				@Override
+				public DatabaseMetaData doInConnection(Connection con) throws SQLException, DataAccessException {
+					// TODO Auto-generated method stub
+					return con.getMetaData();
+				}
+			});
+			
+			if(md.getURL().contains("mysql"))
+			{
+				//user Database  and system database
+			List<Map<String,Object>>	tableresult=setUserDataStore(apiKey, dataStoreKey, passToken).queryForList("show tables");
+			if (!dataStoreKey.equalsIgnoreCase("system")) {
+				if (setUserDataStore(apiKey, "system", passToken).execute(new ConnectionCallback<DatabaseMetaData>() {
+
+					@Override
+					public DatabaseMetaData doInConnection(Connection con) throws SQLException, DataAccessException {
+						// TODO Auto-generated method stub
+						return con.getMetaData();
+					}
+				}).getURL().contains("mysql")) {// system metadata table  setup
+					tableresult.addAll(setUserDataStore(apiKey, "system","none").queryForList("show tables"));
+				}
+
+			}
+				for (Iterator iterator = tableresult.iterator(); iterator.hasNext();) {
+					Map<String, Object> map = (Map<String, Object>) iterator.next();
+					System.out.println(map);
+					for (Entry<String, Object> entry : map.entrySet())  
+					{   System.out.println("Key = " + entry.getKey() + 
+			                             ", Value = " + entry.getValue()); 
+					DbTable tableNameT = schemaObj.addTable(entry.getValue().toString());
+					List<DbColumn> listArray = new ArrayList<>();
+					 
+					List<Map<String,Object>>	colums=setUserDataStore(apiKey, dataStoreKey, passToken).queryForList("desc "+entry.getValue());
+					
+					if (!dataStoreKey.equalsIgnoreCase("system")) {
+						if (setUserDataStore(apiKey, "system", passToken).execute(new ConnectionCallback<DatabaseMetaData>() {
+
+							@Override
+							public DatabaseMetaData doInConnection(Connection con) throws SQLException, DataAccessException {
+								// TODO Auto-generated method stub
+								return con.getMetaData();
+							}
+						}).getURL().contains("mysql")) {// system metadata column setup
+							colums.addAll(setUserDataStore(apiKey, "system","none").queryForList("desc "+entry.getValue()));
+						}
+
+					}
+					
+					
 					for (Iterator iterator2 = colums.iterator(); iterator2.hasNext();) {
 						Map<String, Object> coluMaps = (Map<String, Object>) iterator2.next();
 						coluMaps.get("Field");
@@ -191,6 +492,10 @@ public class EmployeeRepositaryImpl {
 				"VIEW"/*
 						 * , "SYSTEM TABLE", "GLOBAL TEMPORARY", "LOCAL TEMPORARY", "ALIAS", "SYNONYM"
 						 */ });
+		    rs3 = mdsys.getTables(null, null, "%", new String[] { "TABLE",
+					"VIEW"/*
+							 * , "SYSTEM TABLE", "GLOBAL TEMPORARY", "LOCAL TEMPORARY", "ALIAS", "SYNONYM"
+							 */ });
 		    
 		while (rs.next()) {
 
@@ -236,7 +541,54 @@ public class EmployeeRepositaryImpl {
 			metaDatum.put(tableNameT, listArray);
 			
 		}
+		
+		while (rs3.next()&&!dataStoreKey.equalsIgnoreCase("system")) {
+
+			DbTable tableNameT = schemaObj.addTable(rs3.getString("TABLE_NAME"));
+			String tableName = rs3.getString("TABLE_NAME");
+			log.info(tableName);
+			if(tableName.contains("/")||tableName.contains("$"))
+			{
+				continue;
+			}
+			SelectQuery selectQuery = new SelectQuery();
+			List<DbColumn> listArray = new ArrayList<>();
+			ResultSet rs1 = md.getColumns(null, null,tableName, null);
+			ResultSet rs2 = md.getPrimaryKeys(null, null, tableName);
+			String primaryKey = "";
+			while (rs2.next()) {
+				primaryKey = rs2.getString("COLUMN_NAME");
+			}
+			rs2.close();
+
+			while (rs1.next()) {
+				DbColumn column1 = null ;
+				try {
+				 column1 = tableNameT.addColumn(rs1.getString("COLUMN_NAME"),
+						Integer.parseInt(rs1.getString("DATA_TYPE")), Integer.parseInt(rs1.getString("COLUMN_SIZE")));
+				}catch(Exception e)
+				{
+					 column1 = tableNameT.addColumn(rs1.getString("COLUMN_NAME"),
+								4, Integer.parseInt(rs1.getString("COLUMN_SIZE")));
+				}
+
+				if (rs1.getString("COLUMN_NAME").equals(primaryKey)) {
+					column1.primaryKey();
+				}
+				listArray.add(column1);
+				log.info(rs1.getString("DATA_TYPE"));
+				log.info(rs1.getString("COLUMN_NAME"));
+				log.info(rs1.getString("COLUMN_SIZE"));
+
+			}
+			rs1.close();
+			log.info(selectQuery.addAllTableColumns(tableNameT).validate().toString());
+			metaDatum.put(tableNameT, listArray);
+			
+		}
+		rs3.close();
 		rs.close();
+			
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -254,7 +606,7 @@ public class EmployeeRepositaryImpl {
 			String createTableQuery = new CreateTableQuery(tableName, true).validate().toString();
 			log.info("\nGenerated Sql Query?= " + createTableQuery + "\n");
 			// system Database
-			jdbcTemplate.execute(createTableQuery);
+			setUserDataStore(apiKey, "system","none").execute(createTableQuery);
 		}  catch (Exception sqlException) {
 			if(sqlException instanceof java.sql.SQLSyntaxErrorException || sqlException instanceof org.springframework.jdbc.BadSqlGrammarException)
 			{
@@ -297,7 +649,7 @@ public class EmployeeRepositaryImpl {
 				System.out.println(manualQuery);
 				try {
 					// system database
-				jdbcTemplate.execute(manualQuery);
+					setUserDataStore(apiKey, "system","none").execute(manualQuery);
 				}catch(Exception e)
 				{
 				log.info(e.getMessage());	
@@ -316,6 +668,7 @@ public class EmployeeRepositaryImpl {
 		DbColumn id;
 		DbColumn tableName;
 		DbColumn serviceName;
+		DbColumn serDSId;
 		DbColumn serviceBussinessName;
 		DbColumn addFlag;
 		DbColumn updateFlag;
@@ -432,6 +785,7 @@ public class EmployeeRepositaryImpl {
 		tableName = tableService.addColumn("tableName", Types.VARCHAR, 100);
 		serviceName = tableService.addColumn("serviceName", Types.VARCHAR, 100);
 		serUId = tableService.addColumn("uid", Types.INTEGER, 10);
+		serDSId= tableService.addColumn("dsid", Types.INTEGER, 10);
 		serviceBussinessName=tableService.addColumn("serviceBussinessName", Types.VARCHAR, 100);
 		 addFlag=tableService.addColumn("addFlag", Types.VARCHAR, 10);
 		 updateFlag=tableService.addColumn("updateFlag", Types.VARCHAR, 10);
@@ -451,8 +805,8 @@ public class EmployeeRepositaryImpl {
 		//serUId = tableDataStore.addColumn("uid", Types.INTEGER, 10);
 		attrName = tableServiceAttr.addColumn("attrName", Types.VARCHAR, 100);
 		colName = tableServiceAttr.addColumn("colName", Types.VARCHAR, 100);
-		 attrEnable= tableServiceAttr.addColumn("colName", Types.VARCHAR, 100);
-		 attrBuName= tableServiceAttr.addColumn("attrEnable", Types.VARCHAR, 10);
+		 attrEnable= tableServiceAttr.addColumn("attrEnable", Types.VARCHAR, 100);
+		 attrBuName= tableServiceAttr.addColumn("attrBuName", Types.VARCHAR, 10);
 		 attrBuIcon= tableServiceAttr.addColumn("attrBuIcon", Types.VARCHAR, 100);
 		 attrCusValidation= tableServiceAttr.addColumn("attrCusValidation", Types.VARCHAR, 100);
 		 attrminLength= tableServiceAttr.addColumn("attrminLength", Types.VARCHAR, 100);
@@ -557,21 +911,28 @@ public class EmployeeRepositaryImpl {
 		return initialTable;
 	}
 
-	public Map<String, Object> insertData(String service, Map<String, String> params,String apiKey, String dataStoreKey) throws Exception {
+	public Map<String, Object> insertData(String service, Map<String, String> params,String apiKey, String dataStoreKey,String passToken) throws Exception {
 		loadSQLBuilderSchema();
 		ObjectMapper mapper = new ObjectMapper();
-		String tableName = serviceTableMap.get(service);
+		String tableName = null;
+		if(userServiceTableMap.get(dataStoreKey)!=null)
+		{ 
+			tableName=userServiceTableMap.get(dataStoreKey).get(service);
+			}
+		//String tableName = serviceTableMap.get(service);
 		int updatedata=0;
-		setGDValues(service, tableName, apiKey,  dataStoreKey);
-		tableName = serviceTableMap.get(service);
+		setGDValues(service, tableName, apiKey,  dataStoreKey,passToken);
+		tableName = userServiceTableMap.get(dataStoreKey).get(service);
 		if (tableName == null) {
 			throw new ServiceNotFoundException(serviceNTFEx);
 		}
 		InsertQuery insertQuery;
 		String primaryKey = null;
 		boolean isUpdate = false;
-		Map<String, String> attribParamMap = serviceAttrbMap.get(service);
-		for (Map.Entry<DbTable, List<DbColumn>> entry : tableColumnMap.entrySet()) {
+		//Map<String, String> attribParamMap = serviceAttrbMap.get(service);
+		Map<String, String> attribParamMap = userServiceAttrbMap.get(dataStoreKey).get(service);
+		
+		for (Map.Entry<DbTable, List<DbColumn>> entry : userTableColumnMap.get(dataStoreKey).entrySet()) {
 			DbTable table = entry.getKey();
 			if (table.getName().equalsIgnoreCase(tableName)) {
 				table = schemaObj.addTable(table.getName());
@@ -588,12 +949,15 @@ public class EmployeeRepositaryImpl {
 							if ((params.get(attribParamMap.get(dbColumn.getName())) != null)) {
 								isPrimaryKey = true;
 								primaryKey =( mapper.writeValueAsString(params.get(attribParamMap.get(dbColumn.getName()))) );
-								if (getData(service, primaryKey, apiKey,  dataStoreKey).size() > 0) {
+								primaryKey=primaryKey.replace("\"", "");
+								 Map<String, Object> data=getData(service, primaryKey, apiKey,  dataStoreKey,passToken) ;
+								 String  valFMDB=(String )data.get(dbColumn.getName());
+								if (valFMDB!=null&&valFMDB.equals(primaryKey)) {
 									isUpdate = true;
 								}
 							} else {
 
-								primaryKey = findMax(table.getName(), apiKey,  dataStoreKey);
+								primaryKey = findMax(table.getName(), apiKey,  dataStoreKey,passToken);
 								if(primaryKey==null)
 								{
 									primaryKey="0";
@@ -617,10 +981,14 @@ public class EmployeeRepositaryImpl {
 					if (!isUpdate) {
 						if(dataStoreKey.equalsIgnoreCase("SYSTEM"))
 						{
-					 updatedata=	jdbcTemplate.update(insertQuery.toString());
+					 updatedata=setUserDataStore(apiKey, "system","none").update(insertQuery.toString());
+						}else
+						{
+						JdbcTemplate jdbcTemplate=setUserDataStore(apiKey, dataStoreKey, passToken);
+						updatedata=jdbcTemplate.update(insertQuery.toString());
 						}
 					} else {
-						updateData(service, params, apiKey,  dataStoreKey);
+						updateData(service, params, apiKey,  dataStoreKey,passToken);
 					}
 
 				} else {
@@ -632,11 +1000,11 @@ public class EmployeeRepositaryImpl {
 
 		}
 		primaryKey = replaceDoubleQute(primaryKey);
-		Map<String, Object>  datatrt=getData(service, primaryKey, apiKey,  dataStoreKey);
+		Map<String, Object>  datatrt=getData(service, primaryKey, apiKey,  dataStoreKey,passToken);
 		if(datatrt==null||datatrt.isEmpty())
 		{
 			if(updatedata==1&&primaryKey.equals("0"))
-			{datatrt=	getDataForParams(service, new HashMap<String, String>(), apiKey,  dataStoreKey).get(0);}
+			{datatrt=	getDataForParams(service, new HashMap<String, String>(), apiKey,  dataStoreKey, passToken).get(0);}
 		}
 		
 		return datatrt;
@@ -650,47 +1018,89 @@ public class EmployeeRepositaryImpl {
 		System.out.println(data);
 	}
 
-	private JdbcTemplate setUserDataStore(JdbcTemplate userJdbcTemplate, String apiKey, String dataStoreKey) {
-		DriverManagerDataSource dataSource = new DriverManagerDataSource();
-		if(dataStoreKey.equalsIgnoreCase("SYSTEM"))
+	private JdbcTemplate setUserDataStore(String apiKey, String dataStoreKey,String passToken) {
+		 JdbcTemplate userJdbcTemplate;
+		 try {	
+		if(jdbcTemplateMap.get(dataStoreKey)==null)
 		{
-			
-		    dataSource.setDriverClassName(env.getProperty("spring.datasource.driver-class-name"));
-		    dataSource.setUrl(env.getProperty("spring.datasource.url"));
-		    dataSource.setUsername(env.getProperty("spring.datasource.username"));
-		    dataSource.setPassword(env.getProperty("spring.datasource.password"));
-		    userJdbcTemplate=new JdbcTemplate();
+			if(dataStoreKey.equalsIgnoreCase("SYSTEM"))
+		{
+				DriverManagerDataSource dataSource = new DriverManagerDataSource();
+		    dataSource.setDriverClassName(env.getProperty("sys.spring.datasource.driver-class-name"));
+		    dataSource.setUrl(env.getProperty("sys.spring.datasource.url"));
+		    dataSource.setUsername(env.getProperty("sys.spring.datasource.username"));
+		    dataSource.setPassword(env.getProperty("sys.spring.datasource.password"));
+		     userJdbcTemplate=new JdbcTemplate();
 		    userJdbcTemplate.setDataSource(dataSource);
 		    jdbcTemplateMap.put(dataStoreKey, userJdbcTemplate);
 		}
+			else {
+				JdbcTemplate JdbcTemplate = null;
+				if (jdbcTemplateMap.get( "system") == null) {
+
+					JdbcTemplate = setUserDataStore( apiKey, "system", passToken);
+
+				} else {
+					JdbcTemplate = jdbcTemplateMap.get( "system");
+				}
+				List<Map<String,Object>> DataStoreData=JdbcTemplate.queryForList("select dst.url as url ,dst.driver as driver from Datastore dst,  User us where dst.name = ? and dst.uid = us.id and us.apikey = ? " ,new Object[] { dataStoreKey ,apiKey});
+				DriverManagerDataSource dataSource = new DriverManagerDataSource();
+				   dataSource.setDriverClassName(DataStoreData.get(0).get("driver").toString());
+				    dataSource.setUrl(DataStoreData.get(0).get("url").toString());
+				    byte[] decodedBytes = Base64.getDecoder().decode(passToken);
+				    String decodedString = new String(decodedBytes);
+				    
+				    dataSource.setUsername(decodedString.split(":")[0]);
+				    String passWord=null;
+				    if(decodedString.split(":").length==2)
+				    { dataSource.setPassword(decodedString.split(":")[1]);}
+				    userJdbcTemplate=new JdbcTemplate();
+				    userJdbcTemplate.setDataSource(dataSource);
+				    jdbcTemplateMap.put(dataStoreKey, userJdbcTemplate);
+			}	
+		
+		}else
+		{
+			userJdbcTemplate=jdbcTemplateMap.get(dataStoreKey);
+		}
+	}catch(Exception e)
+	{
+		log.warning(e.getMessage());
+		throw new DatabaseAuthException("Exception during database Authentication");
+	}
 		return userJdbcTemplate;
 	}
 
-	private void arrangeGoldenDataForTable(String tableName,String apiKey, String dataStoreKey) {
+	private void arrangeGoldenDataForTable(String tableName,String apiKey, String dataStoreKey,String passToken) {
 		loadSQLBuilderSchema();
-		setTableColumn(tableName, apiKey,  dataStoreKey);
+		setTableColumn(tableName, apiKey,  dataStoreKey,passToken);
 		
 	}
-	private void arrangeGoldenData(String service,String apiKey, String dataStoreKey) {
+	private void arrangeGoldenData(String service,String apiKey, String dataStoreKey,String passToken) {
 		loadSQLBuilderSchema();
-		if(!isPresentinDB(service, apiKey,  dataStoreKey))
+		if(!isPresentinDB(service, apiKey,  dataStoreKey,passToken))
 		{
 			String tableName=service.replace(" ", "_");
-		setTableColumn(tableName, apiKey,  dataStoreKey);
+		setTableColumn(tableName, apiKey,  dataStoreKey,passToken);
 		}
 	}
 
 	 
-	private boolean isPresentinDB(String service,String apiKey, String dataStoreKey) {
-
-		String selectQuery = " select tableName from Service where serviceName = '" + service + "'";
+	private boolean isPresentinDB(String service,String apiKey, String dataStoreKey,String passToken)  {
+        
+		String selectQuery = " select tableName from Service where serviceName = '" + service + "' and uid = ( select id  from User where   apikey =  '"+apiKey+"' ) and dsid= (select id   from Datastore  where   name =  '"+dataStoreKey+"') ";
 		List<Map<String, Object>> data = new ArrayList<Map<String, Object>>();
 		boolean isPresent=false;
 		try {
 			//system database
-			data = jdbcTemplate.queryForList(selectQuery);
+			data = setUserDataStore(apiKey, "system","none").queryForList(selectQuery);
 		} catch (Exception e) {
 			log.info(e.getMessage());
+			List<DbTable> serviceTables = initializeTable();
+			for (Iterator<DbTable> iterator = serviceTables.iterator(); iterator.hasNext();) {
+				DbTable dbTable = iterator.next();
+				createDbTable(dbTable,  "system",  "system");
+			}
 			return isPresent;
 		}
 		String tableName = null;
@@ -700,7 +1110,7 @@ public class EmployeeRepositaryImpl {
 				if (data.get(0).get("tableName") != null) {
 					try {
 						tableName = (String) data.get(0).get("tableName");
-						setTableColumn(tableName, apiKey,  dataStoreKey);
+						setTableColumn(tableName, apiKey,  dataStoreKey, passToken);
 					} catch (Exception e) {
 
 					}
@@ -709,13 +1119,13 @@ public class EmployeeRepositaryImpl {
 		return isPresent;
 	}
 	
-	private boolean isPresentinDBOnly(String service,String apiKey, String dataStoreKey) {
+	private boolean isPresentinDBOnly(String service,String apiKey, String dataStoreKey,String passToken) {
 
 		String selectQuery = " show tables ";
 		List<Map<String, Object>> data = new ArrayList<Map<String, Object>>();
 		boolean isPresent=false;
 		try {
-			data = jdbcTemplate.queryForList(selectQuery);
+			data = setUserDataStore(apiKey, dataStoreKey, passToken).queryForList(selectQuery);
 			for (Iterator iterator = data.iterator(); iterator.hasNext();) {
 				Map<String, Object> rowMap = (Map<String, Object>) iterator.next();
 				for (Map.Entry<String, Object> entry : rowMap.entrySet()) {
@@ -733,13 +1143,24 @@ public class EmployeeRepositaryImpl {
 		 
 		return isPresent;
 	}
-	private String getTableName(String service,String apiKey, String dataStoreKey) {
+	private String getTableName(String service,String apiKey, String dataStoreKey,String passToken) {
 
 		String selectQuery = " show tables ";
 		List<Map<String, Object>> data = new ArrayList<Map<String, Object>>();
 		String isPresent=null;
 		try {
-			data = jdbcTemplate.queryForList(selectQuery);
+			data = setUserDataStore(apiKey, dataStoreKey, passToken).queryForList(selectQuery);
+			for (Iterator iterator = data.iterator(); iterator.hasNext();) {
+				Map<String, Object> rowMap = (Map<String, Object>) iterator.next();
+				for (Map.Entry<String, Object> entry : rowMap.entrySet()) {
+
+					if (String.valueOf(entry.getValue()).equalsIgnoreCase(service)) {
+						return String.valueOf(entry.getValue());
+					}
+				}
+
+			}
+			data = setUserDataStore(apiKey, "system","none").queryForList(selectQuery);
 			for (Iterator iterator = data.iterator(); iterator.hasNext();) {
 				Map<String, Object> rowMap = (Map<String, Object>) iterator.next();
 				for (Map.Entry<String, Object> entry : rowMap.entrySet()) {
@@ -760,13 +1181,23 @@ public class EmployeeRepositaryImpl {
 	
 	public String refreshMataData(String serviceName,String apiKey, String dataStoreKey) throws RecordNotFoundException
 	{
-		List<Map<String, Object>> serviceDatum = jdbcTemplate
+		List<Map<String, Object>> serviceDatum = setUserDataStore(apiKey, "system","none")
 				.queryForList("select id, tableName, serviceName from Service where serviceName= '"+serviceName+"'");
+		Map<String,String> serviceTableMap;
 		if(!(serviceDatum.size()>0))
 		{
 			throw new RecordNotFoundException(serviceName +" not found ;");
 		}
-		String cacheTn=serviceTableMap.get(serviceName);
+		String cacheTn=null;
+		if(userServiceTableMap.get(dataStoreKey)==null) {
+			serviceTableMap=new ConcurrentHashMap<String, String>();
+		}else
+		{
+			serviceTableMap=userServiceTableMap.get(dataStoreKey);
+			cacheTn=	userServiceTableMap.get(dataStoreKey).get(serviceName);
+		}
+		
+		//serviceTableMap.get(serviceName);
 		for (Iterator<Map<String, Object>> iterator = serviceDatum.iterator(); iterator.hasNext();) {
 			Map<String, Object> map = (Map<String, Object>) iterator.next();
 			String dbTn=(String) map.get("tableName");
@@ -775,6 +1206,7 @@ public class EmployeeRepositaryImpl {
 				serviceTableMap.put(serviceName,dbTn);	
 			}
 		}
+		userServiceTableMap.put(dataStoreKey, serviceTableMap);
 		String id=getID(serviceDatum.get(0),"id");
 		serviceAttrbMap(id, serviceName, apiKey,  dataStoreKey);
 		
@@ -800,23 +1232,35 @@ public class EmployeeRepositaryImpl {
 		return id;
 	}
 
-	private void setTableColumn(String tableName,String apiKey, String dataStoreKey) {
+	private void setTableColumn(String tableName,String apiKey, String dataStoreKey,String passToken) {
 		boolean isTablePresent=false;
 		DatabaseMetaData md;
 		DbTable tableNameT;
+		DatabaseMetaData mdsys;
 		List<DbColumn> listArray = new ArrayList<>();
-		 
+		Map<DbTable, List<DbColumn>>  tableColumnMapusr=userTableColumnMap.get(dataStoreKey);//
+		if(tableColumnMapusr==null) {
+			tableColumnMapusr=new ConcurrentHashMap<>(); 
+		}
 		boolean isPresent=false;
-		for (Map.Entry<DbTable, List<DbColumn>> entry : tableColumnMap.entrySet()) {
+		if(userTableColumnMap.get(dataStoreKey)!=null) {
+		for (Map.Entry<DbTable, List<DbColumn>> entry : userTableColumnMap.get(dataStoreKey).entrySet()) {
 			DbTable table = entry.getKey();
 			if (table.getName().equalsIgnoreCase(tableName)) {
 				isPresent=true;
 			}
-		}
+		}}
 		try {
 			if(!isPresent) {
-				
-				md=	jdbcTemplate.execute(new ConnectionCallback<DatabaseMetaData>() {
+				mdsys=setUserDataStore(apiKey, "system","none").execute(new ConnectionCallback<DatabaseMetaData>() {
+
+					@Override
+					public DatabaseMetaData doInConnection(Connection con) throws SQLException, DataAccessException {
+						// TODO Auto-generated method stub
+						return con.getMetaData();
+					}
+				});
+				md=	setUserDataStore(apiKey, dataStoreKey, passToken).execute(new ConnectionCallback<DatabaseMetaData>() {
 
 					@Override
 					public DatabaseMetaData doInConnection(Connection con) throws SQLException, DataAccessException {
@@ -827,11 +1271,24 @@ public class EmployeeRepositaryImpl {
 			 
 			if(md.getURL().contains("mysql"))
 			{
-				tableName=getTableName(tableName, apiKey,  dataStoreKey);
+				tableName=getTableName(tableName, apiKey,  dataStoreKey,passToken);
 				 tableNameT = schemaObj.addTable(tableName);
 				List<DbColumn> listArraycol = new ArrayList<>();
 				if(tableName!=null)
-				{List<Map<String,Object>>	colums=jdbcTemplate.queryForList("desc "+tableName);
+				{
+					List<Map<String,Object>>	colums=setUserDataStore(apiKey, dataStoreKey, passToken).queryForList("desc "+tableName);
+					/*
+					 * if((!dataStoreKey.equalsIgnoreCase("system"))&&setUserDataStore(apiKey,
+					 * "system","none").execute(new ConnectionCallback<DatabaseMetaData>() {
+					 * 
+					 * @Override public DatabaseMetaData doInConnection(Connection con) throws
+					 * SQLException, DataAccessException { // TODO Auto-generated method stub return
+					 * con.getMetaData(); } }).getURL().contains("mysql")) {
+					 * colums.addAll(setUserDataStore(apiKey,
+					 * "system","none").queryForList("desc "+tableName)); }
+					 */
+					
+					
 				for (Iterator iterator2 = colums.iterator(); iterator2.hasNext();) {
 					 isTablePresent=true;
 					Map<String, Object> coluMaps = (Map<String, Object>) iterator2.next();
@@ -852,7 +1309,7 @@ public class EmployeeRepositaryImpl {
 				}
 				if(listArraycol.size()>0)
 				{
-				tableColumnMap.put(tableNameT, listArraycol);
+					tableColumnMapusr.put(tableNameT, listArraycol);
 				}
 				
 				}else {
@@ -861,7 +1318,7 @@ public class EmployeeRepositaryImpl {
 				}
 				
 				}else {
-				
+				// user Database
 			ResultSet rs1 = md.getColumns(null, null,tableName.toUpperCase(), null);
 			ResultSet rs2 = md.getPrimaryKeys(null, null, tableName.toUpperCase());
 			String primaryKey = "";
@@ -894,9 +1351,47 @@ public class EmployeeRepositaryImpl {
 
 			}
 			rs1.close();
+			// system database
+			if(listArray.size()==0)
+			{
+				ResultSet rs3 = mdsys.getColumns(null, null,tableName.toUpperCase(), null);
+			    ResultSet rs4 = mdsys.getPrimaryKeys(null, null, tableName.toUpperCase());
+			    while (rs4.next()) {
+					primaryKey = rs3.getString("COLUMN_NAME");
+				}
+				rs4.close();
+				
+				
+				while (rs3.next()) {
+					DbColumn column1 = null ;
+					try {
+						
+					 column1 = tableNameT.addColumn(rs3.getString("COLUMN_NAME"),
+							Integer.parseInt(rs3.getString("DATA_TYPE")), Integer.parseInt(rs3.getString("COLUMN_SIZE")));
+					 isTablePresent=true;
+					}catch(Exception e)
+					{
+						 column1 = tableNameT.addColumn(rs3.getString("COLUMN_NAME"),
+									4, Integer.parseInt(rs3.getString("COLUMN_SIZE")));
+					}
+
+					if (rs3.getString("COLUMN_NAME").equals(primaryKey)) {
+						column1.primaryKey();
+					}
+					listArray.add(column1);
+					log.info(rs3.getString("DATA_TYPE"));
+					log.info(rs3.getString("COLUMN_NAME"));
+					log.info(rs3.getString("COLUMN_SIZE"));
+
+				}
+				rs3.close();
+				
+			}
+			
+			
 			if(listArray.size()>0)
 			{
-				tableColumnMap.put(tableNameT, listArray);
+				tableColumnMapusr.put(tableNameT, listArray);
 				}
 			}
 			}
@@ -905,7 +1400,7 @@ public class EmployeeRepositaryImpl {
 				boolean serviceTabisPresent = false;
 				for (Iterator<DbTable> iterator = serviceTables.iterator(); iterator.hasNext();) {
 					DbTable dbTable = iterator.next();
-					for (Map.Entry<DbTable, List<DbColumn>> entry : tableColumnMap.entrySet()) {
+					for (Map.Entry<DbTable, List<DbColumn>> entry : tableColumnMapusr.entrySet()) {
 						DbTable table = entry.getKey();
 
 						if (dbTable.getName().equalsIgnoreCase(table.getName())) {
@@ -918,11 +1413,11 @@ public class EmployeeRepositaryImpl {
 				if (!serviceTabisPresent) {
 					for (Iterator<DbTable> iterator = serviceTables.iterator(); iterator.hasNext();) {
 						DbTable dbTable = iterator.next();
-						if(!isTablePresent(dbTable.getName(), apiKey,  dataStoreKey))
+						if(!isTablePresent(dbTable.getName(), apiKey,  dataStoreKey,passToken))
 						{
 							createDbTable(dbTable, apiKey,  dataStoreKey);
 							}
-						tableColumnMap.put(dbTable, dbTable.getColumns());
+						tableColumnMapusr.put(dbTable, dbTable.getColumns());
 					}
 
 				}
@@ -932,15 +1427,25 @@ public class EmployeeRepositaryImpl {
 			e1.printStackTrace();
 		}finally
 		{
-			
+			if(userTableColumnMap.get(dataStoreKey)!=null)
+			{
+				userTableColumnMap.get(dataStoreKey).putAll(tableColumnMapusr);
+			}else
+			{
+				userTableColumnMap.put(dataStoreKey, tableColumnMapusr);
+			}
 		}
 	}
 
-	public Map<String, Object> updateData(String service, Map<String, String> params,String apiKey, String dataStoreKey) throws Exception {
+	public Map<String, Object> updateData(String service, Map<String, String> params,String apiKey, String dataStoreKey,String passToken) throws Exception {
 		ObjectMapper mapper = new ObjectMapper();
-		String tableName = serviceTableMap.get(service);
-		setGDValues(service, tableName, apiKey,  dataStoreKey);
-		tableName = serviceTableMap.get(service);
+		String tableName = null;
+		if(userServiceTableMap.get(dataStoreKey)!=null)
+		{ 
+			tableName=userServiceTableMap.get(dataStoreKey).get(service);
+			}
+		setGDValues(service, tableName, apiKey,  dataStoreKey,passToken);
+		tableName = userServiceTableMap.get(dataStoreKey).get(service);
 		if (tableName == null) {
 			throw new ServiceNotFoundException(serviceNTFEx);
 		}
@@ -948,8 +1453,9 @@ public class EmployeeRepositaryImpl {
 		int isUpdate = 0;
 		String primaryKey = "";
 		String primaryKeyAttr="";
-		Map<String, String> attribParamMap = serviceAttrbMap.get(service);
-		for (Map.Entry<DbTable, List<DbColumn>> entry : tableColumnMap.entrySet()) {
+		//Map<String, String> attribParamMap = serviceAttrbMap.get(service);
+		Map<String, String> attribParamMap = userServiceAttrbMap.get(dataStoreKey).get(service);
+		for (Map.Entry<DbTable, List<DbColumn>> entry : userTableColumnMap.get(dataStoreKey).entrySet()) {
 			DbTable table = entry.getKey();
 			if (table.getName().equalsIgnoreCase(tableName)) {
 				table = schemaObj.addTable(table.getName());
@@ -983,7 +1489,10 @@ public class EmployeeRepositaryImpl {
 					{
 						if(dataStoreKey.equalsIgnoreCase("SYSTEM"))
 						{
-							isUpdate = jdbcTemplate.update(updateQuery.toString());
+							isUpdate = setUserDataStore(apiKey, "system","none").update(updateQuery.toString());
+						}else
+						{
+							isUpdate = setUserDataStore(apiKey, dataStoreKey, passToken).update(updateQuery.toString());	
 						}
 					}
 				} catch (Exception e) {
@@ -995,12 +1504,20 @@ public class EmployeeRepositaryImpl {
 		if(tableName.equals("SERVICE_ATTR"))
 		{
 			System.out.println("select S.id as id, S.tableName as tableName, S.serviceName as serviceName, SA.colName as colName, SA.attrName as attrName  from Service S Service_Attr SA, jdbcTemplate where S.id=  '"+params.get("service id")+"'  and S.id=SA.service_id ");
-			List<Map<String, Object>> serviceDatum = jdbcTemplate
+			List<Map<String, Object>> serviceDatum = setUserDataStore(apiKey, "system","none")
 					.queryForList("select S.id as id, S.tableName as tableName, S.serviceName as serviceName, SA.colName as colName, SA.attrName as attrName  from Service S, Service_Attr SA  where S.id=  '"+params.get("service id")+"'  and S.id=SA.service_id ");
 			
 			String serviceName=(String)serviceDatum.get(0).get("serviceName");
-			Map<String, String> AttrbMap; 
-			AttrbMap=serviceAttrbMap.get(serviceName);
+			Map<String, String> AttrbMap = null; 
+			Map<String, Map<String, String>> serviceAttrbMapUsr =userServiceAttrbMap.get(dataStoreKey);
+			if(serviceAttrbMapUsr!=null)
+			{
+				AttrbMap=serviceAttrbMapUsr.get(serviceName);
+			}else
+			{
+				serviceAttrbMapUsr= new ConcurrentHashMap<>(); 
+			}
+			//AttrbMap=serviceAttrbMap.get(serviceName);
 			if(AttrbMap==null)
 			{
 				AttrbMap = new TreeMap<String, String>(String.CASE_INSENSITIVE_ORDER);
@@ -1014,8 +1531,16 @@ public class EmployeeRepositaryImpl {
 			}
 			if(serviceName!=null)
 			{
-				serviceAttrbMap.put(serviceName,AttrbMap);
+				serviceAttrbMapUsr.put(serviceName,AttrbMap);
 				}
+			if(userServiceAttrbMap.get(dataStoreKey)==null)
+			{
+				userServiceAttrbMap.put(dataStoreKey, serviceAttrbMapUsr);
+			}else
+			{
+				userServiceAttrbMap.get(dataStoreKey).putAll(serviceAttrbMapUsr);	
+			}
+			
 			/*
 			 * List<Map<String, Object>> serviceDatum1 = jdbcTemplate
 			 * .queryForList("select colName, attrName from Service_Attr where service_id = '"
@@ -1035,12 +1560,12 @@ public class EmployeeRepositaryImpl {
 		params=new HashMap<String, String>();
 		primaryKey = replaceDoubleQute(primaryKey);
 		params.put(primaryKeyAttr,primaryKey);
-			return getDataForParams(service, params, apiKey,  dataStoreKey).get(0);
+			return getDataForParams(service, params, apiKey,  dataStoreKey, passToken).get(0);
 		} else {
 			try {
 				if(primaryKey==null||primaryKey.isEmpty()||primaryKey.equalsIgnoreCase("null"))
 				{
-					return insertData(service, params, apiKey,  dataStoreKey);
+					return insertData(service, params, apiKey,  dataStoreKey, passToken);
 				}
 			} catch (Exception e) {
 				throw new Exception("update Failed");
@@ -1049,24 +1574,28 @@ public class EmployeeRepositaryImpl {
 				throw new Exception("update Failed");
 			}else
 			{
-				return getDataForParams(service, params,apiKey,  dataStoreKey).get(0);
+				return getDataForParams(service, params,apiKey,  dataStoreKey, passToken).get(0);
 			}
 		}
 
 }
 
-	public Map<String, Object> getData(String serviceName, String primaryKeyValue,String apiKey, String dataStoreKey) throws Exception {
+	public Map<String, Object> getData(String serviceName, String primaryKeyValue,String apiKey, String dataStoreKey,String passToken) throws Exception {
 
 		SelectQuery selectQuery = new SelectQuery();
-		String tableName = serviceTableMap.get(serviceName);
-		setGDValues(serviceName, tableName, apiKey,  dataStoreKey);
-		tableName = serviceTableMap.get(serviceName);
+		String tableName = null;
+		if(userServiceTableMap.get(dataStoreKey)!=null)
+		{ 
+			tableName=userServiceTableMap.get(dataStoreKey).get(serviceName);
+			}
+		setGDValues(serviceName, tableName, apiKey,  dataStoreKey,passToken);
+		tableName = userServiceTableMap.get(dataStoreKey).get(serviceName);
 		if (tableName == null) {
 			throw new ServiceNotFoundException(serviceNTFEx);
 		}
 		 
-		Map<String, String> attribParamMap = serviceAttrbMap.get(serviceName);
-		for (Map.Entry<DbTable, List<DbColumn>> entry : tableColumnMap.entrySet()) {
+		Map<String, String> attribParamMap = userServiceAttrbMap.get(dataStoreKey).get(serviceName);
+		for (Map.Entry<DbTable, List<DbColumn>> entry :  userTableColumnMap.get(dataStoreKey).entrySet()) {
 			DbTable table = entry.getKey();
 			if (table.getName().equalsIgnoreCase(tableName)) {
 				List<DbColumn> column = entry.getValue();
@@ -1095,7 +1624,10 @@ public class EmployeeRepositaryImpl {
 		try {
 			if(dataStoreKey.equalsIgnoreCase("SYSTEM"))
 			{
-			result = jdbcTemplate.queryForMap(selectQuery.validate().toString());
+			result = setUserDataStore(apiKey, "system","none").queryForMap(selectQuery.validate().toString());
+			}else
+			{
+			result = setUserDataStore(apiKey, dataStoreKey, passToken).queryForMap(selectQuery.validate().toString());	
 			}
 
 		} catch (Exception e) {
@@ -1105,17 +1637,21 @@ public class EmployeeRepositaryImpl {
 		return result;
 	}
 
-	public Map<String, Object> deleteData(String serviceName, String primaryKeyValue,String apiKey, String dataStoreKey) throws Exception {
+	public Map<String, Object> deleteData(String serviceName, String primaryKeyValue,String apiKey, String dataStoreKey,String passToken) throws Exception {
 
 		DeleteQuery deleteQuery = null;
-		String tableName = serviceTableMap.get(serviceName);
-		setGDValues(serviceName, tableName, apiKey,  dataStoreKey);
-		tableName = serviceTableMap.get(serviceName);
+		String tableName = null;
+		if(userServiceTableMap.get(dataStoreKey)!=null)
+		{ 
+			tableName=userServiceTableMap.get(dataStoreKey).get(serviceName);
+			}
+		setGDValues(serviceName, tableName, apiKey,  dataStoreKey,passToken);
+		tableName = userServiceTableMap.get(dataStoreKey).get(serviceName);
 		if (tableName == null) {
 			throw new ServiceNotFoundException(serviceNTFEx);
 		}
 		 
-		for (Map.Entry<DbTable, List<DbColumn>> entry : tableColumnMap.entrySet()) {
+		for (Map.Entry<DbTable, List<DbColumn>> entry :  userTableColumnMap.get(dataStoreKey).entrySet()) {
 			DbTable table = entry.getKey();
 			if (table.getName().equalsIgnoreCase(tableName)) {
 				deleteQuery = new DeleteQuery(table);
@@ -1136,12 +1672,15 @@ public class EmployeeRepositaryImpl {
 			}
 		}
 		log.info(deleteQuery.validate().toString());
-		Map<String, Object> retValue = getData(serviceName, primaryKeyValue, apiKey,  dataStoreKey);
+		Map<String, Object> retValue = getData(serviceName, primaryKeyValue, apiKey,  dataStoreKey,passToken);
 		int result = 0;
 		try {
 			if(dataStoreKey.equalsIgnoreCase("SYSTEM"))
 			{
-			result = jdbcTemplate.update(deleteQuery.validate().toString());
+			result = setUserDataStore(apiKey, "system","none").update(deleteQuery.validate().toString());
+			}else
+			{
+				result = setUserDataStore(apiKey, dataStoreKey, passToken).update(deleteQuery.validate().toString());	
 			}
 		} catch (Exception e) {
 		}
@@ -1153,20 +1692,24 @@ public class EmployeeRepositaryImpl {
 
 	}
 
-	public List<Map<String, Object>> getDataForParams(String serviceName, Map<String, String> params,String apiKey, String dataStoreKey)    {
+	public List<Map<String, Object>> getDataForParams(String serviceName, Map<String, String> params,String apiKey, String dataStoreKey,String passToken)     {
 		for (int i = 0; i < nonscaling.length; i++) {
 			invalidElement.add(nonscaling[i]);
 		}
 		JdbcTemplate userJdbcTemplate=jdbcTemplateMap.get(apiKey);
 		/*
 		 * if(userJdbcTemplate==null) {
-		 * userJdbcTemplate=setUserDataStore(userJdbcTemplate,apiKey,dataStoreKey);
+		 * userJdbcTemplate=setUserDataStore(userJdbcTemplate,apiKey,dataStoreKey,passToken);
 		 * testJDBC(userJdbcTemplate); }
 		 */
 		SelectQuery selectQuery = new SelectQuery();
-		String tableName = serviceTableMap.get(serviceName);
-		setGDValues(serviceName, tableName, apiKey,  dataStoreKey);
-		tableName = serviceTableMap.get(serviceName);
+		String tableName = null;
+		if(userServiceTableMap.get(dataStoreKey)!=null)
+		{ 
+			tableName=userServiceTableMap.get(dataStoreKey).get(serviceName);
+			}
+		setGDValues(serviceName, tableName, apiKey,  dataStoreKey,passToken);
+		tableName = userServiceTableMap.get(dataStoreKey).get(serviceName);
 		 
 		if (tableName == null) {
 			Set<ConstraintViolation<HashMap>> constraintViolation =new HashSet<ConstraintViolation<HashMap>>();
@@ -1175,8 +1718,8 @@ public class EmployeeRepositaryImpl {
 			constraintViolation.add(cv);
 			throw new ConstraintViolationException(constraintViolation);
 		}
-		Map<String, String> attribParamMap = serviceAttrbMap.get(serviceName);
-		for (Map.Entry<DbTable, List<DbColumn>> entry : tableColumnMap.entrySet()) {
+		Map<String, String> attribParamMap = userServiceAttrbMap.get(dataStoreKey).get(serviceName);
+		for (Map.Entry<DbTable, List<DbColumn>> entry :  userTableColumnMap.get(dataStoreKey).entrySet()) {
 			DbTable table = entry.getKey();
 			if (table.getName().equalsIgnoreCase(tableName)) {
 				List<DbColumn> column = entry.getValue();
@@ -1204,7 +1747,10 @@ public class EmployeeRepositaryImpl {
 		try {
 			if(dataStoreKey.equalsIgnoreCase("SYSTEM"))
 			{
-			result = jdbcTemplate.queryForList(selectQuery.validate().toString());
+			result = setUserDataStore(apiKey, "system","none").queryForList(selectQuery.validate().toString());
+			}else
+			{
+				result =setUserDataStore(apiKey, dataStoreKey, passToken).queryForList(selectQuery.validate().toString());
 			}
 
 		} catch (Exception e) {
@@ -1215,20 +1761,25 @@ public class EmployeeRepositaryImpl {
 		return result;
 	}
 
-	private void setGDValues(String serviceName, String tableName,String apiKey, String dataStoreKey) {
+	private void setGDValues(String serviceName, String tableName,String apiKey, String dataStoreKey,String passToken)  {
 		if (tableName == null) {
-			arrangeGoldenData(serviceName, apiKey,  dataStoreKey);
+			arrangeGoldenData(serviceName, apiKey,  dataStoreKey,passToken);
 
 		} else {
 			boolean isPresent = false;
-			for (Map.Entry<DbTable, List<DbColumn>> entry : tableColumnMap.entrySet()) {
+			for (Map.Entry<String,Map<DbTable, List<DbColumn>>> entryUsr :userTableColumnMap.entrySet()) {
+				String dataStoreKeyStr=entryUsr.getKey();
+				String userApiKey=entryUsr.getKey();
+				Map<DbTable, List<DbColumn>> tableColumnMapUsr= entryUsr.getValue();
+			for (Map.Entry<DbTable, List<DbColumn>> entry : tableColumnMapUsr.entrySet()) {
 				DbTable table = entry.getKey();
-				if (table.getName().equalsIgnoreCase(tableName)) {
+				if (table.getName().equalsIgnoreCase(tableName)&&dataStoreKeyStr.equals(dataStoreKey)) {
 					isPresent = true;
 				}
 			}
+			}
 			if (!isPresent) {
-				arrangeGoldenDataForTable(tableName, apiKey,  dataStoreKey);
+				arrangeGoldenDataForTable(tableName, apiKey,  dataStoreKey,passToken);
 			}
 		}
 	}
@@ -1236,19 +1787,31 @@ public class EmployeeRepositaryImpl {
 	public void getServiceTableMap(String apiKey, String dataStoreKey) {
 
 		 
-		List<Map<String, Object>> serviceDatum = jdbcTemplate
-				.queryForList("select id, tableName, serviceName from Service");
+		List<Map<String, Object>> serviceDatum = setUserDataStore(apiKey, "system","none")
+				.queryForList("select ser.id as id, ser.tableName as tableName, ser.serviceName as serviceName  ,ds.name as name from Service ser , Datastore ds where ds.uid=ser.uid");
 		for (Iterator<Map<String, Object>> iterator = serviceDatum.iterator(); iterator.hasNext();) {
 			Map<String, Object> map = iterator.next();
+			String dataSource=String.valueOf(map.get("name"));
+			if(userServiceTableMap.get(dataSource)==null)
+			{
+			Map<String,String> serviceTableMap=new ConcurrentHashMap<>();
 			serviceTableMap.put((String) map.get("serviceName"), (String) map.get("tableName"));
+			userServiceTableMap.put(dataSource, serviceTableMap);
+			
+			}else
+			{
+				userServiceTableMap.get(dataSource).put((String) map.get("serviceName"), (String) map.get("tableName"));
+			}
+			//serviceTableMap.put((String) map.get("serviceName"), (String) map.get("tableName"));
 			String id="";
+			
 			try{
 				id=Integer.toString((int) map.get("id"));
 				}catch(Exception e) {
 				
 				id=(	(BigDecimal) map.get("id")).toString();
 			}
-			serviceAttrbMap(id, (String) map.get("serviceName"), apiKey,  dataStoreKey);
+			serviceAttrbMap(id, (String) map.get("serviceName"), apiKey,  dataSource);
 
 		}
 		 
@@ -1256,14 +1819,24 @@ public class EmployeeRepositaryImpl {
 	public void setServiceTableMap(String tableName,String apiKey, String dataStoreKey) {
 
 		
-		List<Map<String, Object>> serviceDatum = jdbcTemplate
-				.queryForList("select id, tableName, serviceName from Service where tableName= '"+tableName+"'");
+		List<Map<String, Object>> serviceDatum = setUserDataStore(apiKey, "system","none")
+				.queryForList("select ser.id as id, ser.tableName as tableName, ser.serviceName as serviceName  ,ds.name as name from Service ser , Datastore ds where ds.uid=ser.uid and ser.tableName= ? and ds.name= ? ", new Object[] {tableName,dataStoreKey});
 		boolean isPresent=false;
 		for (Iterator<Map<String, Object>> iterator = serviceDatum.iterator(); iterator.hasNext();) {
 			isPresent=true;
 			Map<String, Object> map = iterator.next();
-			 
-				serviceTableMap.put((String) map.get("serviceName"), (String) map.get("tableName"));
+			String dataSource=String.valueOf(map.get("name"));
+			if(userServiceTableMap.get(dataSource)==null)
+			{
+			Map<String,String> serviceTableMap=new ConcurrentHashMap<>();
+			serviceTableMap.put((String) map.get("serviceName"), (String) map.get("tableName"));
+			userServiceTableMap.put(dataSource, serviceTableMap);
+			
+			}else
+			{
+				userServiceTableMap.get(dataSource).put((String) map.get("serviceName"), (String) map.get("tableName"));
+			}
+			//	serviceTableMap.put((String) map.get("serviceName"), (String) map.get("tableName"));
 			 
 			String id="";
 			try{
@@ -1272,7 +1845,7 @@ public class EmployeeRepositaryImpl {
 				
 				id=(	(BigDecimal) map.get("id")).toString();
 			}
-			serviceAttrbMap(id, (String) map.get("serviceName"), apiKey,  dataStoreKey);
+			serviceAttrbMap(id, (String) map.get("serviceName"), apiKey,  dataSource);
 
 		}
 		 if(!isPresent)
@@ -1280,11 +1853,16 @@ public class EmployeeRepositaryImpl {
 			 
 			 try {
 				 boolean isPresentTable=false;
-					for (Map.Entry<DbTable, List<DbColumn>> entry : tableColumnMap.entrySet()) {
+					for (Map.Entry<String,Map<DbTable, List<DbColumn>>> entryUsr : userTableColumnMap.entrySet()) 
+					{
+						String dataStoreKeyStr=entryUsr.getKey();
+						Map<DbTable, List<DbColumn>>  tableColumnMapUsr=entryUsr.getValue();
+					for (Map.Entry<DbTable, List<DbColumn>> entry : tableColumnMapUsr.entrySet()) {
 						DbTable table = entry.getKey();
-						if (table.getName().equalsIgnoreCase(tableName)) {
+						if (table.getName().equalsIgnoreCase(tableName)&&dataStoreKeyStr.equals(dataStoreKey)) {
 							isPresentTable=true;
 						}
+					}
 					}
 				  if(isPresentTable)
 				{
@@ -1303,115 +1881,164 @@ public class EmployeeRepositaryImpl {
 	public void serviceAttrbMap(String id, String serviceName,String apiKey, String dataStoreKey) {
 
 		Map<String, String> studentAttrbMap = new TreeMap<String, String>(String.CASE_INSENSITIVE_ORDER);
-		List<Map<String, Object>> serviceDatum = jdbcTemplate
+		List<Map<String, Object>> serviceDatum = setUserDataStore(apiKey, "system","none")
 				.queryForList("select colName, attrName from Service_Attr where service_id = '" + id + "'");
 		Map<String, String> AttrbMap;
 		AttrbMap = new TreeMap<String, String>(String.CASE_INSENSITIVE_ORDER);
+		Map<String, Map<String, String>>  usrServiceAttrbMap=userServiceAttrbMap.get(dataStoreKey);
+		if(usrServiceAttrbMap==null)
+		{
+			usrServiceAttrbMap=new ConcurrentHashMap<>();
+		}
 		for (Iterator<Map<String, Object>> iterator = serviceDatum.iterator(); iterator.hasNext();) {
 			Map<String, Object> map = iterator.next();
 
 			AttrbMap.put((String) map.get("colName".toUpperCase()), (String) map.get("attrName".toUpperCase()));
-			serviceAttrbMap.put(serviceName, AttrbMap);
+			usrServiceAttrbMap.put(serviceName, AttrbMap);
+			//serviceAttrbMap.put(serviceName, AttrbMap);
+		}
+		if(userServiceAttrbMap.get(dataStoreKey)==null)
+		{
+			userServiceAttrbMap.put(dataStoreKey, usrServiceAttrbMap);	
+		}else
+		{
+			userServiceAttrbMap.get(dataStoreKey).putAll(usrServiceAttrbMap);
 		}
 		 
 	}
+	private String getUidForSerId(String id,String apiKey)
+	{
+		List<Map<String, Object>> serviceDatum = setUserDataStore(apiKey, "system","none")
+				.queryForList("select usr.id as id ,usr.apikey as apikey from User usr , Service ser  where     usr.id=ser.uid and ser.id = ?" , new Object[] {id});
+		return	(String) serviceDatum.get(0).get("id");
+	}
+	private String getUidForapiKey(String apiKey) 
+	{
+		List<Map<String, Object>> serviceDatum = setUserDataStore(apiKey, "system","none")
+				.queryForList("select id ,apikey  from User where   apikey = ?" , new Object[] {apiKey});
+		String uid=String.valueOf(serviceDatum.get(0).get("id"));
+		return	uid;
+	}
+	private String getdsidFordsName(String dataStoreKey)  
+	{
+		List<Map<String, Object>> serviceDatum = setUserDataStore("system", "system","none")
+				.queryForList("select id ,name   from Datastore  where   name = ?" , new Object[] {dataStoreKey});
+		String uid=String.valueOf(serviceDatum.get(0).get("id"));
+		return	uid;
+	}
 	private void insertServiceTables(String tableName,String apiKey, String dataStoreKey) throws Exception {
-
-			String serviceInsertQuery = "INSERT INTO   Service (id ,tableName , serviceName )   values( (SELECT MAX( id )+1 FROM Service ser) , '"
-					+ tableName + "', '" + tableName.toLowerCase().replace("_", " ") + "'  )";
-			String serviceid = getServiceID(tableName, apiKey,  dataStoreKey);
-			String maxRec = findMax("Service", apiKey,  dataStoreKey);
+		String userId=getUidForapiKey( apiKey);
+		String dsId =getdsidFordsName(dataStoreKey);
+		
+			String serviceInsertQuery = "INSERT INTO   Service (id ,tableName , serviceName , uid , dsid )   values( (SELECT MAX( id )+1 FROM Service ser) , '"
+					+ tableName + "', '" + tableName.toLowerCase().replace("_", " ") + "','"+userId+"' , '"+dsId+"'  )";
+			String serviceid = getServiceID(tableName, apiKey,  dataStoreKey,userId,dsId);
+			String maxRec = findMax("Service", apiKey,  "system","none");
 			if (maxRec != null && serviceid == null) {
-				jdbcTemplate.execute(serviceInsertQuery);
-				serviceid = getServiceID(tableName, apiKey,  dataStoreKey);
+				setUserDataStore(apiKey, "system","none").execute(serviceInsertQuery);
+				serviceid = getServiceID(tableName, apiKey,  dataStoreKey,userId,dsId);
 			} else if (maxRec == null) {
-				serviceInsertQuery = "INSERT INTO   Service (id ,tableName , serviceName )   values( 0, '" + tableName
-						+ "', '" + tableName.toLowerCase().replace("_", " ") + "'  )";
-				jdbcTemplate.execute(serviceInsertQuery);
-				serviceid = getServiceID(tableName, apiKey,  dataStoreKey);
+				serviceInsertQuery = "INSERT INTO   Service (id ,tableName , serviceName,uid , dsid )   values( 0, '" + tableName
+						+ "', '" + tableName.toLowerCase().replace("_", " ") + "' ,'"+userId+"' , '"+dsId+"' )";
+				setUserDataStore(apiKey, "system","none").execute(serviceInsertQuery);
+				serviceid = getServiceID(tableName, apiKey,  dataStoreKey,userId,dsId);
 			}
-
-			for (Map.Entry<DbTable, List<DbColumn>> entry : tableColumnMap.entrySet()) {
+			for (Map.Entry<String,Map<DbTable, List<DbColumn>>> entryUsr : userTableColumnMap.entrySet()) {
+				Map<DbTable, List<DbColumn>>  tableColumnMapUsr=entryUsr.getValue();
+				String dataStoreKeyStr=entryUsr.getKey();
+			for (Map.Entry<DbTable, List<DbColumn>> entry : tableColumnMapUsr.entrySet()) {
 				DbTable table = entry.getKey();
-				if (table.getName().equalsIgnoreCase(tableName)) {
+				if (table.getName().equalsIgnoreCase(tableName)&&dataStoreKeyStr.equals(dataStoreKey)) {
 			List<DbColumn> column = entry.getValue();
 			for (Iterator<DbColumn> iterator = column.iterator(); iterator.hasNext();) {
 				DbColumn dbColumn = iterator.next();
 				String serviceAttrid = getServiceAttrID(serviceid, dbColumn.getName(), apiKey,  dataStoreKey);
-				String maxRecAttr = findMax("Service_Attr", apiKey,  dataStoreKey);
+				String maxRecAttr = findMax("Service_Attr", apiKey,  "system","none");
 				if (maxRecAttr != null && serviceAttrid == null) {
 					String serviceAttrQuery = " INSERT INTO Service_Attr (id, service_id , attrName, colName) values ((SELECT MAX( id )+1 FROM Service_Attr serA) ,'"
 							+ serviceid + "','" + dbColumn.getName().toLowerCase().replace("_", "") + "','"
 							+ dbColumn.getName() + "') ";
-					jdbcTemplate.execute(serviceAttrQuery);
+					setUserDataStore(apiKey, "system","none").execute(serviceAttrQuery);
 				} else if (maxRecAttr == null) {
 
 					{
 						String serviceAttrQuery = " INSERT INTO Service_Attr (id, service_id , attrName, colName) values (0 ,'"
 								+ serviceid + "','" + dbColumn.getName().toLowerCase().replace("_", "") + "','"
 								+ dbColumn.getName() + "') ";
-						jdbcTemplate.execute(serviceAttrQuery);
+						setUserDataStore(apiKey, "system","none").execute(serviceAttrQuery);
 					}
 
 				}
 			}
 				}}
+			}
 		
 
 	}
 	private void insertServiceTables(String apiKey, String dataStoreKey) throws Exception {
-
-		for (Map.Entry<DbTable, List<DbColumn>> entry : tableColumnMap.entrySet()) {
+		String userId=getUidForapiKey( apiKey);
+		String dsId =getdsidFordsName(dataStoreKey);
+		for (Map.Entry<String,Map<DbTable, List<DbColumn>>> entryUsr : userTableColumnMap.entrySet()) {
+			Map<DbTable, List<DbColumn>>  tableColumnMapUsr=entryUsr.getValue();
+		for (Map.Entry<DbTable, List<DbColumn>> entry : tableColumnMapUsr.entrySet()) {
 			DbTable table = entry.getKey();
 			String tableName = table.getName();
 
-			String serviceInsertQuery = "INSERT INTO   Service (id ,tableName , serviceName )   values( (SELECT MAX( id )+1 FROM Service ser) , '"
-					+ tableName + "', '" + tableName.toLowerCase().replace("_", " ") + "'  )";
-			String serviceid = getServiceID(tableName, apiKey,  dataStoreKey);
-			String maxRec = findMax("Service", apiKey,  dataStoreKey);
+			String serviceInsertQuery = "INSERT INTO   Service (id ,tableName , serviceName , uid , dsid )   values( (SELECT MAX( id )+1 FROM Service ser) , '"
+					+ tableName + "', '" + tableName.toLowerCase().replace("_", " ") + "' , '"+userId+"' , '"+dsId+"' )";
+			String serviceid = getServiceID(tableName, apiKey,  dataStoreKey,userId,dsId);
+			String maxRec = findMax("Service", apiKey,  "system","none");
 			if (maxRec != null && serviceid == null) {
-				jdbcTemplate.execute(serviceInsertQuery);
-				serviceid = getServiceID(tableName, apiKey,  dataStoreKey);
+				setUserDataStore(apiKey, "system","none").execute(serviceInsertQuery);
+				serviceid = getServiceID(tableName, apiKey,  dataStoreKey,userId,dsId);
 			} else if (maxRec == null) {
-				serviceInsertQuery = "INSERT INTO   Service (id ,tableName , serviceName )   values( 0, '" + tableName
-						+ "', '" + tableName.toLowerCase().replace("_", " ") + "'  )";
-				jdbcTemplate.execute(serviceInsertQuery);
-				serviceid = getServiceID(tableName, apiKey,  dataStoreKey);
+				serviceInsertQuery = "INSERT INTO   Service (id ,tableName , serviceName , uid , dsid )   values( 0, '" + tableName
+						+ "', '" + tableName.toLowerCase().replace("_", " ") + "' ,'"+userId+"' , '"+dsId+"' )";
+				setUserDataStore(apiKey, "system","none").execute(serviceInsertQuery);
+				serviceid = getServiceID(tableName, apiKey,  dataStoreKey,userId,dsId);
 			}
 
 			List<DbColumn> column = entry.getValue();
 			for (Iterator<DbColumn> iterator = column.iterator(); iterator.hasNext();) {
 				DbColumn dbColumn = iterator.next();
 				String serviceAttrid = getServiceAttrID(serviceid, dbColumn.getName(), apiKey,  dataStoreKey);
-				String maxRecAttr = findMax("Service_Attr", apiKey,  dataStoreKey);
+				String maxRecAttr = findMax("Service_Attr", apiKey,  "system","none");
 				if (maxRecAttr != null && serviceAttrid == null) {
 					String serviceAttrQuery = " INSERT INTO Service_Attr (id, service_id , attrName, colName) values ((SELECT MAX( id )+1 FROM Service_Attr serA) ,'"
 							+ serviceid + "','" + dbColumn.getName().toLowerCase().replace("_", "") + "','"
 							+ dbColumn.getName() + "') ";
-					jdbcTemplate.execute(serviceAttrQuery);
+					setUserDataStore(apiKey, "system","none").execute(serviceAttrQuery);
 				} else if (maxRecAttr == null) {
 
 					{
 						String serviceAttrQuery = " INSERT INTO Service_Attr (id, service_id , attrName, colName) values (0 ,'"
 								+ serviceid + "','" + dbColumn.getName().toLowerCase().replace("_", "") + "','"
 								+ dbColumn.getName() + "') ";
-						jdbcTemplate.execute(serviceAttrQuery);
+						setUserDataStore(apiKey, "system","none").execute(serviceAttrQuery);
 					}
 
 				}
 			}
 		}
+		}
 
 	}
 
-	private String getServiceID(String tableName,String apiKey, String dataStoreKey) {
+	private String getServiceID(String tableName,String apiKey, String dataStoreKey, String userId, String dsId) {
 
-		String selectQuery = " select id from Service where tableName = '" + tableName + "'";
+		String selectQuery = " select id from Service where tableName = '" + tableName + "' and uid ='"+userId+"' and dsid = '"+dsId+"'";
 		List<Map<String, Object>> data = new ArrayList<Map<String, Object>>();
 		try {
-			data = jdbcTemplate.queryForList(selectQuery);
+			data = setUserDataStore(apiKey, "system","none").queryForList(selectQuery);
 		} catch (Exception e) {
 			log.info(e.getMessage());
+			List<DbTable> serviceTables = initializeTable();
+			for (Iterator<DbTable> iterator = serviceTables.iterator(); iterator.hasNext();) {
+				DbTable dbTable = iterator.next();
+				if(tableName.equals(dbTable.getName())) {
+				createDbTable(dbTable,  "system",  "system");
+				}
+			}
 		}
 		String serID = null;
 		if (data != null)
@@ -1435,7 +2062,7 @@ public class EmployeeRepositaryImpl {
 				+ attributeName + "'";
 		List<Map<String, Object>> data = new ArrayList<>();
 		try {
-			data = jdbcTemplate.queryForList(selectQuery);
+			data = setUserDataStore(apiKey, "system","none").queryForList(selectQuery);
 		} catch (Exception e) {
 			log.info(e.getMessage());
 		}
@@ -1457,11 +2084,11 @@ public class EmployeeRepositaryImpl {
 		return attrID;
 	}
 
-	private String findMax(String table,String apiKey, String dataStoreKey) {
+	private String findMax(String table,String apiKey, String dataStoreKey,String passToken) {
 		String query = "SELECT MAX( id )+1 as id FROM " + table;
 		Map<String, Object> data = new HashMap<String, Object>();
 		try {
-			data = jdbcTemplate.queryForMap(query);
+			data = setUserDataStore(apiKey, dataStoreKey, passToken).queryForMap(query);
 		} catch (Exception e) {
 			log.info(e.getMessage());
 		}
@@ -1948,18 +2575,21 @@ public class EmployeeRepositaryImpl {
 	
 	public String clearCache()
 	{
-		 serviceTableMap= new ConcurrentHashMap<>();
-		 tableColumnMap= new ConcurrentHashMap<>();
-		 serviceAttrbMap= new ConcurrentHashMap<>();
+		// serviceTableMap= new ConcurrentHashMap<>();
+		// tableColumnMap= new ConcurrentHashMap<>();
+		 //serviceAttrbMap= new ConcurrentHashMap<>();
+		 userTableColumnMap= new ConcurrentHashMap<>();
+		 userServiceAttrbMap=new ConcurrentHashMap<>();
+		 jdbcTemplateMap =new ConcurrentHashMap<>();
 		MultiServiceImpl.MultiServiceMap= new ConcurrentHashMap<>();
 		log.info( "Cache Cleared");
 		return "Cache Cleared";
 	}
 	
-	public boolean isTablePresent(String tableName,String apiKey, String dataStoreKey) {
+	public boolean isTablePresent(String tableName,String apiKey, String dataStoreKey,String passToken) {
 		List<Map<String, Object>> map = new ArrayList<>();
 		try {
-			map = jdbcTemplate.queryForList("desc " + tableName);
+			map = setUserDataStore(apiKey, dataStoreKey, passToken).queryForList("desc " + tableName);
 			if (map == null) {
 				return false;
 			}

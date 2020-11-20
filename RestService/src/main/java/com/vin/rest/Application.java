@@ -49,7 +49,7 @@ public class Application {
 	
 	
 	@Bean
-	RequestMappingHandlerMapping handlerMapping(ApplicationContext app, DataSource dataSource,
+	RequestMappingHandlerMapping handlerMapping(ApplicationContext app,
 			  Environment env,MultiServiceController  multiServiceController,GenericController userController) {
 		RequestMappingHandlerMapping	handlerMapping = app.getBean(RequestMappingHandlerMapping.class);
 		userController = app.getBean(GenericController.class);
@@ -61,25 +61,25 @@ public class Application {
 			handlerMapping.registerMapping(
 					RequestMappingInfo.paths("/" + appName + "/{"+apiKey+"}/{"+dataStoreKey+"}/{service}/addData").methods(RequestMethod.POST)
 							.produces(MediaType.APPLICATION_JSON_VALUE).build(),
-					userController, userController.getClass().getMethod(GenericController.getMethodName("addData"), String.class, String.class, String.class, String.class));
+					userController, userController.getClass().getMethod(GenericController.getMethodName("addData"), String.class, String.class, String.class, String.class, String.class));
 
 			handlerMapping.registerMapping(
 					RequestMappingInfo.paths("/" + appName + "/{"+apiKey+"}/{"+dataStoreKey+"}/{service}/updateData").methods(RequestMethod.PUT)
 							.produces(MediaType.APPLICATION_JSON_VALUE).build(),
-					userController, userController.getClass().getMethod(GenericController.getMethodName("updateData"), String.class, String.class, String.class, String.class));
+					userController, userController.getClass().getMethod(GenericController.getMethodName("updateData"), String.class, String.class, String.class, String.class, String.class));
 
 			handlerMapping.registerMapping(
 					RequestMappingInfo.paths("/" + appName + "/{"+apiKey+"}/{"+dataStoreKey+"}/{service}/getdata").methods(RequestMethod.GET)
 							.produces(MediaType.APPLICATION_JSON_VALUE).build(),
-					userController, userController.getClass().getMethod(GenericController.getMethodName("getDatum"), String.class, Map.class, String.class, String.class));
+					userController, userController.getClass().getMethod(GenericController.getMethodName("getDatum"), String.class, Map.class, String.class, String.class, String.class));
 			handlerMapping.registerMapping(
 					RequestMappingInfo.paths("/" + appName + "/{"+apiKey+"}/{"+dataStoreKey+"}/{service}/getdataForKey/{uniquekey}")
 							.methods(RequestMethod.GET).produces(MediaType.APPLICATION_JSON_VALUE).build(),
-					userController, userController.getClass().getMethod(GenericController.getMethodName("getData"), String.class, String.class, String.class, String.class));
+					userController, userController.getClass().getMethod(GenericController.getMethodName("getData"), String.class, String.class, String.class, String.class, String.class));
 			handlerMapping.registerMapping(
 					RequestMappingInfo.paths("/" + appName + "/{"+apiKey+"}/{"+dataStoreKey+"}/{service}/deleteData/{uniquekey}")
 							.methods(RequestMethod.DELETE).produces(MediaType.APPLICATION_JSON_VALUE).build(),
-					userController, userController.getClass().getMethod(GenericController.getMethodName("delData"), String.class, String.class, String.class, String.class));
+					userController, userController.getClass().getMethod(GenericController.getMethodName("delData"), String.class, String.class, String.class, String.class, String.class));
 			handlerMapping.registerMapping(
 					RequestMappingInfo.paths("/" + appName + "/{"+apiKey+"}/{"+dataStoreKey+"}/clearCache")
 							.methods(RequestMethod.GET).produces(MediaType.APPLICATION_JSON_VALUE).build(),
@@ -92,23 +92,23 @@ public class Application {
 			handlerMapping.registerMapping(
 					RequestMappingInfo.paths("/" + appName + "/{"+apiKey+"}/{"+dataStoreKey+"}/multiService/{service}/MultiDataForParams").methods(RequestMethod.GET)
 							.produces(MediaType.APPLICATION_JSON_VALUE).build(),
-							multiServiceController, multiServiceController.getClass().getMethod(MultiServiceController.getMethodName("getDatum"), String.class, Map.class, String.class, String.class));
+							multiServiceController, multiServiceController.getClass().getMethod(MultiServiceController.getMethodName("getDatum"), String.class, Map.class, String.class, String.class, String.class));
 			handlerMapping.registerMapping(
 					RequestMappingInfo.paths("/" + appName + "/{"+apiKey+"}/{"+dataStoreKey+"}/multiService/{service}/MultiDataForUniQueKey/{uniquekey}").methods(RequestMethod.GET)
 							.produces(MediaType.APPLICATION_JSON_VALUE).build(),
-							multiServiceController, multiServiceController.getClass().getMethod(MultiServiceController.getMethodName("getData"), String.class, String.class, String.class, String.class));
+							multiServiceController, multiServiceController.getClass().getMethod(MultiServiceController.getMethodName("getData"), String.class, String.class, String.class, String.class, String.class));
 			handlerMapping.registerMapping(
 					RequestMappingInfo.paths("/" + appName + "/{"+apiKey+"}/{"+dataStoreKey+"}/multiService/{service}/addData").methods(RequestMethod.POST)
 							.produces(MediaType.APPLICATION_JSON_VALUE).build(),
-							multiServiceController, multiServiceController.getClass().getMethod(MultiServiceController.getMethodName("addData"), String.class, String.class, String.class, String.class));
+							multiServiceController, multiServiceController.getClass().getMethod(MultiServiceController.getMethodName("addData"), String.class, String.class, String.class, String.class, String.class));
 			handlerMapping.registerMapping(
 					RequestMappingInfo.paths("/" + appName + "/{"+apiKey+"}/{"+dataStoreKey+"}/multiService/{service}/updateData").methods(RequestMethod.PUT)
 							.produces(MediaType.APPLICATION_JSON_VALUE).build(),
-							multiServiceController, multiServiceController.getClass().getMethod(MultiServiceController.getMethodName("updateData"), String.class, String.class, String.class, String.class));
+							multiServiceController, multiServiceController.getClass().getMethod(MultiServiceController.getMethodName("updateData"), String.class, String.class, String.class, String.class, String.class));
 			handlerMapping.registerMapping(
 					RequestMappingInfo.paths("/" + appName + "/{"+apiKey+"}/{"+dataStoreKey+"}/multiService/{service}/deleteData/{uniquekey}")
 							.methods(RequestMethod.DELETE).produces(MediaType.APPLICATION_JSON_VALUE).build(),
-							multiServiceController, multiServiceController.getClass().getMethod(MultiServiceController.getMethodName("delData"), String.class, String.class, String.class, String.class));
+							multiServiceController, multiServiceController.getClass().getMethod(MultiServiceController.getMethodName("delData"), String.class, String.class, String.class, String.class, String.class));
 			//handlerMapping
 			//.registerMapping(
 			//		RequestMappingInfo.paths("/login").methods(RequestMethod.GET)

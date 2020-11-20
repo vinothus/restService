@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -77,7 +78,7 @@ public class GenericController {
 	@MethodName(MethodName="addData")
 	@CrossOrigin
 	public ResponseEntity<Map<String, Object>> addData(@PathVariable("service") String service,
-			@RequestBody String params,@PathVariable("apiKey") String apiKey,@PathVariable("dataStoreKey") String dataStoreKey) throws Exception {
+			@RequestBody String params,@PathVariable("apiKey") String apiKey,@PathVariable("dataStoreKey") String dataStoreKey,@RequestHeader(value="passToken", defaultValue = "none") String passToken) throws Exception {
 		ObjectMapper mapper = new ObjectMapper();
 
 		Map<String, String> jsonMap = new HashMap<>();
@@ -89,13 +90,13 @@ public class GenericController {
 		if (!constraintViolation.isEmpty()) {
 			throw new ConstraintViolationException(constraintViolation);
 		}
-		return new ResponseEntity<Map<String, Object>>(employeeRepositaryImpl.insertData(service, jsonMap, apiKey, dataStoreKey),
+		return new ResponseEntity<Map<String, Object>>(employeeRepositaryImpl.insertData(service, jsonMap, apiKey, dataStoreKey,passToken),
 				new HttpHeaders(), HttpStatus.OK);
 	}
 	@MethodName(MethodName="updateData")
 	@CrossOrigin
 	public ResponseEntity<Map<String, Object>> updateData(@PathVariable("service") String service,
-			@RequestBody String params,@PathVariable("apiKey") String apiKey,@PathVariable("dataStoreKey") String dataStoreKey) throws Exception {
+			@RequestBody String params,@PathVariable("apiKey") String apiKey,@PathVariable("dataStoreKey") String dataStoreKey,@RequestHeader(value="passToken", defaultValue = "none") String passToken) throws Exception {
 		ObjectMapper mapper = new ObjectMapper();
 
 		Map<String, String> jsonMap = new HashMap<>();
@@ -106,14 +107,14 @@ public class GenericController {
 		if (!constraintViolation.isEmpty()) {
 			throw new ConstraintViolationException(constraintViolation);
 		}
-		return new ResponseEntity<Map<String, Object>>(employeeRepositaryImpl.updateData(service, jsonMap, apiKey, dataStoreKey),
+		return new ResponseEntity<Map<String, Object>>(employeeRepositaryImpl.updateData(service, jsonMap, apiKey, dataStoreKey,passToken),
 				new HttpHeaders(), HttpStatus.OK);
 	}
 	
 	@MethodName(MethodName="getDatum")
 	@CrossOrigin
 	public ResponseEntity<List<Map<String, Object>>> getDatum(@PathVariable("service") String service,
-			@RequestParam   Map<String, String> params,@PathVariable("apiKey") String apiKey,@PathVariable("dataStoreKey") String dataStoreKey)    {
+			@RequestParam   Map<String, String> params,@PathVariable("apiKey") String apiKey,@PathVariable("dataStoreKey") String dataStoreKey,@RequestHeader(value="passToken", defaultValue = "none") String passToken)    {
 		 
 		params.put(Constant.VIN_SERVICE, service);
 		Set<ConstraintViolation<HashMap>> constraintViolation = validator
@@ -134,22 +135,23 @@ public class GenericController {
 		 
 		System.out.println("end validation");
 		
-		return new ResponseEntity<List<Map<String, Object>>>(employeeRepositaryImpl.getDataForParams(service, params, apiKey, dataStoreKey),
+		
+		return new ResponseEntity<List<Map<String, Object>>>(employeeRepositaryImpl.getDataForParams(service, params, apiKey, dataStoreKey,passToken),
 				new HttpHeaders(), HttpStatus.OK);
 	}
 	@MethodName(MethodName="getData")
 	@CrossOrigin
 	public ResponseEntity<Map<String, Object>> getData(@PathVariable("service") String service,
-			@PathVariable("uniquekey") @Valid @NotNull String uniquekey,@PathVariable("apiKey") String apiKey,@PathVariable("dataStoreKey") String dataStoreKey) throws Exception {
+			@PathVariable("uniquekey") @Valid @NotNull String uniquekey,@PathVariable("apiKey") String apiKey,@PathVariable("dataStoreKey") String dataStoreKey,@RequestHeader(value="passToken", defaultValue = "none") String passToken) throws Exception {
 
-		return new ResponseEntity<Map<String, Object>>(employeeRepositaryImpl.getData(service, uniquekey, apiKey, dataStoreKey),
+		return new ResponseEntity<Map<String, Object>>(employeeRepositaryImpl.getData(service, uniquekey, apiKey, dataStoreKey,passToken),
 				new HttpHeaders(), HttpStatus.OK);
 	}
 @MethodName(MethodName="delData")
 @CrossOrigin
 	public ResponseEntity<Map<String, Object>> delData(@PathVariable("service") String service,
-			@PathVariable("uniquekey") @Valid @NotNull String uniquekey,@PathVariable("apiKey") String apiKey,@PathVariable("dataStoreKey") String dataStoreKey) throws Exception {
-		return new ResponseEntity<Map<String, Object>>(employeeRepositaryImpl.deleteData(service, uniquekey, apiKey, dataStoreKey),
+			@PathVariable("uniquekey") @Valid @NotNull String uniquekey,@PathVariable("apiKey") String apiKey,@PathVariable("dataStoreKey") String dataStoreKey,@RequestHeader(value="passToken", defaultValue = "none") String passToken) throws Exception {
+		return new ResponseEntity<Map<String, Object>>(employeeRepositaryImpl.deleteData(service, uniquekey, apiKey, dataStoreKey,passToken),
 				new HttpHeaders(), HttpStatus.OK);
 	}
 
