@@ -84,14 +84,20 @@ public class GenericController {
 		Map<String, String> jsonMap = new HashMap<>();
 		jsonMap = mapper.readValue(params, new TypeReference<Map<String, String>>() {
 		}); // converts JSON to Map
+		doValidation(service, apiKey, dataStoreKey, jsonMap);
+		return new ResponseEntity<Map<String, Object>>(employeeRepositaryImpl.insertData(service, jsonMap, apiKey, dataStoreKey,passToken),
+				new HttpHeaders(), HttpStatus.OK);
+	}
+
+	private void doValidation(String service, String apiKey, String dataStoreKey, Map<String, String> jsonMap) {
 		jsonMap.put(Constant.VIN_SERVICE, service);
+		jsonMap.put(Constant.VIN_SERVICE_DS, dataStoreKey);
+		jsonMap.put(Constant.VIN_SERVICE_APIKEY, apiKey);
 		Set<ConstraintViolation<HashMap>> constraintViolation = validator
 				.validate(new VinMap<String, String>(jsonMap));
 		if (!constraintViolation.isEmpty()) {
 			throw new ConstraintViolationException(constraintViolation);
 		}
-		return new ResponseEntity<Map<String, Object>>(employeeRepositaryImpl.insertData(service, jsonMap, apiKey, dataStoreKey,passToken),
-				new HttpHeaders(), HttpStatus.OK);
 	}
 	@MethodName(MethodName="updateData")
 	@CrossOrigin
@@ -100,13 +106,10 @@ public class GenericController {
 		ObjectMapper mapper = new ObjectMapper();
 
 		Map<String, String> jsonMap = new HashMap<>();
+		
 		jsonMap = mapper.readValue(params, new TypeReference<Map<String, String>>() {
 		}); // converts JSON to Map
-		Set<ConstraintViolation<HashMap>> constraintViolation = validator
-				.validate(new VinMap<String, String>(jsonMap));
-		if (!constraintViolation.isEmpty()) {
-			throw new ConstraintViolationException(constraintViolation);
-		}
+		doValidation(service, apiKey, dataStoreKey, jsonMap);
 		return new ResponseEntity<Map<String, Object>>(employeeRepositaryImpl.updateData(service, jsonMap, apiKey, dataStoreKey,passToken),
 				new HttpHeaders(), HttpStatus.OK);
 	}
@@ -117,23 +120,9 @@ public class GenericController {
 			@RequestParam   Map<String, String> params,@PathVariable("apiKey") String apiKey,@PathVariable("dataStoreKey") String dataStoreKey,@RequestHeader(value="passToken", defaultValue = "none") String passToken)    {
 		 
 		params.put(Constant.VIN_SERVICE, service);
-		Set<ConstraintViolation<HashMap>> constraintViolation = validator
-				.validate(new VinMap<String, String>(params));
-		
-		  System.out.println("start validation"); System.out.println(validator);
-			Set<ConstraintViolation<HashMap>> constraintViolation1 = validator
-					.validate(new VinMap<String, String>(params));
-			for (Iterator iterator = constraintViolation.iterator(); iterator.hasNext();) {
-				ConstraintViolation<HashMap> constraintViolation2 = (ConstraintViolation<HashMap>) iterator.next();
-				System.out.println(constraintViolation2.getMessage());
-			}
-			if (!constraintViolation.isEmpty()) {
-				throw new ConstraintViolationException(constraintViolation);
-			}
-			 
-			  
-		 
-		System.out.println("end validation");
+		params.put(Constant.VIN_SERVICE_DS, dataStoreKey);
+		params.put(Constant.VIN_SERVICE_APIKEY, apiKey);
+		doValidation(service, apiKey, dataStoreKey, params);
 		
 		
 		return new ResponseEntity<List<Map<String, Object>>>(employeeRepositaryImpl.getDataForParams(service, params, apiKey, dataStoreKey,passToken),
@@ -143,7 +132,12 @@ public class GenericController {
 	@CrossOrigin
 	public ResponseEntity<Map<String, Object>> getData(@PathVariable("service") String service,
 			@PathVariable("uniquekey") @Valid @NotNull String uniquekey,@PathVariable("apiKey") String apiKey,@PathVariable("dataStoreKey") String dataStoreKey,@RequestHeader(value="passToken", defaultValue = "none") String passToken) throws Exception {
-
+		Map<String, String> params = new HashMap<>();
+		params.put(Constant.VIN_SERVICE, service);
+		params.put(Constant.VIN_SERVICE_DS, dataStoreKey);
+		params.put(Constant.VIN_SERVICE_APIKEY, apiKey);
+		doValidation(service, apiKey, dataStoreKey, params);
+			 
 		return new ResponseEntity<Map<String, Object>>(employeeRepositaryImpl.getData(service, uniquekey, apiKey, dataStoreKey,passToken),
 				new HttpHeaders(), HttpStatus.OK);
 	}
@@ -151,7 +145,25 @@ public class GenericController {
 @CrossOrigin
 	public ResponseEntity<Map<String, Object>> delData(@PathVariable("service") String service,
 			@PathVariable("uniquekey") @Valid @NotNull String uniquekey,@PathVariable("apiKey") String apiKey,@PathVariable("dataStoreKey") String dataStoreKey,@RequestHeader(value="passToken", defaultValue = "none") String passToken) throws Exception {
-		return new ResponseEntity<Map<String, Object>>(employeeRepositaryImpl.deleteData(service, uniquekey, apiKey, dataStoreKey,passToken),
+	Map<String, String> params = new HashMap<>();	
+	params.put(Constant.VIN_SERVICE, service);
+	params.put(Constant.VIN_SERVICE_DS, dataStoreKey);
+	params.put(Constant.VIN_SERVICE_APIKEY, apiKey);
+	Set<ConstraintViolation<HashMap>> constraintViolation = validator
+			.validate(new VinMap<String, String>(params));
+	
+	log.info("start validation"); log.info(validator.toString());
+		Set<ConstraintViolation<HashMap>> constraintViolation1 = validator
+				.validate(new VinMap<String, String>(params));
+		for (Iterator iterator = constraintViolation.iterator(); iterator.hasNext();) {
+			ConstraintViolation<HashMap> constraintViolation2 = (ConstraintViolation<HashMap>) iterator.next();
+			System.out.println(constraintViolation2.getMessage());
+		}
+		if (!constraintViolation.isEmpty()) {
+			throw new ConstraintViolationException(constraintViolation);
+		}
+	
+	return new ResponseEntity<Map<String, Object>>(employeeRepositaryImpl.deleteData(service, uniquekey, apiKey, dataStoreKey,passToken),
 				new HttpHeaders(), HttpStatus.OK);
 	}
 

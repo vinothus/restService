@@ -70,7 +70,14 @@ public class EmployeeRepositaryImpl {
 	public static Map<String,Map<String, String>> userServiceTableMap= new ConcurrentHashMap<>();
 	public static Map<String,Map<DbTable, List<DbColumn>>> userTableColumnMap= new ConcurrentHashMap<>();
 	static Map<String,Map<String, Map<String, String>>> userServiceAttrbMap= new ConcurrentHashMap<>();
-	
+	String tableName;
+	public synchronized String getTableName() {
+		return tableName;
+	}
+
+	public synchronized void setTableName(String tableName) {
+		this.tableName = tableName;
+	}
 	//public static Map<String, String> serviceTableMap= new ConcurrentHashMap<>();
 	//public static Map<DbTable, List<DbColumn>> tableColumnMap= new ConcurrentHashMap<>();
 	//static Map<String, Map<String, String>> serviceAttrbMap= new ConcurrentHashMap<>();
@@ -112,14 +119,7 @@ public class EmployeeRepositaryImpl {
 
 		}
 		if (!serviceTabisPresent) {
-			for (Iterator<DbTable> iterator = serviceTables.iterator(); iterator.hasNext();) {
-				DbTable dbTable = iterator.next();
-				if(!isTablePresent(dbTable.getName(), apiKey,  dataStoreKey,passToken))
-				{
-					createDbTable(dbTable, apiKey,  dataStoreKey);
-					}
-
-			}
+			createSysTable() ;
 
 		}
 		userTableColumnMap=getMetaDatumUsr( apiKey,  dataStoreKey,passToken);
@@ -1018,7 +1018,7 @@ public class EmployeeRepositaryImpl {
 		System.out.println(data);
 	}
 
-	private JdbcTemplate setUserDataStore(String apiKey, String dataStoreKey,String passToken) {
+	public JdbcTemplate setUserDataStore(String apiKey, String dataStoreKey,String passToken) {
 		 JdbcTemplate userJdbcTemplate;
 		 try {	
 		if(jdbcTemplateMap.get(dataStoreKey)==null)
@@ -1096,11 +1096,7 @@ public class EmployeeRepositaryImpl {
 			data = setUserDataStore(apiKey, "system","none").queryForList(selectQuery);
 		} catch (Exception e) {
 			log.info(e.getMessage());
-			List<DbTable> serviceTables = initializeTable();
-			for (Iterator<DbTable> iterator = serviceTables.iterator(); iterator.hasNext();) {
-				DbTable dbTable = iterator.next();
-				createDbTable(dbTable,  "system",  "system");
-			}
+			createSysTable();
 			return isPresent;
 		}
 		String tableName = null;
@@ -1117,6 +1113,15 @@ public class EmployeeRepositaryImpl {
 				}
 			}
 		return isPresent;
+	}
+
+	public void createSysTable() {
+		List<DbTable> serviceTables = initializeTable();
+		for (Iterator<DbTable> iterator = serviceTables.iterator(); iterator.hasNext();) {
+			DbTable dbTable = iterator.next();
+			if(!isTablePresent(dbTable.getName(), "system",  "system", "none"))
+			createDbTable(dbTable,  "system",  "system");
+		}
 	}
 	
 	private boolean isPresentinDBOnly(String service,String apiKey, String dataStoreKey,String passToken) {
@@ -1147,8 +1152,14 @@ public class EmployeeRepositaryImpl {
 
 		String selectQuery = " show tables ";
 		List<Map<String, Object>> data = new ArrayList<Map<String, Object>>();
+		JdbcTemplate jdbcTemp=setUserDataStore(apiKey, dataStoreKey, passToken);
+		
+		DriverManagerDataSource dsd=(DriverManagerDataSource) jdbcTemp.getDataSource();
+		String url=dsd.getUrl();
+		
 		String isPresent=null;
 		try {
+			if(url!=null&&url.contains(":mysql:")) {
 			data = setUserDataStore(apiKey, dataStoreKey, passToken).queryForList(selectQuery);
 			for (Iterator iterator = data.iterator(); iterator.hasNext();) {
 				Map<String, Object> rowMap = (Map<String, Object>) iterator.next();
@@ -1170,6 +1181,35 @@ public class EmployeeRepositaryImpl {
 					}
 				}
 
+			}}else
+			{
+			String tableNameFMDB=	 jdbcTemp.execute(	new ConnectionCallback<String>() {
+
+					@Override
+					public String doInConnection(Connection con) throws SQLException, DataAccessException {
+						
+						ResultSet rs1= con.getMetaData().getTables(null, null, "%", new String[] { "TABLE",
+								"VIEW"/*
+										 * , "SYSTEM TABLE", "GLOBAL TEMPORARY", "LOCAL TEMPORARY", "ALIAS", "SYNONYM"
+										 */ });
+						while(rs1.next())
+						{
+							String tableName = rs1.getString("TABLE_NAME");
+							if(tableName.equalsIgnoreCase(service))
+							{
+								return tableName;
+							}
+						}
+						
+						return null;
+					}
+				});
+			if(tableNameFMDB!=null&&tableNameFMDB.equalsIgnoreCase(service))
+			{
+				return tableNameFMDB;
+			}
+			
+				
 			}
 		} catch (Exception e) {
 			log.info(e.getMessage());
@@ -1252,24 +1292,77 @@ public class EmployeeRepositaryImpl {
 		}}
 		try {
 			if(!isPresent) {
-				mdsys=setUserDataStore(apiKey, "system","none").execute(new ConnectionCallback<DatabaseMetaData>() {
+				DriverManagerDataSource dmds=(DriverManagerDataSource) setUserDataStore(apiKey, dataStoreKey, passToken).getDataSource();
+				String url=dmds.getUrl();
+				if(url.contains("jdbc:h2:"))
+				{
 
-					@Override
-					public DatabaseMetaData doInConnection(Connection con) throws SQLException, DataAccessException {
-						// TODO Auto-generated method stub
-						return con.getMetaData();
-					}
-				});
-				md=	setUserDataStore(apiKey, dataStoreKey, passToken).execute(new ConnectionCallback<DatabaseMetaData>() {
+					setTableName(tableName);
+					listArray.addAll(setUserDataStore(apiKey, dataStoreKey, "none")
+							.execute(new ConnectionCallback<List<DbColumn>>() {
 
-					@Override
-					public DatabaseMetaData doInConnection(Connection con) throws SQLException, DataAccessException {
-						// TODO Auto-generated method stub
-						return con.getMetaData();
-					}
-				});
-			 
-			if(md.getURL().contains("mysql"))
+								@Override
+								public List<DbColumn> doInConnection(Connection con)
+										throws SQLException, DataAccessException { // TODO Auto-generated method stub
+																					// return
+									DatabaseMetaData md = con.getMetaData();
+									List<DbColumn> inlistArray = new ArrayList<>();
+									DbTable tableNameT;
+									ResultSet rs1 = md.getColumns(null, null, getTableName().toUpperCase(), null);
+									ResultSet rs2 = md.getPrimaryKeys(null, null, getTableName().toUpperCase());
+									String primaryKey = "";
+									tableNameT = schemaObj.addTable(getTableName());
+									while (rs2.next()) {
+										primaryKey = rs2.getString("COLUMN_NAME");
+									}
+									rs2.close();
+
+									while (rs1.next()) {
+										DbColumn column1 = null;
+										try {
+
+											column1 = tableNameT.addColumn(rs1.getString("COLUMN_NAME"),
+													Integer.parseInt(rs1.getString("DATA_TYPE")),
+													Integer.parseInt(rs1.getString("COLUMN_SIZE")));
+											// isTablePresent=true;
+										} catch (Exception e) {
+											column1 = tableNameT.addColumn(rs1.getString("COLUMN_NAME"), 4,
+													Integer.parseInt(rs1.getString("COLUMN_SIZE")));
+										}
+
+										if (rs1.getString("COLUMN_NAME").equals(primaryKey)) {
+											column1.primaryKey();
+										}
+										inlistArray.add(column1);
+										log.info(rs1.getString("DATA_TYPE"));
+										log.info(rs1.getString("COLUMN_NAME"));
+										log.info(rs1.getString("COLUMN_SIZE"));
+
+									}
+									rs1.close();
+									if (inlistArray.size() > 0) {
+										Map<DbTable, List<DbColumn>> tableColumnMapusr = userTableColumnMap
+												.get(dataStoreKey);//
+										if (tableColumnMapusr == null) {
+											tableColumnMapusr = new ConcurrentHashMap<>();
+										}
+										tableColumnMapusr.put(tableNameT, inlistArray);
+
+										if (userTableColumnMap.get(dataStoreKey) != null) {
+											userTableColumnMap.get(dataStoreKey).putAll(tableColumnMapusr);
+										} else {
+											userTableColumnMap.put(dataStoreKey, tableColumnMapusr);
+										}
+
+									}
+
+									return inlistArray;
+
+								}
+							}));
+
+				}
+				else if(url.contains("mysql"))
 			{
 				tableName=getTableName(tableName, apiKey,  dataStoreKey,passToken);
 				 tableNameT = schemaObj.addTable(tableName);
@@ -1319,6 +1412,14 @@ public class EmployeeRepositaryImpl {
 				
 				}else {
 				// user Database
+					md=	setUserDataStore(apiKey, dataStoreKey, passToken).execute(new ConnectionCallback<DatabaseMetaData>() {
+
+						@Override
+						public DatabaseMetaData doInConnection(Connection con) throws SQLException, DataAccessException {
+							// TODO Auto-generated method stub
+							return con.getMetaData();
+						}
+					});
 			ResultSet rs1 = md.getColumns(null, null,tableName.toUpperCase(), null);
 			ResultSet rs2 = md.getPrimaryKeys(null, null, tableName.toUpperCase());
 			String primaryKey = "";
@@ -1354,6 +1455,16 @@ public class EmployeeRepositaryImpl {
 			// system database
 			if(listArray.size()==0)
 			{
+			 
+				 mdsys=setUserDataStore(apiKey, "system","none").execute(new
+				  ConnectionCallback<DatabaseMetaData>() {
+				   
+				  @Override public DatabaseMetaData doInConnection(Connection con) throws
+				   SQLException, DataAccessException {  
+					  
+				return con.getMetaData(); } });
+				 
+		
 				ResultSet rs3 = mdsys.getColumns(null, null,tableName.toUpperCase(), null);
 			    ResultSet rs4 = mdsys.getPrimaryKeys(null, null, tableName.toUpperCase());
 			    while (rs4.next()) {
@@ -1411,29 +1522,22 @@ public class EmployeeRepositaryImpl {
 
 				}
 				if (!serviceTabisPresent) {
-					for (Iterator<DbTable> iterator = serviceTables.iterator(); iterator.hasNext();) {
-						DbTable dbTable = iterator.next();
-						if(!isTablePresent(dbTable.getName(), apiKey,  dataStoreKey,passToken))
-						{
-							createDbTable(dbTable, apiKey,  dataStoreKey);
-							}
-						tableColumnMapusr.put(dbTable, dbTable.getColumns());
-					}
+					createSysTable() ;
 
 				}
-			 
+				if(userTableColumnMap.get(dataStoreKey)!=null)
+				{
+					userTableColumnMap.get(dataStoreKey).putAll(tableColumnMapusr);
+				}else
+				{
+					userTableColumnMap.put(dataStoreKey, tableColumnMapusr);
+				}
 			setServiceTableMap(tableName, apiKey,  dataStoreKey);
 		} catch (SQLException e1) {
 			e1.printStackTrace();
 		}finally
 		{
-			if(userTableColumnMap.get(dataStoreKey)!=null)
-			{
-				userTableColumnMap.get(dataStoreKey).putAll(tableColumnMapusr);
-			}else
-			{
-				userTableColumnMap.put(dataStoreKey, tableColumnMapusr);
-			}
+			 
 		}
 	}
 
@@ -1919,13 +2023,22 @@ public class EmployeeRepositaryImpl {
 		String uid=String.valueOf(serviceDatum.get(0).get("id"));
 		return	uid;
 	}
-	private String getdsidFordsName(String dataStoreKey)  
+	public String getdsidFordsName(String dataStoreKey)  
 	{
-		List<Map<String, Object>> serviceDatum = setUserDataStore("system", "system","none")
-				.queryForList("select id ,name   from Datastore  where   name = ?" , new Object[] {dataStoreKey});
+		List<Map<String, Object>> serviceDatum =null;
+		try {
+			serviceDatum = setUserDataStore("system", "system", "none")
+					.queryForList("select id ,name   from Datastore  where   name = ?", new Object[] { dataStoreKey });
+		} catch (Exception e) {
+			createSysTable();
+			serviceDatum = setUserDataStore("system", "system", "none")
+					.queryForList("select id ,name   from Datastore  where   name = ?", new Object[] { dataStoreKey });
+		
+		}
 		String uid=String.valueOf(serviceDatum.get(0).get("id"));
 		return	uid;
 	}
+	
 	private void insertServiceTables(String tableName,String apiKey, String dataStoreKey) throws Exception {
 		String userId=getUidForapiKey( apiKey);
 		String dsId =getdsidFordsName(dataStoreKey);
@@ -2032,13 +2145,7 @@ public class EmployeeRepositaryImpl {
 			data = setUserDataStore(apiKey, "system","none").queryForList(selectQuery);
 		} catch (Exception e) {
 			log.info(e.getMessage());
-			List<DbTable> serviceTables = initializeTable();
-			for (Iterator<DbTable> iterator = serviceTables.iterator(); iterator.hasNext();) {
-				DbTable dbTable = iterator.next();
-				if(tableName.equals(dbTable.getName())) {
-				createDbTable(dbTable,  "system",  "system");
-				}
-			}
+			createSysTable() ;
 		}
 		String serID = null;
 		if (data != null)
@@ -2582,6 +2689,7 @@ public class EmployeeRepositaryImpl {
 		 userServiceAttrbMap=new ConcurrentHashMap<>();
 		 jdbcTemplateMap =new ConcurrentHashMap<>();
 		MultiServiceImpl.MultiServiceMap= new ConcurrentHashMap<>();
+		ParamsValidator.clearCache();
 		log.info( "Cache Cleared");
 		return "Cache Cleared";
 	}
@@ -2589,7 +2697,34 @@ public class EmployeeRepositaryImpl {
 	public boolean isTablePresent(String tableName,String apiKey, String dataStoreKey,String passToken) {
 		List<Map<String, Object>> map = new ArrayList<>();
 		try {
-			map = setUserDataStore(apiKey, dataStoreKey, passToken).queryForList("desc " + tableName);
+			JdbcTemplate jdbcTemp=setUserDataStore(apiKey, dataStoreKey, passToken);
+			
+			DriverManagerDataSource dsd=(DriverManagerDataSource) jdbcTemp.getDataSource();
+			String url=dsd.getUrl();
+			if(url!=null&&url.contains(":mysql:"))
+			{
+				map = jdbcTemp.queryForList("desc " + tableName);
+			}else if(url!=null&&url.contains("jdbc:h2:"))
+			{
+				map = jdbcTemp.queryForList("show columns from	"+ tableName);
+			}else
+			{
+				return jdbcTemp.execute(	new ConnectionCallback<Boolean>() {
+
+					@Override
+					public Boolean doInConnection(Connection con) throws SQLException, DataAccessException {
+						
+						ResultSet rs1 = con.getMetaData().getColumns(null, null,tableName.toUpperCase(), null);
+						while(rs1.next())
+						{
+							return true;
+						}
+						
+						return false;
+					}
+				});
+			}
+				
 			if (map == null) {
 				return false;
 			}
