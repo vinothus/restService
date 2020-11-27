@@ -1605,11 +1605,11 @@ public class EmployeeRepositaryImpl {
 			}
 		}
 		if (isUpdate > 0) {
-		if(tableName.equals("SERVICE_ATTR"))
+		if(tableName.equalsIgnoreCase("SERVICE_ATTR"))
 		{
-			System.out.println("select S.id as id, S.tableName as tableName, S.serviceName as serviceName, SA.colName as colName, SA.attrName as attrName  from Service S Service_Attr SA, jdbcTemplate where S.id=  '"+params.get("service id")+"'  and S.id=SA.service_id ");
+			System.out.println("select S.id as id, S.tableName as tableName, S.serviceName as serviceName, SA.colName as colName, SA.attrName as attrName  from Service S Service_Attr SA, jdbcTemplate where S.id=  '"+params.get("serviceid")+"'  and S.id=SA.service_id ");
 			List<Map<String, Object>> serviceDatum = setUserDataStore(apiKey, "system","none")
-					.queryForList("select S.id as id, S.tableName as tableName, S.serviceName as serviceName, SA.colName as colName, SA.attrName as attrName  from Service S, Service_Attr SA  where S.id=  '"+params.get("service id")+"'  and S.id=SA.service_id ");
+					.queryForList("select S.id as id, S.tableName as tableName, S.serviceName as serviceName, SA.colName as colName, SA.attrName as attrName  from Service S, Service_Attr SA  where S.id=  '"+params.get("serviceid")+"'  and S.id=SA.service_id ");
 			
 			String serviceName=(String)serviceDatum.get(0).get("serviceName");
 			Map<String, String> AttrbMap = null; 

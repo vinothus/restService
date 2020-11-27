@@ -32,8 +32,8 @@ import com.healthmarketscience.sqlbuilder.dbspec.basic.DbConstraint;
 import com.healthmarketscience.sqlbuilder.dbspec.basic.DbSchema;
 import com.healthmarketscience.sqlbuilder.dbspec.basic.DbSpec;
 import com.healthmarketscience.sqlbuilder.dbspec.basic.DbTable;
-@RunWith(SpringRunner.class)
-@SpringBootTest
+//@RunWith(SpringRunner.class)
+//@SpringBootTest
 public class ApplicationScalibilityTestMysql {
 
 	
@@ -59,12 +59,12 @@ public class ApplicationScalibilityTestMysql {
 	    Environment env;
 	    
 	    
-	    @Before
+	   // @Before
 	    public void setUp() {
 	      mvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
 	    }
 
-		@Test
+		//@Test
 		public void columntypes() throws Exception
 		{
 			int[] sqlTypes = getSqlTypes();
@@ -121,7 +121,7 @@ public class ApplicationScalibilityTestMysql {
 
 			}
 		}
-		@Test
+		//@Test
 		public void testJdbcTemplate() throws Exception
 		{
 			String[] tableName = new String[1];
@@ -818,7 +818,7 @@ public class ApplicationScalibilityTestMysql {
 
 	    return "";
 	}
-	@Test
+	//@Test
 	public void executeQuery()
 	{
 		List<Map<String,Object>> data=jdbcTemplate.queryForList("show tables ");
@@ -841,7 +841,7 @@ public class ApplicationScalibilityTestMysql {
 		
 	}
 	
-	@Test
+	//@Test
 	public void testJdbcconn() throws Exception
 	{
 		System.out.println(jdbcTemplate.queryForList("show tables "));

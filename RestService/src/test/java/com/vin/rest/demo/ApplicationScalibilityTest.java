@@ -33,8 +33,8 @@ import com.healthmarketscience.sqlbuilder.dbspec.basic.DbSchema;
 import com.healthmarketscience.sqlbuilder.dbspec.basic.DbSpec;
 import com.healthmarketscience.sqlbuilder.dbspec.basic.DbTable;
 
-@RunWith(SpringRunner.class)
-@SpringBootTest
+//@RunWith(SpringRunner.class)
+//@SpringBootTest
 public class ApplicationScalibilityTest {
 
 	
@@ -60,7 +60,7 @@ public class ApplicationScalibilityTest {
 	    Environment env;
 	    
 	    
-	    @Before
+	    //@Before
 	    public void setUp() {
 	      mvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
 	    }
@@ -122,7 +122,7 @@ public class ApplicationScalibilityTest {
 
 			}
 		}
-		@Test
+		//@Test
 		public void testJdbcTemplate() throws Exception
 		{
 			String[] tableName = new String[100];
@@ -810,7 +810,7 @@ public class ApplicationScalibilityTest {
 
 	    return "";
 	}
-	@Test
+	//@Test
 	public void executeQuery()
 	{
 		List<Map<String,Object>> data=jdbcTemplate.queryForList("show tables ");

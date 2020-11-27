@@ -16,4 +16,7 @@ public static String ATTRNAME="attrname";
 public static String service_id="serviceid";
 public static String attr_id="attrid";
 public static String DSID ="dsid";
+public static String VALIDDATA ="validdata";
+public static String INVALIDDATA ="invaliddata";
+public static String ERRORDATA ="errordata";
 }

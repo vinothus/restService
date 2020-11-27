@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.logging.Logger;
-import org.junit.Test;
+//import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -37,8 +37,8 @@ import com.healthmarketscience.sqlbuilder.dbspec.basic.DbSchema;
 import com.healthmarketscience.sqlbuilder.dbspec.basic.DbSpec;
 import com.healthmarketscience.sqlbuilder.dbspec.basic.DbTable;
 
-@RunWith(SpringRunner.class)
-@SpringBootTest
+//@RunWith(SpringRunner.class)
+//@SpringBootTest
 public class MysqlTableGeneration {
 	static DbSchema schemaObj;
 	static DbSpec specficationObj;
@@ -57,7 +57,7 @@ public class MysqlTableGeneration {
 	    Environment env;
 	    
 		Logger log = Logger.getLogger(MysqlTableGeneration.class.getName());
-	    @Test
+	   // @Test
 		public void executeQuery()
 		{
 	    	String[] tableName = new String[100];
@@ -903,7 +903,7 @@ for (int i = 0; i < tableName.length; i++) {
 		
 			
 		}
-		@Test
+		//@Test
 		public void setData()
 		{
 			log.info(getSqlTypeWithoutScal("Decimal(10,0)"));

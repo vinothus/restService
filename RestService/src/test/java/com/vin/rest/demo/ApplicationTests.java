@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.env.Environment;
 import org.springframework.http.MediaType;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -27,7 +28,7 @@ import static org.junit.Assert.assertTrue;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
+import com.vin.rest.repository.EmployeeRepositaryImpl;
 
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
  
@@ -46,18 +47,43 @@ public class ApplicationTests {
     @Autowired
     Environment env;
     
-    
+    @Autowired
+    EmployeeRepositaryImpl empRep;
+    JdbcTemplate jdbctemp;
     @Before
     public void setUp() {
       mvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
+      jdbctemp= empRep.setUserDataStore("system", "system", "none");
+      if(!empRep.isTablePresent("TBL_STUDENT", "system",  "system", "none")) {
+    try {  String createQuery="CREATE TABLE TBL_STUDENT (\n" + 
+      		"  id INT AUTO_INCREMENT  PRIMARY KEY,\n" + 
+      		"  first_name VARCHAR(250) NOT NULL,\n" + 
+      		"  last_name VARCHAR(250) NOT NULL,\n" + 
+      		"  email VARCHAR(250) DEFAULT NULL\n" + 
+      		")";
+      jdbctemp.execute(createQuery);
+      String insertQuery="INSERT INTO \n" + 
+      		"	TBL_STUDENT (first_name, last_name, email) \n" + 
+      		"VALUES\n" + 
+      		"  	('Lokesh', 'Gupta', 'howtodoinjava@gmail.com'),\n" + 
+      		"  	('John', 'Doe', 'xyz@email.com') ; ";
+      
+      jdbctemp.execute(insertQuery);
+    }catch(Exception e)
+    {
+    	
+    }}
     }
-    
-    
+    @After
+    public void teardown()
+    {
+    	 jdbctemp.execute("drop table TBL_STUDENT ");		
+    }
 	@Test
 	public void getData() throws Exception {
 		
 			      mvc.perform( MockMvcRequestBuilders
-			    	      .get("/myApps/tbl student/getdata?iden=234")
+			    	      .get("/myApps/system/system/tbl student/getdata?iden=234")
 			    	      .accept(MediaType.APPLICATION_JSON))
 			    	      .andDo(MockMvcResultHandlers.print())
 			    	      .andExpect(MockMvcResultMatchers.status().isOk())
@@ -69,12 +95,12 @@ public class ApplicationTests {
 	@Test
 	public void getDataForSingleRec() throws Exception {
 		Map<String ,String> student=new HashMap<String ,String>();
-		student.put("first name", "Lokesh");
+		student.put("firstname", "Lokesh");
 		student.put("email", "howtodoinjava@gmail.com");
-		student.put("last name", "jede");
+		student.put("lastname", "jede");
 		
 		
-		MvcResult resultPost = mvc.perform(MockMvcRequestBuilders.post("/myApps/tbl student/addData")
+		MvcResult resultPost = mvc.perform(MockMvcRequestBuilders.post("/myApps/system/system/tbl student/addData")
 	            .contentType(MediaType.APPLICATION_JSON)
 	            .content(new ObjectMapper().writeValueAsString(student)))
 	            .andExpect(MockMvcResultMatchers.status().isOk())
@@ -87,7 +113,7 @@ public class ApplicationTests {
 		}); 
 		String id=jsonMap.get("id");
 			      mvc.perform( MockMvcRequestBuilders
-			    	      .get("/myApps/tbl student/getdataForKey/"+id)
+			    	      .get("/myApps/system/system/tbl student/getdataForKey/"+id)
 			    	      .accept(MediaType.APPLICATION_JSON))
 			    	      .andDo(MockMvcResultHandlers.print())
 			    	      .andExpect(MockMvcResultMatchers.status().isOk())
@@ -101,12 +127,12 @@ public class ApplicationTests {
 	public void insert() throws Exception {
 		
 		Map<String ,String> student=new HashMap<String ,String>();
-		student.put("first name", "Lokesh");
+		student.put("firstname", "Lokesh");
 		student.put("email", "howtodoinjava@gmail.com");
-		student.put("last name", "jede");
+		student.put("lastname", "jede");
 		
 		
-		MvcResult resultPost = mvc.perform(MockMvcRequestBuilders.post("/myApps/tbl student/addData")
+		MvcResult resultPost = mvc.perform(MockMvcRequestBuilders.post("/myApps/system/system/tbl student/addData")
 	            .contentType(MediaType.APPLICATION_JSON)
 	            .content(new ObjectMapper().writeValueAsString(student)))
 	            .andExpect(MockMvcResultMatchers.status().isOk())
@@ -120,7 +146,7 @@ public class ApplicationTests {
 		String id=jsonMap.get("id");
 		
 		mvc.perform( MockMvcRequestBuilders
-	    	      .get("/myApps/tbl student/getdataForKey/"+id)
+	    	      .get("/myApps/system/system/tbl student/getdataForKey/"+id)
 	    	      .accept(MediaType.APPLICATION_JSON))
 	    	      .andDo(MockMvcResultHandlers.print())
 	    	      .andExpect(MockMvcResultMatchers.status().isOk())
@@ -134,12 +160,12 @@ public class ApplicationTests {
 	@Test
 	public void updateData() throws Exception {
 		Map<String ,String> student=new HashMap<String ,String>();
-		student.put("first name", "Lokesh");
+		student.put("firstname", "Lokesh");
 		student.put("email", "howtodoinjava@gmail.com");
-		student.put("last name", "jede");
+		student.put("lastname", "jede");
 		
 		
-		MvcResult resultPost = mvc.perform(MockMvcRequestBuilders.post("/myApps/tbl student/addData")
+		MvcResult resultPost = mvc.perform(MockMvcRequestBuilders.post("/myApps/system/system/tbl student/addData")
 	            .contentType(MediaType.APPLICATION_JSON)
 	            .content(new ObjectMapper().writeValueAsString(student)))
 	            .andExpect(MockMvcResultMatchers.status().isOk())
@@ -152,8 +178,8 @@ public class ApplicationTests {
 		}); 
 		String id=jsonMap.get("id");
 		student.put("id", id);
-		student.put("last name", "jedeupdate");
-		MvcResult resultPost1 =  mvc.perform(MockMvcRequestBuilders.put("/myApps/tbl student/updateData")
+		student.put("lastname", "jedeupdate");
+		MvcResult resultPost1 =  mvc.perform(MockMvcRequestBuilders.put("/myApps/system/system/tbl student/updateData")
 		            .contentType(MediaType.APPLICATION_JSON)
 		            .content(new ObjectMapper().writeValueAsString(student)))
 				    .andDo(MockMvcResultHandlers.print())
@@ -161,18 +187,18 @@ public class ApplicationTests {
 		            .andReturn();
 		
 		String jsonData1= resultPost1.getResponse().getContentAsString();
-		Assert.hasText(student.get("last name"),jsonData1);
+		Assert.hasText(student.get("lastname"),jsonData1);
 	}
 	
 	@Test
 	public void getDeleteRec() throws Exception {
 		Map<String ,String> student=new HashMap<String ,String>();
-		student.put("first name", "Lokesh");
+		student.put("firstname", "Lokesh");
 		student.put("email", "howtodoinjava@gmail.com");
-		student.put("last name", "jede");
+		student.put("lastname", "jede");
 		
 		
-		MvcResult resultPost = mvc.perform(MockMvcRequestBuilders.post("/myApps/tbl student/addData")
+		MvcResult resultPost = mvc.perform(MockMvcRequestBuilders.post("/myApps/system/system/tbl student/addData")
 	            .contentType(MediaType.APPLICATION_JSON)
 	            .content(new ObjectMapper().writeValueAsString(student)))
 	            .andExpect(MockMvcResultMatchers.status().isOk())
@@ -185,7 +211,7 @@ public class ApplicationTests {
 		}); 
 		String id=jsonMap.get("id");
 			      mvc.perform( MockMvcRequestBuilders
-			    	      .delete("/myApps/tbl student/deleteData/"+id)
+			    	      .delete("/myApps/system/system/tbl student/deleteData/"+id)
 			    	      .accept(MediaType.APPLICATION_JSON))
 			    	      .andDo(MockMvcResultHandlers.print())
 			    	      .andExpect(MockMvcResultMatchers.status().isOk())
@@ -194,7 +220,7 @@ public class ApplicationTests {
 			              .andExpect(MockMvcResultMatchers.jsonPath("$.id",is(Integer.parseInt(id))));
 			      
 			      mvc.perform( MockMvcRequestBuilders
-			    	      .get("/myApps/tbl student/getdataForKey/"+id)
+			    	      .get("/myApps/system/system/tbl student/getdataForKey/"+id)
 			    	      .accept(MediaType.APPLICATION_JSON))
 			    	      .andDo(MockMvcResultHandlers.print())
 			    	      .andExpect(MockMvcResultMatchers.status().isOk())
@@ -208,7 +234,7 @@ public class ApplicationTests {
 		serviceData.put("tableName", "TBL_STUDENT");
 		//student.put("serviceName", "studentService");
 		
-		MvcResult resultPost = mvc.perform(MockMvcRequestBuilders.get("/myApps/service/getdata")
+		MvcResult resultPost = mvc.perform(MockMvcRequestBuilders.get("/myApps/system/system/service/getdata")
 	            .contentType(MediaType.APPLICATION_JSON)
 	            .param("tableName", "TBL_STUDENT"))
 	            .andExpect(MockMvcResultMatchers.status().isOk())
@@ -226,7 +252,7 @@ public class ApplicationTests {
       serviceData .put("servicename", "studentService") ;
       serviceData.put("id", id) ;
       
-      MvcResult resultPost2 =  mvc.perform(MockMvcRequestBuilders.put("/myApps/service/updateData")
+      MvcResult resultPost2 =  mvc.perform(MockMvcRequestBuilders.put("/myApps/system/system/service/updateData")
 	            .contentType(MediaType.APPLICATION_JSON)
 	            .content(new ObjectMapper().writeValueAsString(serviceData)))
 			    .andDo(MockMvcResultHandlers.print())
@@ -238,7 +264,7 @@ public class ApplicationTests {
 		});
 		
 		assertTrue(jsonMap2.get("servicename").equals("studentService"));
-		MvcResult resultPost3 = mvc.perform(MockMvcRequestBuilders.get("/myApps/service/getdata")
+		MvcResult resultPost3 = mvc.perform(MockMvcRequestBuilders.get("/myApps/system/system/service/getdata")
 	            .contentType(MediaType.APPLICATION_JSON)
 	             )
 				.andDo(MockMvcResultHandlers.print())
@@ -252,7 +278,7 @@ public class ApplicationTests {
 		});
 		System.out.println(jsonMap3);
 		assertTrue(jsonMap3.size()>0);
-		MvcResult resultPost1 = mvc.perform(MockMvcRequestBuilders.get("/myApps/studentService/getdata")
+		MvcResult resultPost1 = mvc.perform(MockMvcRequestBuilders.get("/myApps/system/system/studentService/getdata")
 	            .contentType(MediaType.APPLICATION_JSON)
 	             )
 				.andDo(MockMvcResultHandlers.print())
@@ -266,7 +292,7 @@ public class ApplicationTests {
 		});
 		assertTrue(jsonMap1.size()>0);
 		 serviceData .put("servicename", "tbl student") ;
-		mvc.perform(MockMvcRequestBuilders.put("/myApps/service/updateData")
+		mvc.perform(MockMvcRequestBuilders.put("/myApps/system/system/service/updateData")
 	            .contentType(MediaType.APPLICATION_JSON)
 	            .content(new ObjectMapper().writeValueAsString(serviceData)))
 			    .andDo(MockMvcResultHandlers.print())
@@ -277,14 +303,14 @@ public class ApplicationTests {
 	@Test
 	public void updateAttrb() throws Exception
 	{
-		mvc.perform(MockMvcRequestBuilders.get("/myApps/tbl student/getdata")
+		mvc.perform(MockMvcRequestBuilders.get("/myApps/system/system/tbl student/getdata")
 	            .contentType(MediaType.APPLICATION_JSON)
 	             
 	            )
 		        .andDo(MockMvcResultHandlers.print())
 	            .andExpect(MockMvcResultMatchers.status().isOk())
 	            .andReturn();
-		MvcResult resultPost = mvc.perform(MockMvcRequestBuilders.get("/myApps/service attr/getdata")
+		MvcResult resultPost = mvc.perform(MockMvcRequestBuilders.get("/myApps/system/system/service attr/getdata")
 	            .contentType(MediaType.APPLICATION_JSON)
 	             )
 				.andDo(MockMvcResultHandlers.print())
@@ -303,10 +329,11 @@ public class ApplicationTests {
 		//serviceAttrData.put("attrname", "servicenameupdate");
 		//serviceAttrData.put("colname", "serviceName");
 		//{"id":2,"service id":0,"attrname":"servicename","colname":"serviceName"}
-		String serviceID=serviceAttrData.get("service id");
+		String serviceID=serviceAttrData.get("serviceid");
+		String attrID=serviceAttrData.get("id");
 		String serviceAttrbBeforChange=serviceAttrData.get("attrname");
 		 serviceAttrData.put("attrname", "servicenameupdate");
-		 MvcResult resultPost2 =  mvc.perform(MockMvcRequestBuilders.put("/myApps/service attr/updateData")
+		 MvcResult resultPost2 =  mvc.perform(MockMvcRequestBuilders.put("/myApps/system/system/service attr/updateData")
 		            .contentType(MediaType.APPLICATION_JSON)
 		            .content(new ObjectMapper().writeValueAsString(serviceAttrData)))
 				    .andDo(MockMvcResultHandlers.print())
@@ -319,14 +346,14 @@ public class ApplicationTests {
 			
 			assertTrue(jsonMap2.get("attrname").equals("servicenameupdate"));
 		
-			mvc.perform(MockMvcRequestBuilders.get("/myApps/service attr/getdata")
+			mvc.perform(MockMvcRequestBuilders.get("/myApps/system/system/service attr/getdata")
 		            .contentType(MediaType.APPLICATION_JSON)
 		             
 		            )
 			        .andDo(MockMvcResultHandlers.print())
 		            .andExpect(MockMvcResultMatchers.status().isOk())
 		            .andReturn();
-			mvc.perform(MockMvcRequestBuilders.get("/myApps/service/getdata")
+			mvc.perform(MockMvcRequestBuilders.get("/myApps/system/system/service/getdata")
 		            .contentType(MediaType.APPLICATION_JSON)
 		             
 		            )
@@ -343,7 +370,7 @@ public class ApplicationTests {
 			
 			
 				Map<String ,String> servicData=new HashMap<>(); 
-				MvcResult resultPost4 = mvc.perform(MockMvcRequestBuilders.get("/myApps/service/getdataForKey/"+serviceID)
+				MvcResult resultPost4 = mvc.perform(MockMvcRequestBuilders.get("/myApps/system/system/service/getdataForKey/"+serviceID)
 			            .contentType(MediaType.APPLICATION_JSON)
 			            //.content(new ObjectMapper().writeValueAsString(student))
 			            )
@@ -356,7 +383,7 @@ public class ApplicationTests {
 				}); 
 				String serviceName= jsonMap4.get("servicename");
 				
-				MvcResult resultPost3=	mvc.perform(MockMvcRequestBuilders.get("/myApps/"+serviceName+"/getdata")
+				MvcResult resultPost3=	mvc.perform(MockMvcRequestBuilders.get("/myApps/system/system/"+serviceName+"/getdata")
 			            .contentType(MediaType.APPLICATION_JSON)
 			             
 			            )
@@ -382,7 +409,7 @@ public class ApplicationTests {
 					assertTrue(isPresent);
 					
 					serviceAttrData.put("attrname", serviceAttrbBeforChange);
-					 mvc.perform(MockMvcRequestBuilders.put("/myApps/service attr/updateData")
+					 mvc.perform(MockMvcRequestBuilders.put("/myApps/system/system/service attr/updateData")
 					            .contentType(MediaType.APPLICATION_JSON)
 					            .content(new ObjectMapper().writeValueAsString(serviceAttrData)))
 							    .andDo(MockMvcResultHandlers.print())
@@ -391,5 +418,434 @@ public class ApplicationTests {
 					
 					
 				
+	}
+	@Test
+	public void testminValidation() throws Exception
+	{
+		ObjectMapper mapper = new ObjectMapper();
+
+		mvc.perform(MockMvcRequestBuilders.get("/myApps/system/system/tbl student/getdata")
+				.contentType(MediaType.APPLICATION_JSON)
+
+		).andDo(MockMvcResultHandlers.print()).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+		MvcResult resultService = mvc
+				.perform(MockMvcRequestBuilders.get("/myApps/system/system/service/getdata")
+						.contentType(MediaType.APPLICATION_JSON))
+				.andDo(MockMvcResultHandlers.print()).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+		String resultServiceStr = resultService.getResponse().getContentAsString();
+		List<Map<String, String>> resultServiceMap = new ArrayList<Map<String, String>>();
+		resultServiceMap = mapper.readValue(resultServiceStr, new TypeReference<List<Map<String, String>>>() {
+		});
+		System.out.println(resultServiceMap);
+		String serViceID = null;
+		for (Iterator iterator = resultServiceMap.iterator(); iterator.hasNext();) {
+			Map<String, String> serviceMap = (Map<String, String>) iterator.next();
+			if (serviceMap.get("servicename").equalsIgnoreCase("tbl student")) {
+				serViceID = serviceMap.get("id");
+			}
+		}
+		MvcResult resultServiceAttr=mvc.perform(MockMvcRequestBuilders.get("/myApps/system/system/service attr/getdata")
+				.contentType(MediaType.APPLICATION_JSON)
+				 .param("serviceid", serViceID)
+
+		).andDo(MockMvcResultHandlers.print()).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+		String resultServiceAttrStr = resultServiceAttr.getResponse().getContentAsString();
+		List<Map<String, String>> resultServiceAttrMap = new ArrayList<Map<String, String>>();
+		resultServiceAttrMap = mapper.readValue(resultServiceAttrStr, new TypeReference<List<Map<String, String>>>() {
+		});
+		Map<String, String> attrbParam = new HashMap<>();
+		for (Iterator iterator = resultServiceAttrMap.iterator(); iterator.hasNext();) {
+			Map<String, String> map = (Map<String, String>) iterator.next();
+			if(map.get("attrname").equals("firstname"))
+			{
+				attrbParam=	map;
+			}
+			
+		}
+		
+		attrbParam.put("attrminlength", "3");
+		 
+		MvcResult updatedAttrb =  mvc.perform(MockMvcRequestBuilders.put("/myApps/system/system/service attr/updateData")
+	            .contentType(MediaType.APPLICATION_JSON)
+	            .content(new ObjectMapper().writeValueAsString(attrbParam)))
+			    .andDo(MockMvcResultHandlers.print())
+	            .andExpect(MockMvcResultMatchers.status().isOk())
+	            .andReturn();
+      String updatedAttrbStr= updatedAttrb.getResponse().getContentAsString();
+      Map<String, String> updatedAttrbMap = new HashMap<String,String>();
+      updatedAttrbMap = mapper.readValue(updatedAttrbStr, new TypeReference<Map<String, String>>() {
+		});
+      mvc.perform(MockMvcRequestBuilders.get("/myApps/system/system/tbl student/getdata")
+				.contentType(MediaType.APPLICATION_JSON)
+
+		).andDo(MockMvcResultHandlers.print()).andExpect(MockMvcResultMatchers.status().isBadRequest()).andReturn();
+      
+      mvc.perform(MockMvcRequestBuilders.get("/myApps/system/system/tbl student/getdata")
+				.contentType(MediaType.APPLICATION_JSON)
+				 .param("firstname", "Lokesh")
+		).andDo(MockMvcResultHandlers.print()).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+      
+      attrbParam.put("attrminlength", "null");
+      MvcResult againUpdatedAttrb =  mvc.perform(MockMvcRequestBuilders.put("/myApps/system/system/service attr/updateData")
+	            .contentType(MediaType.APPLICATION_JSON)
+	            .content(new ObjectMapper().writeValueAsString(attrbParam)))
+			    .andDo(MockMvcResultHandlers.print())
+	            .andExpect(MockMvcResultMatchers.status().isOk())
+	            .andReturn();
+      
+      mvc.perform(MockMvcRequestBuilders.get("/myApps/system/system/tbl student/getdata")
+				.contentType(MediaType.APPLICATION_JSON)
+		).andDo(MockMvcResultHandlers.print()).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+      
+		
+	}
+	@Test
+	public void testmaxValidation() throws Exception
+	{
+		ObjectMapper mapper = new ObjectMapper();
+
+		mvc.perform(MockMvcRequestBuilders.get("/myApps/system/system/tbl student/getdata")
+				.contentType(MediaType.APPLICATION_JSON)
+
+		).andDo(MockMvcResultHandlers.print()).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+		MvcResult resultService = mvc
+				.perform(MockMvcRequestBuilders.get("/myApps/system/system/service/getdata")
+						.contentType(MediaType.APPLICATION_JSON))
+				.andDo(MockMvcResultHandlers.print()).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+		String resultServiceStr = resultService.getResponse().getContentAsString();
+		List<Map<String, String>> resultServiceMap = new ArrayList<Map<String, String>>();
+		resultServiceMap = mapper.readValue(resultServiceStr, new TypeReference<List<Map<String, String>>>() {
+		});
+		System.out.println(resultServiceMap);
+		String serViceID = null;
+		for (Iterator iterator = resultServiceMap.iterator(); iterator.hasNext();) {
+			Map<String, String> serviceMap = (Map<String, String>) iterator.next();
+			if (serviceMap.get("servicename").equalsIgnoreCase("tbl student")) {
+				serViceID = serviceMap.get("id");
+			}
+		}
+		MvcResult resultServiceAttr=mvc.perform(MockMvcRequestBuilders.get("/myApps/system/system/service attr/getdata")
+				.contentType(MediaType.APPLICATION_JSON)
+				 .param("serviceid", serViceID)
+
+		).andDo(MockMvcResultHandlers.print()).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+		String resultServiceAttrStr = resultServiceAttr.getResponse().getContentAsString();
+		List<Map<String, String>> resultServiceAttrMap = new ArrayList<Map<String, String>>();
+		resultServiceAttrMap = mapper.readValue(resultServiceAttrStr, new TypeReference<List<Map<String, String>>>() {
+		});
+		Map<String, String> attrbParam = new HashMap<>();
+		for (Iterator iterator = resultServiceAttrMap.iterator(); iterator.hasNext();) {
+			Map<String, String> map = (Map<String, String>) iterator.next();
+			if(map.get("attrname").equals("firstname"))
+			{
+				attrbParam=	map;
+			}
+			
+		}
+		
+		attrbParam.put("attrmaxlength", "20");
+		 
+		MvcResult updatedAttrb =  mvc.perform(MockMvcRequestBuilders.put("/myApps/system/system/service attr/updateData")
+	            .contentType(MediaType.APPLICATION_JSON)
+	            .content(new ObjectMapper().writeValueAsString(attrbParam)))
+			    .andDo(MockMvcResultHandlers.print())
+	            .andExpect(MockMvcResultMatchers.status().isOk())
+	            .andReturn();
+      String updatedAttrbStr= updatedAttrb.getResponse().getContentAsString();
+      Map<String, String> updatedAttrbMap = new HashMap<String,String>();
+      updatedAttrbMap = mapper.readValue(updatedAttrbStr, new TypeReference<Map<String, String>>() {
+		});
+      mvc.perform(MockMvcRequestBuilders.get("/myApps/system/system/tbl student/getdata")
+				.contentType(MediaType.APPLICATION_JSON)
+				.param("firstname", "Lokesh111111111111111111111")
+
+		).andDo(MockMvcResultHandlers.print()).andExpect(MockMvcResultMatchers.status().isBadRequest()).andReturn();
+      
+     // mvc.perform(MockMvcRequestBuilders.get("/myApps/system/system/tbl student/getdata")
+	//			.contentType(MediaType.APPLICATION_JSON)
+		//		 .param("firstname", "Lokesh111111111111111111111")
+		//).andDo(MockMvcResultHandlers.print()).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+      
+      attrbParam.put("attrmaxlength", "null");
+      MvcResult againUpdatedAttrb =  mvc.perform(MockMvcRequestBuilders.put("/myApps/system/system/service attr/updateData")
+	            .contentType(MediaType.APPLICATION_JSON)
+	            .content(new ObjectMapper().writeValueAsString(attrbParam)))
+			    .andDo(MockMvcResultHandlers.print())
+	            .andExpect(MockMvcResultMatchers.status().isOk())
+	            .andReturn();
+      
+      mvc.perform(MockMvcRequestBuilders.get("/myApps/system/system/tbl student/getdata")
+				.contentType(MediaType.APPLICATION_JSON)
+		).andDo(MockMvcResultHandlers.print()).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+      
+		
+	
+	
+		
+	}
+	
+	@Test
+	public void testmanditoryValidation() throws Exception
+	{
+
+		ObjectMapper mapper = new ObjectMapper();
+
+		mvc.perform(MockMvcRequestBuilders.get("/myApps/system/system/tbl student/getdata")
+				.contentType(MediaType.APPLICATION_JSON)
+
+		).andDo(MockMvcResultHandlers.print()).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+		MvcResult resultService = mvc
+				.perform(MockMvcRequestBuilders.get("/myApps/system/system/service/getdata")
+						.contentType(MediaType.APPLICATION_JSON))
+				.andDo(MockMvcResultHandlers.print()).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+		String resultServiceStr = resultService.getResponse().getContentAsString();
+		List<Map<String, String>> resultServiceMap = new ArrayList<Map<String, String>>();
+		resultServiceMap = mapper.readValue(resultServiceStr, new TypeReference<List<Map<String, String>>>() {
+		});
+		System.out.println(resultServiceMap);
+		String serViceID = null;
+		for (Iterator iterator = resultServiceMap.iterator(); iterator.hasNext();) {
+			Map<String, String> serviceMap = (Map<String, String>) iterator.next();
+			if (serviceMap.get("servicename").equalsIgnoreCase("tbl student")) {
+				serViceID = serviceMap.get("id");
+			}
+		}
+		MvcResult resultServiceAttr=mvc.perform(MockMvcRequestBuilders.get("/myApps/system/system/service attr/getdata")
+				.contentType(MediaType.APPLICATION_JSON)
+				 .param("serviceid", serViceID)
+
+		).andDo(MockMvcResultHandlers.print()).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+		String resultServiceAttrStr = resultServiceAttr.getResponse().getContentAsString();
+		List<Map<String, String>> resultServiceAttrMap = new ArrayList<Map<String, String>>();
+		resultServiceAttrMap = mapper.readValue(resultServiceAttrStr, new TypeReference<List<Map<String, String>>>() {
+		});
+		Map<String, String> attrbParam = new HashMap<>();
+		for (Iterator iterator = resultServiceAttrMap.iterator(); iterator.hasNext();) {
+			Map<String, String> map = (Map<String, String>) iterator.next();
+			if(map.get("attrname").equals("firstname"))
+			{
+				attrbParam=	map;
+			}
+			
+		}
+		
+		attrbParam.put("attrismandatory", "yes");
+		 
+		MvcResult updatedAttrb =  mvc.perform(MockMvcRequestBuilders.put("/myApps/system/system/service attr/updateData")
+	            .contentType(MediaType.APPLICATION_JSON)
+	            .content(new ObjectMapper().writeValueAsString(attrbParam)))
+			    .andDo(MockMvcResultHandlers.print())
+	            .andExpect(MockMvcResultMatchers.status().isOk())
+	            .andReturn();
+      String updatedAttrbStr= updatedAttrb.getResponse().getContentAsString();
+      Map<String, String> updatedAttrbMap = new HashMap<String,String>();
+      updatedAttrbMap = mapper.readValue(updatedAttrbStr, new TypeReference<Map<String, String>>() {
+		});
+      mvc.perform(MockMvcRequestBuilders.get("/myApps/system/system/tbl student/getdata")
+				.contentType(MediaType.APPLICATION_JSON)
+
+		).andDo(MockMvcResultHandlers.print()).andExpect(MockMvcResultMatchers.status().isBadRequest()).andReturn();
+      
+      mvc.perform(MockMvcRequestBuilders.get("/myApps/system/system/tbl student/getdata")
+				.contentType(MediaType.APPLICATION_JSON)
+				 .param("firstname", "Lokesh111111111111111111111")
+		).andDo(MockMvcResultHandlers.print()).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+      
+      attrbParam.put("attrismandatory", "null");
+      MvcResult againUpdatedAttrb =  mvc.perform(MockMvcRequestBuilders.put("/myApps/system/system/service attr/updateData")
+	            .contentType(MediaType.APPLICATION_JSON)
+	            .content(new ObjectMapper().writeValueAsString(attrbParam)))
+			    .andDo(MockMvcResultHandlers.print())
+	            .andExpect(MockMvcResultMatchers.status().isOk())
+	            .andReturn();
+      
+      mvc.perform(MockMvcRequestBuilders.get("/myApps/system/system/tbl student/getdata")
+				.contentType(MediaType.APPLICATION_JSON)
+		).andDo(MockMvcResultHandlers.print()).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+      
+	}
+	@Test
+	public void testregxValidation() throws Exception
+	{
+
+		ObjectMapper mapper = new ObjectMapper();
+
+		mvc.perform(MockMvcRequestBuilders.get("/myApps/system/system/tbl student/getdata")
+				.contentType(MediaType.APPLICATION_JSON)
+
+		).andDo(MockMvcResultHandlers.print()).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+		MvcResult resultService = mvc
+				.perform(MockMvcRequestBuilders.get("/myApps/system/system/service/getdata")
+						.contentType(MediaType.APPLICATION_JSON))
+				.andDo(MockMvcResultHandlers.print()).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+		String resultServiceStr = resultService.getResponse().getContentAsString();
+		List<Map<String, String>> resultServiceMap = new ArrayList<Map<String, String>>();
+		resultServiceMap = mapper.readValue(resultServiceStr, new TypeReference<List<Map<String, String>>>() {
+		});
+		System.out.println(resultServiceMap);
+		String serViceID = null;
+		for (Iterator iterator = resultServiceMap.iterator(); iterator.hasNext();) {
+			Map<String, String> serviceMap = (Map<String, String>) iterator.next();
+			if (serviceMap.get("servicename").equalsIgnoreCase("tbl student")) {
+				serViceID = serviceMap.get("id");
+			}
+		}
+		MvcResult resultServiceAttr=mvc.perform(MockMvcRequestBuilders.get("/myApps/system/system/service attr/getdata")
+				.contentType(MediaType.APPLICATION_JSON)
+				 .param("serviceid", serViceID)
+
+		).andDo(MockMvcResultHandlers.print()).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+		String resultServiceAttrStr = resultServiceAttr.getResponse().getContentAsString();
+		List<Map<String, String>> resultServiceAttrMap = new ArrayList<Map<String, String>>();
+		resultServiceAttrMap = mapper.readValue(resultServiceAttrStr, new TypeReference<List<Map<String, String>>>() {
+		});
+		Map<String, String> attrbParam = new HashMap<>();
+		for (Iterator iterator = resultServiceAttrMap.iterator(); iterator.hasNext();) {
+			Map<String, String> map = (Map<String, String>) iterator.next();
+			if(map.get("attrname").equals("email"))
+			{
+				attrbParam=	map;
+			}
+			
+		}
+		
+		attrbParam.put("attrregxvalidation", "^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+$");
+		 
+		MvcResult updatedAttrb =  mvc.perform(MockMvcRequestBuilders.put("/myApps/system/system/service attr/updateData")
+	            .contentType(MediaType.APPLICATION_JSON)
+	            .content(new ObjectMapper().writeValueAsString(attrbParam)))
+			    .andDo(MockMvcResultHandlers.print())
+	            .andExpect(MockMvcResultMatchers.status().isOk())
+	            .andReturn();
+      String updatedAttrbStr= updatedAttrb.getResponse().getContentAsString();
+      Map<String, String> updatedAttrbMap = new HashMap<String,String>();
+      updatedAttrbMap = mapper.readValue(updatedAttrbStr, new TypeReference<Map<String, String>>() {
+		});
+      mvc.perform(MockMvcRequestBuilders.get("/myApps/system/system/tbl student/getdata")
+				.contentType(MediaType.APPLICATION_JSON)
+				 .param("email", "Lokesh")
+
+		).andDo(MockMvcResultHandlers.print()).andExpect(MockMvcResultMatchers.status().isBadRequest()).andReturn();
+      
+      mvc.perform(MockMvcRequestBuilders.get("/myApps/system/system/tbl student/getdata")
+				.contentType(MediaType.APPLICATION_JSON)
+				 .param("email", "Lokesh@dfgdf.dfgd")
+		).andDo(MockMvcResultHandlers.print()).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+      
+      attrbParam.put("attrregxvalidation", "null");
+      MvcResult againUpdatedAttrb =  mvc.perform(MockMvcRequestBuilders.put("/myApps/system/system/service attr/updateData")
+	            .contentType(MediaType.APPLICATION_JSON)
+	            .content(new ObjectMapper().writeValueAsString(attrbParam)))
+			    .andDo(MockMvcResultHandlers.print())
+	            .andExpect(MockMvcResultMatchers.status().isOk())
+	            .andReturn();
+      
+      mvc.perform(MockMvcRequestBuilders.get("/myApps/system/system/tbl student/getdata")
+				.contentType(MediaType.APPLICATION_JSON)
+		).andDo(MockMvcResultHandlers.print()).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+      
+	}
+	@Test
+	public void testcusValidation() throws Exception
+	{
+
+
+		ObjectMapper mapper = new ObjectMapper();
+
+		mvc.perform(MockMvcRequestBuilders.get("/myApps/system/system/tbl student/getdata")
+				.contentType(MediaType.APPLICATION_JSON)
+
+		).andDo(MockMvcResultHandlers.print()).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+		MvcResult resultService = mvc
+				.perform(MockMvcRequestBuilders.get("/myApps/system/system/service/getdata")
+						.contentType(MediaType.APPLICATION_JSON))
+				.andDo(MockMvcResultHandlers.print()).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+		String resultServiceStr = resultService.getResponse().getContentAsString();
+		List<Map<String, String>> resultServiceMap = new ArrayList<Map<String, String>>();
+		resultServiceMap = mapper.readValue(resultServiceStr, new TypeReference<List<Map<String, String>>>() {
+		});
+		System.out.println(resultServiceMap);
+		String serViceID = null;
+		for (Iterator iterator = resultServiceMap.iterator(); iterator.hasNext();) {
+			Map<String, String> serviceMap = (Map<String, String>) iterator.next();
+			if (serviceMap.get("servicename").equalsIgnoreCase("tbl student")) {
+				serViceID = serviceMap.get("id");
+			}
+		}
+		MvcResult resultServiceAttr=mvc.perform(MockMvcRequestBuilders.get("/myApps/system/system/service attr/getdata")
+				.contentType(MediaType.APPLICATION_JSON)
+				 .param("serviceid", serViceID)
+
+		).andDo(MockMvcResultHandlers.print()).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+		String resultServiceAttrStr = resultServiceAttr.getResponse().getContentAsString();
+		List<Map<String, String>> resultServiceAttrMap = new ArrayList<Map<String, String>>();
+		resultServiceAttrMap = mapper.readValue(resultServiceAttrStr, new TypeReference<List<Map<String, String>>>() {
+		});
+		Map<String, String> attrbParam = new HashMap<>();
+		for (Iterator iterator = resultServiceAttrMap.iterator(); iterator.hasNext();) {
+			Map<String, String> map = (Map<String, String>) iterator.next();
+			if(map.get("attrname").equals("email"))
+			{
+				attrbParam=	map;
+			}
+			
+		}
+		
+		attrbParam.put("attrcusvalidation", "yes");
+		 
+		MvcResult updatedAttrb =  mvc.perform(MockMvcRequestBuilders.put("/myApps/system/system/service attr/updateData")
+	            .contentType(MediaType.APPLICATION_JSON)
+	            .content(new ObjectMapper().writeValueAsString(attrbParam)))
+			    .andDo(MockMvcResultHandlers.print())
+	            .andExpect(MockMvcResultMatchers.status().isOk())
+	            .andReturn();
+      String updatedAttrbStr= updatedAttrb.getResponse().getContentAsString();
+      Map<String, String> updatedAttrbMap = new HashMap<String,String>();
+      updatedAttrbMap = mapper.readValue(updatedAttrbStr, new TypeReference<Map<String, String>>() {
+		});
+      mvc.perform(MockMvcRequestBuilders.get("/myApps/system/system/tbl student/getdata")
+				.contentType(MediaType.APPLICATION_JSON)
+				 .param("email", "Lokesh")
+
+		).andDo(MockMvcResultHandlers.print()).andExpect(MockMvcResultMatchers.status().isBadRequest()).andReturn();
+      
+      mvc.perform(MockMvcRequestBuilders.get("/myApps/system/system/tbl student/getdata")
+				.contentType(MediaType.APPLICATION_JSON)
+				 .param("email", "Lokesh@dfgdf.dfgd")
+		).andDo(MockMvcResultHandlers.print()).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+      
+      attrbParam.put("attrcusvalidation", "null");
+      MvcResult againUpdatedAttrb =  mvc.perform(MockMvcRequestBuilders.put("/myApps/system/system/service attr/updateData")
+	            .contentType(MediaType.APPLICATION_JSON)
+	            .content(new ObjectMapper().writeValueAsString(attrbParam)))
+			    .andDo(MockMvcResultHandlers.print())
+	            .andExpect(MockMvcResultMatchers.status().isOk())
+	            .andReturn();
+      
+      mvc.perform(MockMvcRequestBuilders.get("/myApps/system/system/tbl student/getdata")
+				.contentType(MediaType.APPLICATION_JSON)
+		).andDo(MockMvcResultHandlers.print()).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+      
+	}
+	@Test
+	public void testMultiDataInsert()
+	{
+		
+	}
+	@Test
+	public void testMultiDataUpdata()
+	{
+		
+	}
+	@Test
+	public void testMultiDataDelete()
+	{
+		
+	}
+
+	@Test
+	public void testMultiDataGet()
+	{
+		
 	}
 }

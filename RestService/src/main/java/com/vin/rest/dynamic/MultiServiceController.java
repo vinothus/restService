@@ -34,6 +34,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vin.validation.ServiceConstraintViolation;
 import com.vin.validation.VinMap;
 
+import vin.rest.common.Constant;
+
 @Component
 @Validated
 @Controller
@@ -157,5 +159,38 @@ public class MultiServiceController {
 		}
 
 		return null;
+	}
+	
+	public Map<String,Object> doValidation(List<Map<String,Map<String, String>>> data, String service,String apiKey, String dataStoreKey)
+	{
+		Map<String,Map<String, String>> validData=new HashMap<>();
+		Map<String,Map<String, String>> inValidData=new HashMap<>();
+		Map<String,Set<ConstraintViolation<HashMap>>> errorData=new HashMap<>();
+		Map<String,Object> retData=new HashMap<>();
+		for (Iterator iterator = data.iterator(); iterator.hasNext();) {
+			Map<String, Map<String, String>> map = (Map<String, Map<String, String>>) iterator.next();
+			 for (Entry<String, Map<String, String>> entry : map.entrySet()) {
+			      System.out.println("Key : " + entry.getKey() + " value : " + entry.getValue());
+			      String serviceName=entry.getKey();
+			      Map<String, String> jsonMap = entry.getValue();
+			      jsonMap.put(Constant.VIN_SERVICE, serviceName);
+					jsonMap.put(Constant.VIN_SERVICE_DS, dataStoreKey);
+					jsonMap.put(Constant.VIN_SERVICE_APIKEY, apiKey);
+					Set<ConstraintViolation<HashMap>> constraintViolation = validator
+							.validate(new VinMap<String, String>(jsonMap));
+					if (!constraintViolation.isEmpty()) {
+						inValidData.put(serviceName, jsonMap)	;
+						errorData.put(serviceName, constraintViolation)	;
+					}else
+					{
+						validData.put(serviceName, jsonMap)	;
+					}
+			    }
+			
+		}
+		retData.put(Constant.VALIDDATA, validData);
+		retData.put(Constant.INVALIDDATA, inValidData);
+		retData.put(Constant.ERRORDATA, errorData);
+		return retData;
 	}
 }

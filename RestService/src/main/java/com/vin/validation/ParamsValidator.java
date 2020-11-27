@@ -47,6 +47,7 @@ public class ParamsValidator implements ConstraintValidator<ParamMapValidator,Ma
 		value.remove(Constant.VIN_SERVICE_DS);
 		value.remove(Constant.VIN_SERVICE_APIKEY);
 		String dsid = null;
+		if(serviceName!=null&&dataStoreKey!=null&&apiKey!=null) {
 		if (dsidMap.get(dataStoreKey + ":" + apiKey) == null) {
 			dsid = employeeRepositaryImpl.getdsidFordsName(dataStoreKey);
 			dsidMap.put(dataStoreKey + ":" + apiKey, dsid);
@@ -98,7 +99,7 @@ public class ParamsValidator implements ConstraintValidator<ParamMapValidator,Ma
 			}
 			
 		}
-
+if(service_id!=null) {
 		params.put(Constant.service_id, service_id);
 		List<Map<String, Object>> cachedServicAttreObj = userServiceAttrTableMap.get(serviceName + "" + dsid);
 		List<Map<String, Object>> resultObjattr = null;
@@ -159,7 +160,7 @@ public class ParamsValidator implements ConstraintValidator<ParamMapValidator,Ma
 			String attrregxvalidation;
 			String attrismandatory;
 			String attrname;
-
+            String paramAttrbvalue="";
 			Map<String, Object> map = (Map<String, Object>) iterator.next();
 			validationClass = String.valueOf(map.get("attrCusValidation"));
 			attrminlength = String.valueOf(map.get("attrminLength"));
@@ -168,6 +169,7 @@ public class ParamsValidator implements ConstraintValidator<ParamMapValidator,Ma
 			attrismandatory = String.valueOf(map.get("attrIsMandatory"));
 			attrname= String.valueOf(map.get("attrName"));
 			valid=mandatoryValidation(attrname, value,attrismandatory);
+			paramAttrbvalue=value.get(attrname);
 			if(!valid) {
 				staticbool=false;
 				 context.disableDefaultConstraintViolation();
@@ -183,13 +185,29 @@ public class ParamsValidator implements ConstraintValidator<ParamMapValidator,Ma
 				}
 
 			}
-
+			if(!minLength(paramAttrbvalue, attrminlength))
+			{
+				 context.disableDefaultConstraintViolation();
+				 context.buildConstraintViolationWithTemplate( paramAttrbvalue+ " Should Contain Atleast "+attrminlength+" Characters "  ).addConstraintViolation();
+				 valid=false;	
+				 staticbool=false;
+			}
+			//valid=doCustomValidation(context, valid, validationClass, map, value,paramAttrbvalue);
+			//if(!valid) {
+			//	staticbool=false;
+			//}
 		}
 		 if(!staticbool) {
 			 context.disableDefaultConstraintViolation();
 			 context.buildConstraintViolationWithTemplate( "In valida Parameters"  ).addConstraintViolation();
 			 return staticbool;
 	        }
+}
+		}
+		if(valid&&serviceName.equals("service attr")&&dataStoreKey.equalsIgnoreCase("system"))
+		{
+			clearCache();
+		}
 		log.info("Validator :" + value);
 		return true;
 	}
@@ -197,12 +215,7 @@ public class ParamsValidator implements ConstraintValidator<ParamMapValidator,Ma
 	public boolean doValidation(ConstraintValidatorContext context, boolean valid, String validationClass,
 			String attrminlength, String attrmaxlength, String attrregxvalidation, Map<String, Object> map,
 			Map.Entry<String, String> entry) {
-		if(!minLength(entry.getValue(), attrminlength))
-		{
-			 context.disableDefaultConstraintViolation();
-			 context.buildConstraintViolationWithTemplate( entry.getKey()+ " Should Contain Atleast "+attrminlength+" Characters "  ).addConstraintViolation();
-			 valid=false;	
-		}
+		
 		if(!maxLength(entry.getValue(), attrmaxlength))
 		{
 			 context.disableDefaultConstraintViolation();
@@ -215,25 +228,8 @@ public class ParamsValidator implements ConstraintValidator<ParamMapValidator,Ma
 			 context.buildConstraintViolationWithTemplate( entry.getKey()+ " not in valid formatt  "  ).addConstraintViolation();
 			 valid=false;
 		}
-		if (map.get(Constant.ATTRNAME).equals(entry.getKey())) {
-
-			try {
-				if (validationClass != null) {
-					com.vin.validatior.Validator<String> validator = (com.vin.validatior.Validator) Class
-							.forName(validationClass).newInstance();
-					boolean valididy = validator.isValid(entry.getValue());
-					log.info(validationClass);
-					if (!valididy) {
-						 context.disableDefaultConstraintViolation();
-						 context.buildConstraintViolationWithTemplate( validator.getErrorMsg().replace("$", entry.getKey())  ).addConstraintViolation();
-						 
-						 valid=false;
-					}
-				}
-			} catch (Exception e) {
-				System.out.println(e.getMessage());
-			}
-		}
+		
+		
 		return valid;
 	}
 
@@ -241,6 +237,33 @@ public class ParamsValidator implements ConstraintValidator<ParamMapValidator,Ma
 		employeeRepositaryImpl.createSysTable();
 	}
 
+	public boolean doCustomValidation(ConstraintValidatorContext context, boolean valid, String validationClass,
+			 Map<String, Object> Attrbmap,
+			Map<String, String> mapofVal,String valueFmParam)
+	{
+		
+		String attrcusvalidation =(String) Attrbmap.get("attrcusvalidation");
+
+			try {
+				if (validationClass != null) {
+					if(attrcusvalidation.equalsIgnoreCase("yes")||attrcusvalidation.equalsIgnoreCase("true")||attrcusvalidation.equalsIgnoreCase("1")) {
+					com.vin.validatior.Validator<String> validator = (com.vin.validatior.Validator) Class
+							.forName(validationClass).newInstance();
+					boolean valididy = validator.isValid(valueFmParam);
+					log.info(validationClass);
+					if (!valididy) {
+						 context.disableDefaultConstraintViolation();
+						 context.buildConstraintViolationWithTemplate( validator.getErrorMsg().replace("$",valueFmParam)  ).addConstraintViolation();
+						 
+						 valid=false;
+					}
+				}}
+			} catch (Exception e) {
+				System.out.println(e.getMessage());
+			}
+		return valid;
+		
+	}
 	public boolean minLength(String value, String minLength) {
 
 		Integer minlen = 0;
@@ -248,7 +271,11 @@ public class ParamsValidator implements ConstraintValidator<ParamMapValidator,Ma
 			minlen = Integer.parseInt(minLength);
 		} catch (Exception e) {
 		}
-		if (value.length() < minlen) {
+		if (minlen != 0 && value==null)
+		{
+			return false;
+		}
+		if (minlen != 0 && value!=null&&value.length() < minlen) {
 			return false;
 		}
 		return true;
@@ -261,9 +288,10 @@ public class ParamsValidator implements ConstraintValidator<ParamMapValidator,Ma
 			maxlen = Integer.parseInt(maxLength);
 		} catch (Exception e) {
 		}
-		if (maxlen != 0 && value.length() > maxlen) {
+		if (maxlen != 0  && value!=null&& value.length() > maxlen) {
 			return false;
 		}
+		
 		return true;
 	}
 

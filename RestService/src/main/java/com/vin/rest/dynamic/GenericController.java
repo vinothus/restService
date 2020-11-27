@@ -151,14 +151,7 @@ public class GenericController {
 	params.put(Constant.VIN_SERVICE_APIKEY, apiKey);
 	Set<ConstraintViolation<HashMap>> constraintViolation = validator
 			.validate(new VinMap<String, String>(params));
-	
-	log.info("start validation"); log.info(validator.toString());
-		Set<ConstraintViolation<HashMap>> constraintViolation1 = validator
-				.validate(new VinMap<String, String>(params));
-		for (Iterator iterator = constraintViolation.iterator(); iterator.hasNext();) {
-			ConstraintViolation<HashMap> constraintViolation2 = (ConstraintViolation<HashMap>) iterator.next();
-			System.out.println(constraintViolation2.getMessage());
-		}
+ 
 		if (!constraintViolation.isEmpty()) {
 			throw new ConstraintViolationException(constraintViolation);
 		}
