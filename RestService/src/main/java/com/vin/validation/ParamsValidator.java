@@ -1,5 +1,7 @@
 package com.vin.validation;
 
+import static com.vin.validation.ParamsValidator.userServiceAttrTableMap;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -13,9 +15,14 @@ import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.ConfigurableEnvironment;
+import org.springframework.core.env.EnumerablePropertySource;
+import org.springframework.core.env.Environment;
+import org.springframework.core.env.PropertySource;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vin.rest.repository.EmployeeRepositaryImpl;
 
 import vin.rest.common.Constant;
@@ -28,8 +35,14 @@ public class ParamsValidator implements ConstraintValidator<ParamMapValidator,Ma
 	public static Map<String,List<Map<String, Object>>> userServiceTableMap= new ConcurrentHashMap<>();
 	public static Map<String,List<Map<String, Object>>> userServiceAttrTableMap= new ConcurrentHashMap<>();
 	public static Map<String, String> dsidMap=new ConcurrentHashMap<>();
+	public static Map<String,List<Map<String, Object>>> userVinValidationAttrMap= new ConcurrentHashMap<>();
+	public static Map<String,List<Map<String, Object>>> userApiKeyMap= new ConcurrentHashMap<>();
+	public static Map<String, Object> reflecClass=new ConcurrentHashMap<>();
 	@Autowired
 	EmployeeRepositaryImpl employeeRepositaryImpl;
+	
+	@Autowired
+	private Environment env;
 	
 	@Override
 	public void initialize(ParamMapValidator constraintAnnotation) {
@@ -47,6 +60,21 @@ public class ParamsValidator implements ConstraintValidator<ParamMapValidator,Ma
 		value.remove(Constant.VIN_SERVICE_DS);
 		value.remove(Constant.VIN_SERVICE_APIKEY);
 		String dsid = null;
+		if(userServiceAttrTableMap.size()==0)
+		{
+			fillServiceAttrbMap(apiKey);
+		}
+		if (userApiKeyMap.get(apiKey) == null) {
+			List<Map<String, Object>> dbobj = employeeRepositaryImpl.setUserDataStore(apiKey, "system", "none")
+					.queryForList("select * from User where apikey = ?  ", new Object[] { apiKey });
+			if (dbobj.size() > 0) {
+				userApiKeyMap.put(apiKey, dbobj);
+			} else {
+				context.disableDefaultConstraintViolation();
+				context.buildConstraintViolationWithTemplate(" ApiKey  is invalid   ").addConstraintViolation();
+				return false;
+			}
+		}
 		if(serviceName!=null&&dataStoreKey!=null&&apiKey!=null) {
 		if (dsidMap.get(dataStoreKey + ":" + apiKey) == null) {
 			dsid = employeeRepositaryImpl.getdsidFordsName(dataStoreKey);
@@ -160,6 +188,7 @@ if(service_id!=null) {
 			String attrregxvalidation;
 			String attrismandatory;
 			String attrname;
+			String attrid;
             String paramAttrbvalue="";
 			Map<String, Object> map = (Map<String, Object>) iterator.next();
 			validationClass = String.valueOf(map.get("attrCusValidation"));
@@ -168,6 +197,7 @@ if(service_id!=null) {
 			attrregxvalidation = String.valueOf(map.get("attrRegXvalidation"));
 			attrismandatory = String.valueOf(map.get("attrIsMandatory"));
 			attrname= String.valueOf(map.get("attrName"));
+			attrid=String.valueOf(map.get("id"));
 			valid=mandatoryValidation(attrname, value,attrismandatory);
 			paramAttrbvalue=value.get(attrname);
 			if(!valid) {
@@ -192,10 +222,33 @@ if(service_id!=null) {
 				 valid=false;	
 				 staticbool=false;
 			}
-			//valid=doCustomValidation(context, valid, validationClass, map, value,paramAttrbvalue);
-			//if(!valid) {
-			//	staticbool=false;
-			//}
+			if(validationClass!=null&&(validationClass.equalsIgnoreCase("yes")||validationClass.equalsIgnoreCase("true")||validationClass.equalsIgnoreCase("1"))) {
+				if(userVinValidationAttrMap.get(attrid)==null) {
+					List<Map<String, Object>> obj=employeeRepositaryImpl.setUserDataStore(apiKey, "system", "none").queryForList("select * from VinValidation where attr_id = ? ", new Object[] {attrid});
+					if(obj!=null&&obj.size()>0)
+					{
+						userVinValidationAttrMap.put(attrid,obj);
+					}
+				}
+				
+					List<Map<String, Object>> obj=userVinValidationAttrMap.get(attrid);
+					if (obj != null && obj.size() > 0) {
+						for (Iterator iterator2 = obj.iterator(); iterator2.hasNext();) {
+							Map<String, Object> vinValidationMapmap = (Map<String, Object>) iterator2.next();
+							String className=(String) vinValidationMapmap.get("classname");
+							if (className != null) {
+								valid = doCustomValidation(apiKey, dataStoreKey, serviceName, context, valid, className,
+										map, value, paramAttrbvalue, env);
+							}
+							if (!valid) {
+								staticbool = false;
+							}
+						}
+						
+					
+				}
+				 
+			}
 		}
 		 if(!staticbool) {
 			 context.disableDefaultConstraintViolation();
@@ -210,6 +263,35 @@ if(service_id!=null) {
 		}
 		log.info("Validator :" + value);
 		return true;
+	}
+
+	private void fillServiceAttrbMap(String apiKey) {
+     try {
+		JdbcTemplate jdbcTem = employeeRepositaryImpl.setUserDataStore(apiKey, "system", "none");
+		String Query="select ser.serviceName as name, ser.dsid as dsid , sa.attrName as attrName , sa.id as id , sa.colName as colName ,sa.attrEnable as attrEnable ,sa.attrBuName as attrBuName ,sa.attrBuIcon as attrBuIcon ,sa.attrCusValidation as attrCusValidation,sa.attrminLength as attrminLength,sa.attrMaxLength as attrMaxLength,sa.attrRegXvalidation as attrRegXvalidation,sa.attrIsMandatory as attrIsMandatory , sa.attrIsProcessor as attrIsProcessor from Service ser , Service_Attr sa where ser.id=sa.service_id ";
+		List<Map<String,Object>> cachedObject=jdbcTem.queryForList(Query);
+		for (Iterator iterator = cachedObject.iterator(); iterator.hasNext();) {
+			Map<String, Object> map = (Map<String, Object>) iterator.next();
+			
+			if (userServiceAttrTableMap.get(map.get("name") + "" + map.get("dsid")) == null) {
+				List<Map<String, Object>> object = new ArrayList<Map<String, Object>>();
+				object.add(map);
+				userServiceAttrTableMap.put(map.get("name") + "" + map.get("dsid"), object);
+
+			} else {
+				userServiceAttrTableMap.get(map.get("name") + "" + map.get("dsid")).add(map);
+
+			}
+			
+			
+			
+		}
+     }catch (Exception e)
+    {
+    		employeeRepositaryImpl.createSysTable(); 
+	}
+	
+		
 	}
 
 	public boolean doValidation(ConstraintValidatorContext context, boolean valid, String validationClass,
@@ -237,32 +319,35 @@ if(service_id!=null) {
 		employeeRepositaryImpl.createSysTable();
 	}
 
-	public boolean doCustomValidation(ConstraintValidatorContext context, boolean valid, String validationClass,
-			 Map<String, Object> Attrbmap,
-			Map<String, String> mapofVal,String valueFmParam)
-	{
-		
-		String attrcusvalidation =(String) Attrbmap.get("attrcusvalidation");
-
-			try {
-				if (validationClass != null) {
-					if(attrcusvalidation.equalsIgnoreCase("yes")||attrcusvalidation.equalsIgnoreCase("true")||attrcusvalidation.equalsIgnoreCase("1")) {
-					com.vin.validatior.Validator<String> validator = (com.vin.validatior.Validator) Class
-							.forName(validationClass).newInstance();
-					boolean valididy = validator.isValid(valueFmParam);
-					log.info(validationClass);
-					if (!valididy) {
-						 context.disableDefaultConstraintViolation();
-						 context.buildConstraintViolationWithTemplate( validator.getErrorMsg().replace("$",valueFmParam)  ).addConstraintViolation();
-						 
-						 valid=false;
-					}
-				}}
-			} catch (Exception e) {
-				System.out.println(e.getMessage());
+	public boolean doCustomValidation(String apiKey,String datasourceKey,String service,ConstraintValidatorContext context, boolean valid, String validationClass,
+			Map<String, Object> Attrbmap, Map<String, String> mapofVal, String valueFmParam,Environment env) {
+		try {
+			if(reflecClass.get(validationClass)==null)
+			{
+				reflecClass.put(validationClass, (com.vin.validatior.Validator) Class
+					.forName(validationClass).newInstance());
 			}
+			if(reflecClass.get(validationClass)!=null)
+			{
+				com.vin.validatior.Validator<String> validator = (com.vin.validatior.Validator) reflecClass.get(validationClass);
+				ObjectMapper om = new ObjectMapper();
+				boolean valididy = validator.isValid(valueFmParam, apiKey, datasourceKey, service,
+						om.writeValueAsString(Attrbmap), om.writeValueAsString(mapofVal),
+						om.writeValueAsString(getAllKnownProperties(env)));
+				log.info(validationClass);
+				if (!valididy) {
+					context.disableDefaultConstraintViolation();
+					context.buildConstraintViolationWithTemplate(validator.getErrorMsg().replace("$", valueFmParam))
+							.addConstraintViolation();
+
+					valid = false;
+				}
+			}
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+		}
 		return valid;
-		
+
 	}
 	public boolean minLength(String value, String minLength) {
 
@@ -316,6 +401,20 @@ if(service_id!=null) {
 		userServiceTableMap= new ConcurrentHashMap<>();
 		 userServiceAttrTableMap= new ConcurrentHashMap<>();
 		dsidMap=new ConcurrentHashMap<>();
+	}
+	
+	public static Map<String, Object> getAllKnownProperties(Environment env) {
+	    Map<String, Object> rtn = new HashMap<>();
+	    if (env instanceof ConfigurableEnvironment) {
+	        for (PropertySource<?> propertySource : ((ConfigurableEnvironment) env).getPropertySources()) {
+	            if (propertySource instanceof EnumerablePropertySource) {
+	                for (String key : ((EnumerablePropertySource) propertySource).getPropertyNames()) {
+	                    rtn.put(key, propertySource.getProperty(key));
+	                }
+	            }
+	        }
+	    }
+	    return rtn;
 	}
 }
 

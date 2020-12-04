@@ -25,6 +25,7 @@ import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
 import com.vin.intercept.SimpleFilter;
+import com.vin.processor.VinRestProcessor;
 import com.vin.rest.dynamic.GenericController;
 import com.vin.rest.dynamic.MultiServiceController;
 import com.vin.validation.WebConfig;
@@ -122,7 +123,11 @@ public class Application {
 		return handlerMapping;
 	}
 
-	
+	@Bean 
+	public VinRestProcessor vinRestProcessor()
+	{
+		return new VinRestProcessor();
+	}
 	
 	@Bean
 	 public MethodValidationPostProcessor methodValidationPostProcessor() {

@@ -50,7 +50,7 @@ public class ApplicationTests {
     @Autowired
     EmployeeRepositaryImpl empRep;
     JdbcTemplate jdbctemp;
-    @Before
+   @Before
     public void setUp() {
       mvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
       jdbctemp= empRep.setUserDataStore("system", "system", "none");
@@ -65,10 +65,11 @@ public class ApplicationTests {
       String insertQuery="INSERT INTO \n" + 
       		"	TBL_STUDENT (first_name, last_name, email) \n" + 
       		"VALUES\n" + 
-      		"  	('Lokesh', 'Gupta', 'howtodoinjava@gmail.com'),\n" + 
-      		"  	('John', 'Doe', 'xyz@email.com') ; ";
+      		"  	('lokesh', 'Gupta', 'vinrest@gmail.com'),\n" + 
+      		"  	('john', 'Doe', 'xyz@email.com') ; ";
       
       jdbctemp.execute(insertQuery);
+      
     }catch(Exception e)
     {
     	
@@ -79,6 +80,7 @@ public class ApplicationTests {
     {
     	 jdbctemp.execute("drop table TBL_STUDENT ");		
     }
+    /** 
 	@Test
 	public void getData() throws Exception {
 		
@@ -368,7 +370,7 @@ public class ApplicationTests {
 					 * .andExpect(MockMvcResultMatchers.status().isOk()) .andReturn();
 					 */
 			
-			
+			/*
 				Map<String ,String> servicData=new HashMap<>(); 
 				MvcResult resultPost4 = mvc.perform(MockMvcRequestBuilders.get("/myApps/system/system/service/getdataForKey/"+serviceID)
 			            .contentType(MediaType.APPLICATION_JSON)
@@ -805,7 +807,8 @@ public class ApplicationTests {
 		});
       mvc.perform(MockMvcRequestBuilders.get("/myApps/system/system/tbl student/getdata")
 				.contentType(MediaType.APPLICATION_JSON)
-				 .param("email", "Lokesh")
+				 .param("email", "howtodoinjava@vinrest.com")
+				 .param("firstname", "Lokesh")
 
 		).andDo(MockMvcResultHandlers.print()).andExpect(MockMvcResultMatchers.status().isBadRequest()).andReturn();
       
@@ -826,26 +829,225 @@ public class ApplicationTests {
 				.contentType(MediaType.APPLICATION_JSON)
 		).andDo(MockMvcResultHandlers.print()).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
       
-	}
-	@Test
+	}**/
+	//@Test
 	public void testMultiDataInsert()
 	{
 		
 	}
-	@Test
+	//@Test
 	public void testMultiDataUpdata()
 	{
 		
 	}
-	@Test
+	//@Test
 	public void testMultiDataDelete()
 	{
 		
 	}
 
 	@Test
-	public void testMultiDataGet()
+	public void testMultiDataGet() throws Exception
 	{
+		System.out.println("test multi test get");
+		 mvc.perform( MockMvcRequestBuilders
+	    	      .get("/myApps/system/system/service/getdata")
+	    	      .accept(MediaType.APPLICATION_JSON))
+	    	      .andDo(MockMvcResultHandlers.print())
+	    	      .andExpect(MockMvcResultMatchers.status().isOk())
+	    	      .andExpect(MockMvcResultMatchers.jsonPath("$.[*]").exists());
+		 mvc.perform( MockMvcRequestBuilders
+	    	      .get("/myApps/system/system/service/getdata")
+	    	      .accept(MediaType.APPLICATION_JSON))
+	    	      .andDo(MockMvcResultHandlers.print())
+	    	      .andExpect(MockMvcResultMatchers.status().isOk())
+	    	      .andExpect(MockMvcResultMatchers.jsonPath("$.[*]").exists());
 		
+	}
+	
+	//@Test
+	public void testPreProcessSingleService() throws Exception {
+		 mvc.perform( MockMvcRequestBuilders
+	    	      .get("/myApps/system/system/tbl student/getdata?iden=234")
+	    	      .accept(MediaType.APPLICATION_JSON))
+	    	      .andDo(MockMvcResultHandlers.print())
+	    	      .andExpect(MockMvcResultMatchers.status().isOk())
+	    	      .andExpect(MockMvcResultMatchers.jsonPath("$.[*]").exists());
+			MvcResult resultPost = mvc.perform(MockMvcRequestBuilders.get("/myApps/system/system/service/getdata")
+		            .contentType(MediaType.APPLICATION_JSON)
+		            .param("tableName", "TBL_STUDENT"))
+		            .andExpect(MockMvcResultMatchers.status().isOk())
+		            .andReturn();
+			String jsonData= resultPost.getResponse().getContentAsString();
+			ObjectMapper mapper = new ObjectMapper();
+			List<Map<String, String>> jsonMap = new ArrayList<Map<String,String>>();
+			jsonMap = mapper.readValue(jsonData, new TypeReference<List<Map<String, String>>>() {
+			}); 
+	       System.out.println(jsonMap);  
+	       Map<String ,String> serviceAttrData=jsonMap.get(0);
+		   String serviceID=serviceAttrData.get("id");
+	       MvcResult attrbResult = mvc.perform(MockMvcRequestBuilders.get("/myApps/system/system/service attr/getdata")
+		            .contentType(MediaType.APPLICATION_JSON)
+		            .param("serviceid", serviceID)
+		            .param("attrname", "firstname"))
+					.andDo(MockMvcResultHandlers.print())
+		            .andExpect(MockMvcResultMatchers.status().isOk())
+		            .andReturn();
+			String attrbData= attrbResult.getResponse().getContentAsString();
+			 
+
+			List<Map<String, String>> attrbnMap = new ArrayList<Map<String,String>>();
+			attrbnMap = mapper.readValue(attrbData, new TypeReference<List<Map<String, String>>>() {
+			}); 
+			
+			 Map<String ,String> AttrData=attrbnMap.get(0);
+			   String attrID=AttrData.get("id");
+			  
+				
+				 MvcResult vinprocessorResult = mvc.perform(MockMvcRequestBuilders.get("/myApps/system/system/vinprocessor/getdata")
+				            .contentType(MediaType.APPLICATION_JSON)
+				            .param("serviceid", serviceID)
+				            .param("name", "uppertolower")
+				            .param("classname", "com.vin.processor.UpperLowerParamProcessor")
+				            .param("attrid", attrID))
+							.andDo(MockMvcResultHandlers.print())
+				            .andExpect(MockMvcResultMatchers.status().isOk())
+				            .andReturn();	
+				 String vinprocessorData= vinprocessorResult.getResponse().getContentAsString();
+					List<Map<String, String>> vinprocessorMap = new ArrayList<Map<String,String>>();
+					vinprocessorMap = mapper.readValue(vinprocessorData, new TypeReference<List<Map<String, String>>>() {
+					}); 
+					if(vinprocessorMap.size()==0)
+					{
+						 Map<String, String> params = new HashMap<>();
+							params.put("serviceid", serviceID);
+							params.put("attrid", attrID);
+							params.put("name", "uppertolower");
+							params.put("classname", "com.vin.processor.UpperLowerParamProcessor");  
+							vinprocessorResult	=	  mvc.perform(MockMvcRequestBuilders.post("/myApps/system/system/vinprocessor/addData")
+						            .contentType(MediaType.APPLICATION_JSON)
+						            .content(new ObjectMapper().writeValueAsString(params)))
+								    .andDo(MockMvcResultHandlers.print())
+						            .andExpect(MockMvcResultMatchers.status().isOk())
+						            .andReturn();
+							vinprocessorData= vinprocessorResult.getResponse().getContentAsString();
+							Map<String, String>  vinprocessorMaps =new HashMap<String,String>();
+							vinprocessorMaps = mapper.readValue(vinprocessorData, new TypeReference<Map<String, String>>() {
+							});
+							vinprocessorMap.add(vinprocessorMaps);
+					}
+					
+					 mvc.perform( MockMvcRequestBuilders
+				    	      .get("/myApps/system/system/tbl student/getdata?firstname=LOKESH")
+				    	      .accept(MediaType.APPLICATION_JSON))
+				    	      .andDo(MockMvcResultHandlers.print())
+				    	      .andExpect(MockMvcResultMatchers.status().isOk())
+				    	      .andExpect(MockMvcResultMatchers.jsonPath("$.[*]").exists());
+					 String id=String.valueOf(vinprocessorMap.get(0).get("id"));
+				      mvc.perform( MockMvcRequestBuilders
+				    	      .delete("/myApps/system/system/vinprocessor/deleteData/"+id)
+				    	      .accept(MediaType.APPLICATION_JSON))
+				    	      .andDo(MockMvcResultHandlers.print())
+				    	      .andExpect(MockMvcResultMatchers.status().isOk())
+				    	      .andExpect(MockMvcResultMatchers.jsonPath("$.id").exists())
+				    	      .andExpect(MockMvcResultMatchers.jsonPath("$.id").isNotEmpty()) 
+				              .andExpect(MockMvcResultMatchers.jsonPath("$.id",is(Integer.parseInt(id))));
+					 
+	}
+
+	//@Test
+	public void testPostProcessSingleService() throws Exception {
+		 mvc.perform( MockMvcRequestBuilders
+	    	      .get("/myApps/system/system/tbl student/getdata?iden=234")
+	    	      .accept(MediaType.APPLICATION_JSON))
+	    	      .andDo(MockMvcResultHandlers.print())
+	    	      .andExpect(MockMvcResultMatchers.status().isOk())
+	    	      .andExpect(MockMvcResultMatchers.jsonPath("$.[*]").exists());
+			MvcResult resultPost = mvc.perform(MockMvcRequestBuilders.get("/myApps/system/system/service/getdata")
+		            .contentType(MediaType.APPLICATION_JSON)
+		            .param("tableName", "TBL_STUDENT"))
+		            .andExpect(MockMvcResultMatchers.status().isOk())
+		            .andReturn();
+			String jsonData= resultPost.getResponse().getContentAsString();
+			ObjectMapper mapper = new ObjectMapper();
+
+			List<Map<String, String>> jsonMap = new ArrayList<Map<String,String>>();
+			jsonMap = mapper.readValue(jsonData, new TypeReference<List<Map<String, String>>>() {
+			}); 
+	       System.out.println(jsonMap);
+	       
+	       Map<String ,String> serviceAttrData=jsonMap.get(0);
+		   String serviceID=String.valueOf(serviceAttrData.get("id"));
+	       MvcResult attrbResult = mvc.perform(MockMvcRequestBuilders.get("/myApps/system/system/service attr/getdata")
+		            .contentType(MediaType.APPLICATION_JSON)
+		            .param("serviceid", serviceID)
+		            .param("attrname", "firstname"))
+					.andDo(MockMvcResultHandlers.print())
+		            .andExpect(MockMvcResultMatchers.status().isOk())
+		            .andReturn();
+			String attrbData= attrbResult.getResponse().getContentAsString();
+			 
+
+			List<Map<String, String>> attrbnMap = new ArrayList<Map<String,String>>();
+			attrbnMap = mapper.readValue(attrbData, new TypeReference<List<Map<String, String>>>() {
+			}); 
+			
+			 Map<String ,String> AttrData=attrbnMap.get(0);
+			   String attrID=String.valueOf(AttrData.get("id"));
+			  
+		   MvcResult vinprocessorResult = mvc.perform(MockMvcRequestBuilders.get("/myApps/system/system/vinprocessor/getdata")
+				            .contentType(MediaType.APPLICATION_JSON)
+				            .param("serviceid", serviceID)
+				            .param("name", "uppertolower")
+				            .param("classname", "com.vin.processor.UpperLowerParamProcessor")
+				            .param("attrid", attrID))
+							.andDo(MockMvcResultHandlers.print())
+				            .andExpect(MockMvcResultMatchers.status().isOk())
+				            .andReturn();	
+		   
+		   String vinprocessorData= vinprocessorResult.getResponse().getContentAsString();
+			List<Map<String, String>> vinprocessorMap = new ArrayList<Map<String,String>>();
+			vinprocessorMap = mapper.readValue(vinprocessorData, new TypeReference<List<Map<String, String>>>() {
+			}); 
+			if(vinprocessorMap.size()==0)
+			{
+				 Map<String, String> params = new HashMap<>();
+					params.put("serviceid", serviceID);
+					params.put("attrid", attrID);
+					params.put("name", "uppertolower");
+					params.put("classname", "com.vin.processor.UpperLowerParamProcessor");  
+					vinprocessorResult	=	  mvc.perform(MockMvcRequestBuilders.post("/myApps/system/system/vinprocessor/addData")
+				            .contentType(MediaType.APPLICATION_JSON)
+				            .content(new ObjectMapper().writeValueAsString(params)))
+						    .andDo(MockMvcResultHandlers.print())
+				            .andExpect(MockMvcResultMatchers.status().isOk())
+				            .andReturn();
+					vinprocessorData= vinprocessorResult.getResponse().getContentAsString();
+					Map<String, String>  vinprocessorMaps =new HashMap<String,String>();
+					vinprocessorMaps = mapper.readValue(vinprocessorData, new TypeReference<Map<String, String>>() {
+					});
+					vinprocessorMap.add(vinprocessorMaps);
+			} 
+			
+			
+			 mvc.perform( MockMvcRequestBuilders
+		    	      .get("/myApps/system/system/tbl student/getdata?firstname=LOKESH")
+		    	      .accept(MediaType.APPLICATION_JSON))
+		    	      .andDo(MockMvcResultHandlers.print())
+		    	      .andExpect(MockMvcResultMatchers.status().isOk())
+		    	      .andExpect(MockMvcResultMatchers.jsonPath("$.[*]").exists());
+			  
+				String id=String.valueOf(vinprocessorMap.get(0).get("id"));
+			      mvc.perform( MockMvcRequestBuilders
+			    	      .delete("/myApps/system/system/vinprocessor/deleteData/"+id)
+			    	      .accept(MediaType.APPLICATION_JSON))
+			    	      .andDo(MockMvcResultHandlers.print())
+			    	      .andExpect(MockMvcResultMatchers.status().isOk())
+			    	      .andExpect(MockMvcResultMatchers.jsonPath("$.id").exists())
+			    	      .andExpect(MockMvcResultMatchers.jsonPath("$.id").isNotEmpty()) 
+			              .andExpect(MockMvcResultMatchers.jsonPath("$.id",is(Integer.parseInt(id))));
+			      
+			  
+
 	}
 }

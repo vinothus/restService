@@ -158,25 +158,33 @@ public class EmployeeRepositaryImpl {
 			}
 
 			List<DbColumn> column = entry.getValue();
+			 List<Map<String, Object>> attrbData=getServiceAttrIDByServiceID(serviceid, apiKey, dataStoreKey);
+			 String maxRecAttr = findMax("Service_Attr", apiKey,  "system","none");
+			 List<String> quries=new ArrayList<String>();
 			for (Iterator<DbColumn> iterator = column.iterator(); iterator.hasNext();) {
 				DbColumn dbColumn = iterator.next();
 				String serviceAttrid = getServiceAttrID(serviceid, dbColumn.getName(), apiKey,  dataStoreKey);
-				String maxRecAttr = findMax("Service_Attr", apiKey,  "system","none");
 				if (maxRecAttr != null && serviceAttrid == null) {
 					String serviceAttrQuery = " INSERT INTO Service_Attr (id, service_id , attrName, colName) values ((SELECT MAX( id )+1 FROM Service_Attr serA) ,'"
 							+ serviceid + "','" + dbColumn.getName().toLowerCase().replace("_", "") + "','"
 							+ dbColumn.getName() + "') ";
-					setUserDataStore(apiKey, "system","none").execute(serviceAttrQuery);
+					quries.add(serviceAttrQuery);
+					//setUserDataStore(apiKey, "system","none").execute(serviceAttrQuery);
 				} else if (maxRecAttr == null) {
 
 					{
 						String serviceAttrQuery = " INSERT INTO Service_Attr (id, service_id , attrName, colName) values (0 ,'"
 								+ serviceid + "','" + dbColumn.getName().toLowerCase().replace("_", "") + "','"
 								+ dbColumn.getName() + "') ";
+						//quries.add(serviceAttrQuery);
 						setUserDataStore(apiKey, "system","none").execute(serviceAttrQuery);
+						maxRecAttr = findMax("Service_Attr", apiKey,  "system","none");
 					}
 
 				}
+			}
+			if (quries.size() > 0) {
+				setUserDataStore(apiKey, "system", "none").batchUpdate(quries.toArray(new String[quries.size()]));
 			}
 		}
 		}
@@ -607,6 +615,7 @@ public class EmployeeRepositaryImpl {
 			log.info("\nGenerated Sql Query?= " + createTableQuery + "\n");
 			// system Database
 			setUserDataStore(apiKey, "system","none").execute(createTableQuery);
+			insertGoldenDataifAny(tableName,apiKey);
 		}  catch (Exception sqlException) {
 			if(sqlException instanceof java.sql.SQLSyntaxErrorException || sqlException instanceof org.springframework.jdbc.BadSqlGrammarException)
 			{
@@ -650,6 +659,7 @@ public class EmployeeRepositaryImpl {
 				try {
 					// system database
 					setUserDataStore(apiKey, "system","none").execute(manualQuery);
+					insertGoldenDataifAny(tableName,apiKey);
 				}catch(Exception e)
 				{
 				log.info(e.getMessage());	
@@ -659,6 +669,20 @@ public class EmployeeRepositaryImpl {
 			sqlException.printStackTrace();
 		}
 		log.info("\n=======The '" + tableName.getName() + "' Successfully Created In The Database=======\n");
+	}
+
+	private void insertGoldenDataifAny(DbTable tableName,String apiKey) {
+	 if(tableName.getName().equalsIgnoreCase("User"))
+	 {
+		 setUserDataStore(apiKey, "system","none").execute("INSERT INTO User (id, name, apikey, password, phoneno, email, address) VALUES " + 
+		 		"(0, 'systemuser', 'system', 'vinaug@2020', '+919790524267', 'Vinoth.Paulraj@vinrest.com', 'Plot no 35,1st Street,XXX Nagar,XXXX') ;");
+	 }
+	 if(tableName.getName().equalsIgnoreCase("Datastore"))
+	 {
+		 setUserDataStore(apiKey, "system","none").execute("INSERT INTO Datastore (id, uid, type, name, url, driver) VALUES " + 
+		 		"(0, 0, 'type', 'system', 'url', 'driver') ;"); 
+	 }
+		
 	}
 
 	public List<DbTable> initializeTable() {
@@ -694,6 +718,7 @@ public class EmployeeRepositaryImpl {
 		DbColumn attrMaxLength;
 		DbColumn attrRegXvalidation;
 		DbColumn attrIsMandatory;
+		DbColumn attrIsProcessor;
 		// Multi_Service
 		DbColumn multiseviceid;
 		DbColumn multisevice_id;
@@ -813,6 +838,7 @@ public class EmployeeRepositaryImpl {
 		 attrMaxLength= tableServiceAttr.addColumn("attrMaxLength", Types.VARCHAR, 100);
 		 attrRegXvalidation= tableServiceAttr.addColumn("attrRegXvalidation", Types.VARCHAR, 100);
 		 attrIsMandatory= tableServiceAttr.addColumn("attrIsMandatory", Types.VARCHAR, 10);
+		 attrIsProcessor= tableServiceAttr.addColumn("attrIsProcessor", Types.VARCHAR, 10);
 
 		// Multi_Service
 
@@ -951,7 +977,7 @@ public class EmployeeRepositaryImpl {
 								primaryKey =( mapper.writeValueAsString(params.get(attribParamMap.get(dbColumn.getName()))) );
 								primaryKey=primaryKey.replace("\"", "");
 								 Map<String, Object> data=getData(service, primaryKey, apiKey,  dataStoreKey,passToken) ;
-								 String  valFMDB=(String )data.get(dbColumn.getName());
+								 String  valFMDB= String.valueOf(data.get(dbColumn.getName()));
 								if (valFMDB!=null&&valFMDB.equals(primaryKey)) {
 									isUpdate = true;
 								}
@@ -2063,25 +2089,34 @@ public class EmployeeRepositaryImpl {
 				DbTable table = entry.getKey();
 				if (table.getName().equalsIgnoreCase(tableName)&&dataStoreKeyStr.equals(dataStoreKey)) {
 			List<DbColumn> column = entry.getValue();
+			String maxRecAttr = findMax("Service_Attr", apiKey,  "system","none");
+			 List<Map<String, Object>> attrbData=getServiceAttrIDByServiceID(serviceid, apiKey, dataStoreKey);
+			 List<String> quries=new ArrayList<String>();
 			for (Iterator<DbColumn> iterator = column.iterator(); iterator.hasNext();) {
 				DbColumn dbColumn = iterator.next();
-				String serviceAttrid = getServiceAttrID(serviceid, dbColumn.getName(), apiKey,  dataStoreKey);
-				String maxRecAttr = findMax("Service_Attr", apiKey,  "system","none");
+				//String serviceAttrid = getServiceAttrID(serviceid, dbColumn.getName(), apiKey,  dataStoreKey);
+				String serviceAttrid = getServiceAttrIDByList(attrbData, serviceid,  dbColumn.getName().toLowerCase().replace("_", ""));
 				if (maxRecAttr != null && serviceAttrid == null) {
 					String serviceAttrQuery = " INSERT INTO Service_Attr (id, service_id , attrName, colName) values ((SELECT MAX( id )+1 FROM Service_Attr serA) ,'"
 							+ serviceid + "','" + dbColumn.getName().toLowerCase().replace("_", "") + "','"
 							+ dbColumn.getName() + "') ";
-					setUserDataStore(apiKey, "system","none").execute(serviceAttrQuery);
+					quries.add(serviceAttrQuery);
+					//setUserDataStore(apiKey, "system","none").execute(serviceAttrQuery);
 				} else if (maxRecAttr == null) {
 
 					{
 						String serviceAttrQuery = " INSERT INTO Service_Attr (id, service_id , attrName, colName) values (0 ,'"
 								+ serviceid + "','" + dbColumn.getName().toLowerCase().replace("_", "") + "','"
 								+ dbColumn.getName() + "') ";
+						//quries.add(serviceAttrQuery);
 						setUserDataStore(apiKey, "system","none").execute(serviceAttrQuery);
+						maxRecAttr = findMax("Service_Attr", apiKey,  "system","none");
 					}
 
 				}
+			}
+			if (quries.size() > 0) {
+				setUserDataStore(apiKey, "system", "none").batchUpdate(quries.toArray(new String[quries.size()]));
 			}
 				}}
 			}
@@ -2112,25 +2147,34 @@ public class EmployeeRepositaryImpl {
 			}
 
 			List<DbColumn> column = entry.getValue();
+			String maxRecAttr = findMax("Service_Attr", apiKey,  "system","none");
+			 List<Map<String, Object>> attrbData=getServiceAttrIDByServiceID(serviceid, apiKey, dataStoreKey);
+			 List<String> quries=new ArrayList<String>();
 			for (Iterator<DbColumn> iterator = column.iterator(); iterator.hasNext();) {
 				DbColumn dbColumn = iterator.next();
-				String serviceAttrid = getServiceAttrID(serviceid, dbColumn.getName(), apiKey,  dataStoreKey);
-				String maxRecAttr = findMax("Service_Attr", apiKey,  "system","none");
+				//String serviceAttrid = getServiceAttrID(serviceid, dbColumn.getName(), apiKey,  dataStoreKey);
+				String serviceAttrid = getServiceAttrIDByList(attrbData, serviceid,  dbColumn.getName().toLowerCase().replace("_", ""));
 				if (maxRecAttr != null && serviceAttrid == null) {
 					String serviceAttrQuery = " INSERT INTO Service_Attr (id, service_id , attrName, colName) values ((SELECT MAX( id )+1 FROM Service_Attr serA) ,'"
 							+ serviceid + "','" + dbColumn.getName().toLowerCase().replace("_", "") + "','"
 							+ dbColumn.getName() + "') ";
-					setUserDataStore(apiKey, "system","none").execute(serviceAttrQuery);
+					quries.add(serviceAttrQuery);
+					//setUserDataStore(apiKey, "system","none").execute(serviceAttrQuery);
 				} else if (maxRecAttr == null) {
 
 					{
 						String serviceAttrQuery = " INSERT INTO Service_Attr (id, service_id , attrName, colName) values (0 ,'"
 								+ serviceid + "','" + dbColumn.getName().toLowerCase().replace("_", "") + "','"
 								+ dbColumn.getName() + "') ";
+						//quries.add(serviceAttrQuery);
 						setUserDataStore(apiKey, "system","none").execute(serviceAttrQuery);
+						maxRecAttr = findMax("Service_Attr", apiKey,  "system","none");
 					}
 
 				}
+			}
+			if (quries.size() > 0) {
+				setUserDataStore(apiKey, "system", "none").batchUpdate(quries.toArray(new String[quries.size()]));
 			}
 		}
 		}
@@ -2163,6 +2207,40 @@ public class EmployeeRepositaryImpl {
 		return serID;
 	}
 
+	private List<Map<String, Object>> getServiceAttrIDByServiceID(String serviceId,String apiKey, String dataStoreKey) {
+
+		String selectQuery = " select id,colName  from Service_Attr where service_id  = '" + serviceId + "'  ";
+		List<Map<String, Object>> data = new ArrayList<>();
+		try {
+			data = setUserDataStore(apiKey, "system","none").queryForList(selectQuery);
+		} catch (Exception e) {
+			log.info(e.getMessage());
+		}
+
+		 
+		return data;
+	}
+	private String getServiceAttrIDByList(List<Map<String, Object>> data,String serviceId, String attributeName) {
+
+		String attrID = null;
+		String attrbName=null;
+		if (data != null)
+			if (!data.isEmpty() ) {
+				for (Iterator iterator = data.iterator(); iterator.hasNext();) {
+					Map<String, Object> map = (Map<String, Object>) iterator.next();
+					attrID =String.valueOf( map.get("id"));
+					attrbName=String.valueOf( map.get("colName"));
+					if(attrID!=null&&attrbName!=null&&attrbName.equalsIgnoreCase(attrbName))
+					{
+						return attrID;
+					}
+				}
+				
+			
+			}
+		return attrID;
+	}
+	
 	private String getServiceAttrID(String serviceId, String attributeName,String apiKey, String dataStoreKey) {
 
 		String selectQuery = " select id  from Service_Attr where service_id  = '" + serviceId + "' and colName ='"

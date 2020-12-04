@@ -1,6 +1,9 @@
 package com.vin.rest.demo;
 
+import static org.mockito.Mockito.when;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -8,14 +11,43 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.ConfigurableEnvironment;
+import org.springframework.core.env.EnumerablePropertySource;
+import org.springframework.core.env.Environment;
+import org.springframework.core.env.PropertySource;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.mock.env.MockEnvironment;
+import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.util.ReflectionTestUtils;
 
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.vin.processor.ProcessParam;
+import com.vin.processor.Processor;
+import com.vin.processor.UpperLowerParamProcessor;
+import com.vin.processor.VinRestProcessor;
 import com.vin.rest.dynamic.MultiService;
 import com.vin.rest.dynamic.ServiceType;
+import com.vin.rest.repository.EmployeeRepositaryImpl;
+import com.vin.validatior.ClassValidator;
+import com.vin.validatior.EmailMustContainFirst;
+import com.vin.validatior.Validator;
 
-
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+@RunWith(MockitoJUnitRunner.class)
 public class BasicUnitTest {
 	
-	
+	   JdbcTemplate jdbctemp;
+	   @InjectMocks 
+	    EmployeeRepositaryImpl empRep =new EmployeeRepositaryImpl();
+	    @Mock
+	    Environment env;
+	    
 	@Test
 	public void test()
 	{
@@ -85,5 +117,173 @@ public class BasicUnitTest {
 		testStr=replaceDoubleQute(testStr);
 		System.out.println(testStr);
 	}
+	@Test
+	public void testCustomValidation() throws JsonParseException, JsonMappingException, IOException
+	{
+	Validator< String>	validator=new EmailMustContainFirst();
+	Map<String,String> mapofval=new HashMap<>();
+	mapofval.put("firstname", "vinoth");
+	ObjectMapper om=new ObjectMapper();
+	Map<String, String> env=new  HashMap<>();
+	env.put("EmailMustContainFirst.keys", "firstname");
+	boolean validaity=validator.isValid("vinoth.paulraj@vinrest.com","","","",om.writeValueAsString(mapofval),om.writeValueAsString(mapofval),om.writeValueAsString(env));
+	System.out.println("EmailMustContainFirst: "+validaity);
+		
+	}
+	@Test
+	public void testCustomClassValidation() throws JsonParseException, JsonMappingException, IOException
+	{
+		Validator< String>	validator=new  ClassValidator();
+		ObjectMapper om=new ObjectMapper();
+		Map<String,String> mapofval=new HashMap<>();
+		boolean validaity=validator.isValid("com.vin.validatior.EmailMustContainFirst","","","",om.writeValueAsString(mapofval),om.writeValueAsString(mapofval),om.writeValueAsString(mapofval));
+		System.out.println("validaity :"+validaity);
+			
+	}
+	
+	@Test
+	public void testPostProcess() throws JsonParseException, JsonMappingException, IOException
+	{
+		ProcessParam  	processor=new  UpperLowerParamProcessor();
+		ObjectMapper om=new ObjectMapper();
+		Map<String,String> mapofval=new HashMap<>();
+		String validaity=processor.doPostProcess("com.vin.validatior.EmailMustContainFirst","","","",om.writeValueAsString(mapofval),om.writeValueAsString(mapofval),om.writeValueAsString(mapofval));
+		System.out.println("validaity :"+validaity);
+			
+	}
+	
+	@Test
+	public void testPreProcess() throws JsonParseException, JsonMappingException, IOException
+	{
+		ProcessParam  	processor=new  UpperLowerParamProcessor();
+		ObjectMapper om=new ObjectMapper();
+		Map<String,String> mapofval=new HashMap<>();
+		String validaity=processor.doPreProcess("com.vin.validatior.EmailMustContainFirst","","","",om.writeValueAsString(mapofval),om.writeValueAsString(mapofval),om.writeValueAsString(mapofval));
+		System.out.println("validaity :"+validaity);
+			
+	}
+	
+	@Test
+	public void testTotalPreProcess() throws JsonParseException, JsonMappingException, IOException
+	{
+		Map<String, Object>  data = null;
+		initStudent();
+		List<Map<String, Object>> obj = jdbctemp.queryForList(
+				"select sa.id as id, sa.service_id as sid ,sa.attrName as name from Service ser , Service_Attr sa where ser.id=sa.service_id and ser.tableName = 'TBL_STUDENT' and sa.attrName= 'firstname' ");
+		Map<String, String> params = new HashMap<>();
+		params.put("serviceid", String.valueOf(( obj.get(0).get("sid"))));
+		params.put("attrid", String.valueOf( obj.get(0).get("id")));
+		params.put("name", "uppertolower");
+		params.put("classname", "com.vin.processor.UpperLowerParamProcessor");
+		try {
+			  empRep.getDataForParams("tbl student", params,"system", "system", "none");
+			  params.put("id", String.valueOf( obj.get(0).get("id")));
+			  params.put("attrisprocessor", "yes");
+			  empRep.insertData("service attr", params, "system", "system", "none");
+			  params.remove("id");
+			   data=	empRep.insertData("vinprocessor", params, "system", "system", "none");
+		} catch (Exception e) {
 
+			e.printStackTrace();
+		}
+		Processor<String, Object> processor = new VinRestProcessor();
+		ObjectMapper om = new ObjectMapper();
+		Map<String, String> mapofval = new HashMap<>();
+		mapofval.put("firstname", "firstName");
+		  ReflectionTestUtils.setField(processor, "employeeRepositaryImpl", empRep);
+		Map validaity = processor.doPreProcess(mapofval, "system", "system", "tbl student");
+		System.out.println("validaity :" + validaity);
+		params.put("id", String.valueOf(data.get("id")));
+		params.put("serviceid", String.valueOf( obj.get(0).get("sid")));
+		params.put("attrid",  String.valueOf( obj.get(0).get("id")));
+		params.put("name", "uppertolower");
+		params.put("classname", "null");
+		try {
+			 data=empRep.deleteData("vinprocessor", String.valueOf(data.get("id")),  "system", "system", "none");//	empRep.insertData("vinprocessor", params, "system", "system", "none");
+			   System.out.println(data);
+		} catch (Exception e) {
+
+			e.printStackTrace();
+		}
+		teardown();
+
+	}
+	@Test
+	public void testTotalPostProcess() throws JsonParseException, JsonMappingException, IOException
+	{
+		Map<String, Object>  data = null;
+		initStudent();
+		List<Map<String, Object>> obj = jdbctemp.queryForList(
+				"select sa.id as id, sa.service_id as sid ,sa.attrName as name from Service ser , Service_Attr sa where ser.id=sa.service_id and ser.tableName = 'TBL_STUDENT' and sa.attrName= 'firstname' ");
+		Map<String, String> params = new HashMap<>();
+		params.put("serviceid", String.valueOf(( obj.get(0).get("sid"))));
+		params.put("attrid", String.valueOf( obj.get(0).get("id")));
+		params.put("name", "uppertolower");
+		params.put("classname", "com.vin.processor.UpperLowerParamProcessor");
+		try {
+			
+			  empRep.getDataForParams("tbl student", params,"system", "system", "none");
+			  params.put("id", String.valueOf( obj.get(0).get("id")));
+			  params.put("attrisprocessor", "yes");
+			  empRep.insertData("service attr", params, "system", "system", "none");
+			  params.remove("id");
+			   data=	empRep.insertData("vinprocessor", params, "system", "system", "none");
+		} catch (Exception e) {
+
+			e.printStackTrace();
+		}
+		Processor<String, Object> processor = new VinRestProcessor();
+		ObjectMapper om = new ObjectMapper();
+		Map<String, Object> mapofval = new HashMap<>();
+		mapofval.put("firstname", "firstName");
+		 ReflectionTestUtils.setField(processor, "employeeRepositaryImpl", empRep);
+		Map validaity = processor.doPostProcess(mapofval, "system", "system", "tbl student");
+		System.out.println("validaity :" + validaity);
+		params.put("id", String.valueOf(data.get("id")));
+		params.put("serviceid",  String.valueOf(obj.get(0).get("sid")));
+		params.put("attrid",  String.valueOf( obj.get(0).get("id")));
+		params.put("name", "uppertolower");
+		params.put("classname", "null");
+		try {
+			   data=empRep.deleteData("vinprocessor", String.valueOf(data.get("id")),  "system", "system", "none");//	empRep.insertData("vinprocessor", params, "system", "system", "none");
+			   System.out.println(data);
+		} catch (Exception e) {
+
+			e.printStackTrace();
+		}
+		teardown();
+
+	}
+	public void initStudent()
+	{
+		//when(env.getProperty("sys.spring.datasource.driver-class-name") ).thenReturn("");
+		when( env.getProperty("sys.spring.datasource.driver-class-name") ).thenReturn("com.mysql.jdbc.Driver");
+		when( env.getProperty("sys.spring.datasource.url")).thenReturn("jdbc:mysql://remotemysql.com/H228Vnp5dM");
+		when( env.getProperty("sys.spring.datasource.username")).thenReturn("H228Vnp5dM");
+		when( env.getProperty("sys.spring.datasource.password")).thenReturn("mNbPRHduxC");
+		
+		jdbctemp = empRep.setUserDataStore("system", "system", "none");
+		if (!empRep.isTablePresent("TBL_STUDENT", "system", "system", "none")) {
+			try {
+				String createQuery = "CREATE TABLE TBL_STUDENT (\n" + "  id INT AUTO_INCREMENT  PRIMARY KEY,\n"
+						+ "  first_name VARCHAR(250) NOT NULL,\n" + "  last_name VARCHAR(250) NOT NULL,\n"
+						+ "  email VARCHAR(250) DEFAULT NULL\n" + ")";
+				jdbctemp.execute(createQuery);
+				String insertQuery = "INSERT INTO \n" + "	TBL_STUDENT (first_name, last_name, email) \n" + "VALUES\n"
+						+ "  	('Lokesh', 'Gupta', 'howtodoinjava@gmail.com'),\n"
+						+ "  	('John', 'Doe', 'xyz@email.com') ; ";
+
+				jdbctemp.execute(insertQuery);
+
+			} catch (Exception e) {
+
+			}
+		}
+		empRep.getDataForParams("tbl student", new HashMap<>(), "system", "system", "none");
+	}
+	
+	public void teardown()
+    {
+    	 jdbctemp.execute("drop table TBL_STUDENT ");		
+    }
 }

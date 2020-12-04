@@ -19,4 +19,5 @@ public static String DSID ="dsid";
 public static String VALIDDATA ="validdata";
 public static String INVALIDDATA ="invaliddata";
 public static String ERRORDATA ="errordata";
+public static String UNIQUEKEY="uniquekey";
 }

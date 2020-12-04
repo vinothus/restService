@@ -31,6 +31,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.errorprone.annotations.concurrent.LazyInit;
+import com.vin.processor.VinRestProcessor;
 import com.vin.rest.exception.GlobalExceptionHandler;
 import com.vin.rest.exception.RecordNotFoundException;
 import com.vin.rest.exception.ServiceNotFoundException;
@@ -60,6 +61,8 @@ public class GenericController {
 	
 	@Autowired
 	Validator validator;
+	@Autowired
+	VinRestProcessor vinRestProcessor;
 	
 	private String controllerPath = null;
 
@@ -85,7 +88,10 @@ public class GenericController {
 		jsonMap = mapper.readValue(params, new TypeReference<Map<String, String>>() {
 		}); // converts JSON to Map
 		doValidation(service, apiKey, dataStoreKey, jsonMap);
-		return new ResponseEntity<Map<String, Object>>(employeeRepositaryImpl.insertData(service, jsonMap, apiKey, dataStoreKey,passToken),
+		jsonMap=doPreProcess(service, apiKey, dataStoreKey, jsonMap);
+		Map<String, Object> returnData=employeeRepositaryImpl.insertData(service, jsonMap, apiKey, dataStoreKey,passToken);
+		returnData=doPostProcess(service, apiKey, dataStoreKey, returnData);
+		return new ResponseEntity<Map<String, Object>>(returnData,
 				new HttpHeaders(), HttpStatus.OK);
 	}
 
@@ -99,6 +105,21 @@ public class GenericController {
 			throw new ConstraintViolationException(constraintViolation);
 		}
 	}
+	
+	
+	private Map<String, String> doPreProcess(String service, String apiKey, String dataStoreKey, Map<String, String> jsonMap) {
+		
+		jsonMap=vinRestProcessor.doPreProcess(jsonMap, apiKey,dataStoreKey,service);
+		return jsonMap; 
+	}
+	
+	private Map<String, Object> doPostProcess(String service, String apiKey, String dataStoreKey, Map<String, Object> jsonMap) {
+		 
+		jsonMap=vinRestProcessor.doPostProcess(jsonMap, apiKey,dataStoreKey,service);
+		return jsonMap; 
+	}
+	
+	
 	@MethodName(MethodName="updateData")
 	@CrossOrigin
 	public ResponseEntity<Map<String, Object>> updateData(@PathVariable("service") String service,
@@ -110,7 +131,10 @@ public class GenericController {
 		jsonMap = mapper.readValue(params, new TypeReference<Map<String, String>>() {
 		}); // converts JSON to Map
 		doValidation(service, apiKey, dataStoreKey, jsonMap);
-		return new ResponseEntity<Map<String, Object>>(employeeRepositaryImpl.updateData(service, jsonMap, apiKey, dataStoreKey,passToken),
+		jsonMap=doPreProcess(service, apiKey, dataStoreKey, jsonMap);
+		Map<String, Object> returnData=employeeRepositaryImpl.updateData(service, jsonMap, apiKey, dataStoreKey,passToken);
+		returnData=doPostProcess(service, apiKey, dataStoreKey, returnData);
+		return new ResponseEntity<Map<String, Object>>(returnData,
 				new HttpHeaders(), HttpStatus.OK);
 	}
 	
@@ -119,13 +143,14 @@ public class GenericController {
 	public ResponseEntity<List<Map<String, Object>>> getDatum(@PathVariable("service") String service,
 			@RequestParam   Map<String, String> params,@PathVariable("apiKey") String apiKey,@PathVariable("dataStoreKey") String dataStoreKey,@RequestHeader(value="passToken", defaultValue = "none") String passToken)    {
 		 
-		params.put(Constant.VIN_SERVICE, service);
-		params.put(Constant.VIN_SERVICE_DS, dataStoreKey);
-		params.put(Constant.VIN_SERVICE_APIKEY, apiKey);
 		doValidation(service, apiKey, dataStoreKey, params);
-		
-		
-		return new ResponseEntity<List<Map<String, Object>>>(employeeRepositaryImpl.getDataForParams(service, params, apiKey, dataStoreKey,passToken),
+		params=doPreProcess(service, apiKey, dataStoreKey, params);
+		List<Map<String, Object>> returnObj=employeeRepositaryImpl.getDataForParams(service, params, apiKey, dataStoreKey,passToken);
+		for (Iterator iterator = returnObj.iterator(); iterator.hasNext();) {
+			Map<String, Object> map = (Map<String, Object>) iterator.next();
+			doPostProcess(service, apiKey, dataStoreKey, map);
+		}
+		return new ResponseEntity<List<Map<String, Object>>>(returnObj,
 				new HttpHeaders(), HttpStatus.OK);
 	}
 	@MethodName(MethodName="getData")
@@ -133,12 +158,12 @@ public class GenericController {
 	public ResponseEntity<Map<String, Object>> getData(@PathVariable("service") String service,
 			@PathVariable("uniquekey") @Valid @NotNull String uniquekey,@PathVariable("apiKey") String apiKey,@PathVariable("dataStoreKey") String dataStoreKey,@RequestHeader(value="passToken", defaultValue = "none") String passToken) throws Exception {
 		Map<String, String> params = new HashMap<>();
-		params.put(Constant.VIN_SERVICE, service);
-		params.put(Constant.VIN_SERVICE_DS, dataStoreKey);
-		params.put(Constant.VIN_SERVICE_APIKEY, apiKey);
+		params.put(Constant.UNIQUEKEY, uniquekey);
 		doValidation(service, apiKey, dataStoreKey, params);
-			 
-		return new ResponseEntity<Map<String, Object>>(employeeRepositaryImpl.getData(service, uniquekey, apiKey, dataStoreKey,passToken),
+		params=doPreProcess(service, apiKey, dataStoreKey, params);	 
+		Map<String, Object> returnData=employeeRepositaryImpl.getData(service, uniquekey, apiKey, dataStoreKey,passToken);
+		returnData=doPostProcess(service, apiKey, dataStoreKey, returnData);
+		return new ResponseEntity<Map<String, Object>>(returnData,
 				new HttpHeaders(), HttpStatus.OK);
 	}
 @MethodName(MethodName="delData")
@@ -146,17 +171,11 @@ public class GenericController {
 	public ResponseEntity<Map<String, Object>> delData(@PathVariable("service") String service,
 			@PathVariable("uniquekey") @Valid @NotNull String uniquekey,@PathVariable("apiKey") String apiKey,@PathVariable("dataStoreKey") String dataStoreKey,@RequestHeader(value="passToken", defaultValue = "none") String passToken) throws Exception {
 	Map<String, String> params = new HashMap<>();	
-	params.put(Constant.VIN_SERVICE, service);
-	params.put(Constant.VIN_SERVICE_DS, dataStoreKey);
-	params.put(Constant.VIN_SERVICE_APIKEY, apiKey);
-	Set<ConstraintViolation<HashMap>> constraintViolation = validator
-			.validate(new VinMap<String, String>(params));
- 
-		if (!constraintViolation.isEmpty()) {
-			throw new ConstraintViolationException(constraintViolation);
-		}
-	
-	return new ResponseEntity<Map<String, Object>>(employeeRepositaryImpl.deleteData(service, uniquekey, apiKey, dataStoreKey,passToken),
+	params.put(Constant.UNIQUEKEY, uniquekey);
+	doValidation(service, apiKey, dataStoreKey, params);
+	Map<String, Object> returnData=employeeRepositaryImpl.deleteData(service, uniquekey, apiKey, dataStoreKey,passToken);
+	returnData=doPostProcess(service, apiKey, dataStoreKey, returnData);
+	return new ResponseEntity<Map<String, Object>>(returnData,
 				new HttpHeaders(), HttpStatus.OK);
 	}
 
