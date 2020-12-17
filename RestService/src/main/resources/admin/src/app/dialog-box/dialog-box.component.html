@@ -1,5 +1,8 @@
+<button mat-icon-button class="close-button" [mat-dialog-close]="true">
+  <mat-icon class="close-icon" color="warn">close</mat-icon>
+</button>
 <!-- dialog-box.component.html -->
- <div class="header text-center">
+ <div class="header text-center"   *ngIf="action == 'Update' || action == 'Validate'  || action == 'Add'  || action == 'Delete'  ;">
 
    <h1 class="title" mat-dialog-title> <strong> {{action}}  {{componentName}}</strong></h1>
   </div>
@@ -15,7 +18,35 @@
     <mat-hint>Hint</mat-hint>
   </mat-form-field> -->
   
+  <!-- dialog-box.component.html -->
+ <div class="header text-center"   *ngIf="action == 'Message'  ;">
+
+   <h1 class="title" mat-dialog-title> <strong>Message</strong></h1>
+  </div>
+  
+  <div *ngIf="action == 'Message'; ">
+   {{message}}
+    <br>
+     <br>
+  </div>
+  
   <form [formGroup]="UIForm"   class="row" *ngIf="action == 'Update';">
+  <div class="form-group  input-group col-md-12"   *ngFor="let data of local_data| keyvalue" >
+   <!--  <label for="{{data.key}}">{{data.key}}</label> -->
+    <div class="input-group-prepend" style="height: 38px; border-right: 1px solid #ced4da !important; width: 100px;">
+          <span class="input-group-text" style="color: #000000; width: 100px; overflow: hidden;   white-space: nowrap;    text-overflow: ellipsis; " id="inputGroupPrepend2{{data.key}}">{{data.key | titlecase}}&nbsp;</span>
+        </div>
+    <input type="text"  value="{{data.value}}" formControlName="{{data.key}}" class="form-control" id="{{data.key}}" aria-describedby="Help" placeholder="{{data.key}}">
+     <mat-icon    aria-hidden="false" aria-label="Example home icon">edit</mat-icon> 
+  <!--   <small id="{{data.key}}Help" class="form-text text-muted">please enter {{data.key}}</small> -->
+  <div *ngIf="submitted && f[data.key].errors" class="invalid-feedback">
+                    <div *ngIf="f[data.key].errors['required']">{{data.key}} is required</div>
+                     
+                </div>
+  </div>
+  
+</form>
+<form [formGroup]="UIForm"   class="row" *ngIf="action == 'Validate';">
   <div class="form-group  input-group col-md-12"   *ngFor="let data of local_data| keyvalue" >
    <!--  <label for="{{data.key}}">{{data.key}}</label> -->
     <div class="input-group-prepend" style="height: 38px; border-right: 1px solid #ced4da !important; width: 100px;">
@@ -68,7 +99,14 @@
     <br>
   </div>
 </div>
-<div  class="header text-center">
+<div  class="header text-center"  *ngIf="action == 'Update' || action == 'Validate'  || action == 'Add'  || action == 'Delete'  ;">
   <button mat-button (click)="doAction()">{{action}}</button>&nbsp;
   <button mat-button (click)="closeDialog()" mat-flat-button color="warn">Cancel</button>
 </div>
+
+<div  class="header text-center"  *ngIf="action == 'Message'; ">
+  <button mat-button (click)="closeDialog()">ok</button>&nbsp;
+  <button mat-button (click)="closeDialog()" mat-flat-button color="warn">Cancel</button>
+</div>
+
+ 

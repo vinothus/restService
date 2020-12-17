@@ -151,6 +151,87 @@ getdata(service: string, params: Map<string,string>)
       
     });*/
   }
+
+validateData(service: string, params: Map<string,string>) 
+{
+	 
+	 const headers = new HttpHeaders({
+      'Content-Type': 'application/x-www-form-urlencoded',
+      'Authorization': 'Basic YW5ndWxhcjphbmd1bGFy',
+      'Access-Control-Allow-Origin':'*',
+    });
+
+	const params1 = new HttpParams();
+  let paramstr='';
+ params.forEach(function(value, key) {
+	console.log(key + " = " + value);
+	paramstr=paramstr+key+'='+value+'&';
+	params1.set(key,value);
+})
+
+	const options = {
+      headers,
+      params1,
+      withCredentials: true
+    };
+	 
+	return this.httpClient.get<any>(this.API_URL+`/${this.APP_NAME}/system/system/${service}/validateData?`+paramstr, { params: params1,headers:headers }).pipe(
+      map((res: Response) => {
+        return res || {}
+      }),
+      catchError(this.handleError)
+    );
+	
+   /* console.log(promise);  
+    promise.then((data)=>{
+      console.log("Promise resolved with: " + JSON.stringify(data));
+     return data;
+    }).catch((error)=>{
+      console.log("Promise rejected with " + JSON.stringify(error));
+      
+    });*/
+  }
+
+validateDatabyApikey(apikey: string,datastore: string,service: string, params: Map<string,string>) 
+{
+	 
+	 const headers = new HttpHeaders({
+      'Content-Type': 'application/x-www-form-urlencoded',
+      'Authorization': 'Basic YW5ndWxhcjphbmd1bGFy',
+      'Access-Control-Allow-Origin':'*',
+    });
+
+	const params1 = new HttpParams();
+  let paramstr='';
+ params.forEach(function(value, key) {
+	console.log(key + " = " + value);
+	paramstr=paramstr+key+'='+value+'&';
+	params1.set(key,value);
+})
+
+	const options = {
+      headers,
+      params1,
+      withCredentials: true
+    };
+	 
+	return this.httpClient.get<any>(this.API_URL+`/${this.APP_NAME}/`+apikey+`/`+datastore+`/${service}/validateData?`+paramstr, { params: params1,headers:headers }).pipe(
+      map((res: Response) => {
+        return res || {}
+      }),
+      catchError(this.handleError)
+    );
+	
+   /* console.log(promise);  
+    promise.then((data)=>{
+      console.log("Promise resolved with: " + JSON.stringify(data));
+     return data;
+    }).catch((error)=>{
+      console.log("Promise rejected with " + JSON.stringify(error));
+      
+    });*/
+  }
+
 getUniqueData(service: string, id: string)
 {
 	 const headers = new HttpHeaders({

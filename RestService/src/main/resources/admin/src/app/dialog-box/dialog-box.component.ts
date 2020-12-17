@@ -18,6 +18,7 @@ submitted = false;
   local_data:any;
   componentName: string;
   UIForm: FormGroup;
+message:string;
 primaryKey:any;
   formInput={};
  formData={};
@@ -30,6 +31,7 @@ primaryKey:any;
     this.action = this.local_data.action;
     this.componentName=  this.local_data.componentName;
     this.primaryKey=this.local_data.primaryKey;
+    this.message=this.local_data.message;
     delete this.local_data.action;
     delete this.local_data.componentName;
     delete this.local_data.primaryKey;
@@ -46,7 +48,8 @@ primaryKey:any;
 
 this.UIForm= this.formBuilder.group(this.formInput);
 this.UIForm.setValue( this.formData);
-this.UIForm.get(this.primaryKey).disable();
+if(this.primaryKey!=null)
+{this.UIForm.get(this.primaryKey).disable();}
   }
 
   doAction(){

@@ -53,6 +53,7 @@ export class MultiserviceComponent implements OnInit , AfterViewInit {
 			this.displayedColumns.push(key);
 		}
 		this.displayedColumns.push('action');
+		console.log(this.displayedColumns);
 		this.dataSource = new MatTableDataSource<any>(this.data );
 		//this.columnClick('uid');
 		this.columnClick('serviceid');
@@ -194,6 +195,18 @@ reinit()
     });
 	
 }
+
+isequalsAction(colName: string) 
+{
+	
+	console.log('colName :'+colName);
+	console.log('colName :'+(colName=='action'));
+	if(colName=='action')
+	{return false;}
+	else
+		{return true;}
+}
+
 }
 
 

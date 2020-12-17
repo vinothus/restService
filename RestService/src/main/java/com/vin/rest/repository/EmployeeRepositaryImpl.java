@@ -66,7 +66,7 @@ public class EmployeeRepositaryImpl {
 	//JdbcTemplate jdbcTemplate;
 	static DbSchema schemaObj;
 	static DbSpec specficationObj;
-	Map<String, JdbcTemplate> jdbcTemplateMap= new ConcurrentHashMap<>();
+	public static Map<String, JdbcTemplate> jdbcTemplateMap= new ConcurrentHashMap<>();
 	public static Map<String,Map<String, String>> userServiceTableMap= new ConcurrentHashMap<>();
 	public static Map<String,Map<DbTable, List<DbColumn>>> userTableColumnMap= new ConcurrentHashMap<>();
 	static Map<String,Map<String, Map<String, String>>> userServiceAttrbMap= new ConcurrentHashMap<>();
@@ -1075,14 +1075,16 @@ public class EmployeeRepositaryImpl {
 				    dataSource.setUrl(DataStoreData.get(0).get("url").toString());
 				    byte[] decodedBytes = Base64.getDecoder().decode(passToken);
 				    String decodedString = new String(decodedBytes);
-				    
 				    dataSource.setUsername(decodedString.split(":")[0]);
 				    String passWord=null;
 				    if(decodedString.split(":").length==2)
 				    { dataSource.setPassword(decodedString.split(":")[1]);}
 				    userJdbcTemplate=new JdbcTemplate();
 				    userJdbcTemplate.setDataSource(dataSource);
-				    jdbcTemplateMap.put(dataStoreKey, userJdbcTemplate);
+				    if(userJdbcTemplate.getDataSource().getConnection().isValid(10))
+				    {
+				    	 jdbcTemplateMap.put(dataStoreKey, userJdbcTemplate);	
+				    }
 			}	
 		
 		}else

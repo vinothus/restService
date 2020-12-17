@@ -163,7 +163,7 @@ public class BasicUnitTest {
 			
 	}
 	
-	@Test
+	//@Test
 	public void testTotalPreProcess() throws JsonParseException, JsonMappingException, IOException
 	{
 		Map<String, Object>  data = null;
@@ -208,7 +208,7 @@ public class BasicUnitTest {
 		teardown();
 
 	}
-	@Test
+	//@Test
 	public void testTotalPostProcess() throws JsonParseException, JsonMappingException, IOException
 	{
 		Map<String, Object>  data = null;

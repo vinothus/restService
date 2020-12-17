@@ -165,6 +165,71 @@ reinit()
     });
 	
 }
+
+openValidateDialog(action,obj) {
+	 obj.action = action;
+    let validation= {};
+    validation["action"]=action;
+    validation["DataStore Name"]=obj.name;
+    validation["UserName"]='';
+    validation["Password"]='';
+     validation["componentName"]=this.componentName;
+    let width='700px';
+ const dialogRef = this.dialog.open(DialogBoxComponent, {
+      width: width,
+      data:validation
+    });
+
+ dialogRef.afterClosed().subscribe(result => {
+	if(result!=undefined)
+     { if(result.event == 'Validate'){
+        this.validateRowData(result.data);
+      }
+     }
+    });
+
+
+	}	
+	
+	 validateRowData(row_obj){
+	this.isLoading = true;
+	let map = new Map<string,string>();
+		 map.set('validatorName',row_obj.validatorName);
+	 map.set('value',row_obj.ParamValue);
+		 
+		this.authService.validateDatabyApikey('','',this.serviceName,map).subscribe((res) => {
+        console.log(res);
+  let validation= {};
+if(res)
+  {  validation["message"]="Validated success fully and parameter passed was valid";}
+else{validation["message"]="Validated success fully and parameter passed was Failed";}
+      validation["action"]="Message";
+    let width='500px';
+
+ const dialogRef = this.dialog.open(DialogBoxComponent, {
+      width: width,
+      data:validation
+    });
+
+
+       this.isLoading = false;
+    },
+err=>{
+	let validation= {};
+	   validation["action"]="Message";
+    let width='500px';
+ validation["message"]="Http Error occur ";
+	const dialogRef = this.dialog.open(DialogBoxComponent, {
+      width: width,
+      data:validation
+    });
+	 this.isLoading = false;
+}
+
+);
+    
+ 
+  }
 }
 
 

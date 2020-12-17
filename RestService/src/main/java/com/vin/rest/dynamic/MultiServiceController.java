@@ -120,13 +120,13 @@ public class MultiServiceController {
 	public ResponseEntity<List<Map<String,List<Map<String, Object>>>>> getDatum(@PathVariable("service") String service,
 			@RequestParam   Map<String, String> params,@PathVariable("apiKey") String apiKey,@PathVariable("dataStoreKey") String dataStoreKey,@RequestHeader(value="passToken", defaultValue = "none") String passToken) throws JsonParseException, JsonMappingException, IOException    {
 		ObjectMapper mapper = new ObjectMapper();
-		List<Map<String,Map<String, String>>> jsonMap = new ArrayList<>();
-		params.put("ServiceKey", service);
-			Set<ConstraintViolation<HashMap>> constraintViolation = validator
-					.validate(new VinMap<String, String>(params));
-			if (!constraintViolation.isEmpty()) {
-				throw new ConstraintViolationException(constraintViolation);
-			}
+		//List<Map<String,Map<String, String>>> jsonMap = new ArrayList<>();
+		//params.put("ServiceKey", service);
+		//	Set<ConstraintViolation<HashMap>> constraintViolation = validator
+		//			.validate(new VinMap<String, String>(params));
+		//	if (!constraintViolation.isEmpty()) {
+		//		throw new ConstraintViolationException(constraintViolation);
+		//	}
 			
 			 
 		return new ResponseEntity<List<Map<String,List<Map<String, Object>>>>>(multiserviceImpl.getMultiDataForParams(service, params, apiKey,  dataStoreKey,passToken),

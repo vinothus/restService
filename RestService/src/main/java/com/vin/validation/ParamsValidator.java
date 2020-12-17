@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
@@ -15,6 +16,8 @@ import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
+import org.springframework.context.ApplicationContext;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.EnumerablePropertySource;
 import org.springframework.core.env.Environment;
@@ -43,6 +46,9 @@ public class ParamsValidator implements ConstraintValidator<ParamMapValidator,Ma
 	
 	@Autowired
 	private Environment env;
+	
+	@Autowired
+	ApplicationContext context;
 	
 	@Override
 	public void initialize(ParamMapValidator constraintAnnotation) {
@@ -349,6 +355,36 @@ if(service_id!=null) {
 		return valid;
 
 	}
+	public boolean doCustomValidation(String apiKey,String datasourceKey,String service, boolean valid, String validationClass,
+			Map<String, Object> Attrbmap, Map<String, String> mapofVal, String valueFmParam,Environment env) {
+		try {
+			if(reflecClass.get(validationClass)==null)
+			{
+				AutowireCapableBeanFactory factory = context.getAutowireCapableBeanFactory();
+				com.vin.validatior.Validator bean = (com.vin.validatior.Validator) factory.createBean(Class
+						.forName(validationClass).newInstance().getClass(), AutowireCapableBeanFactory.AUTOWIRE_CONSTRUCTOR, false);
+				reflecClass.put(validationClass,bean);
+			}
+			if(reflecClass.get(validationClass)!=null)
+			{
+				com.vin.validatior.Validator<String> validator = (com.vin.validatior.Validator) reflecClass.get(validationClass);
+				ObjectMapper om = new ObjectMapper();
+				boolean valididy = validator.isValid(valueFmParam, apiKey, datasourceKey, service,
+						om.writeValueAsString(Attrbmap), om.writeValueAsString(mapofVal),
+						om.writeValueAsString(getAllKnownProperties(env)));
+				log.info(validationClass);
+				if (!valididy) {
+					valid = false;
+				}else {
+					valid=valididy;
+				}
+			}
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+		}
+		return valid;
+
+	}
 	public boolean minLength(String value, String minLength) {
 
 		Integer minlen = 0;
@@ -415,6 +451,62 @@ if(service_id!=null) {
 	        }
 	    }
 	    return rtn;
+	}
+	
+	public boolean validateSingleAttr(String service, String apikey,String dataStoreKey, Map<String, String> params, String validatorName, String value)
+	{
+		boolean validity=false;
+		boolean isPresentIncache=false;
+		   for (Entry<String, List<Map<String, Object>>> entry : userVinValidationAttrMap.entrySet())  {
+	            System.out.println("Key = " + entry.getKey() + 
+	                             ", Value = " + entry.getValue()); 
+	          for (Iterator<Map<String, Object>> iterator = entry.getValue().iterator(); iterator.hasNext();) {
+				Map<String, Object> vinValidationMap = (Map<String, Object>) iterator.next();
+			String validationClass=String.valueOf(vinValidationMap.get("classname"));
+			String name=String.valueOf(vinValidationMap.get("name"));
+			if(name.equalsIgnoreCase(validatorName))	
+			{
+				isPresentIncache=true;
+				validity=	doCustomValidation(apikey,dataStoreKey, service,  validity, validationClass, new HashMap<String, Object>(), params, value, env);
+				if(!validity)
+				{
+					return validity;
+				}
+			}
+				
+			}
+	            
+	    } 
+		
+		if(!isPresentIncache) {
+			List<Map<String, Object>> obj=employeeRepositaryImpl.setUserDataStore("system", "system", "none").queryForList("select * from VinValidation where name = ? ", new Object[] {validatorName});
+			if(obj!=null&&obj.size()>0)
+			{
+				for (Iterator iterator = obj.iterator(); iterator.hasNext();) {
+					Map<String, Object> map = (Map<String, Object>) iterator.next();
+					String validationClass=String.valueOf(map.get("classname"));
+					String name=String.valueOf(map.get("name"));
+					String attrbid=String.valueOf(map.get("attr_id"));
+					if(name.equalsIgnoreCase(validatorName))	
+					{
+						if(userVinValidationAttrMap.get(attrbid)==null) {
+							
+							List<Map<String, Object>> tempList=new ArrayList<>();
+							tempList.add(map);
+							userVinValidationAttrMap.put(attrbid, tempList);
+						}
+						isPresentIncache=true;
+						validity=	doCustomValidation(apikey,dataStoreKey, service,  validity, validationClass, new HashMap<String, Object>(), params, value, env);
+						if(!validity)
+						{
+							return validity;
+						}
+					}
+				}
+				
+			}
+		}
+		return validity;
 	}
 }
 

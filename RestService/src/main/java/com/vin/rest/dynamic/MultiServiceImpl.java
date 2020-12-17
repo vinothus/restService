@@ -45,10 +45,10 @@ public class MultiServiceImpl {
 			if(dataStoreKey.equalsIgnoreCase("SYSTEM"))
 		{
 			
-		    dataSource.setDriverClassName(env.getProperty("spring.datasource.driver-class-name"));
-		    dataSource.setUrl(env.getProperty("spring.datasource.url"));
-		    dataSource.setUsername(env.getProperty("spring.datasource.username"));
-		    dataSource.setPassword(env.getProperty("spring.datasource.password"));
+			dataSource.setDriverClassName(env.getProperty("sys.spring.datasource.driver-class-name"));
+			dataSource.setUrl(env.getProperty("sys.spring.datasource.url"));
+			dataSource.setUsername(env.getProperty("sys.spring.datasource.username"));
+			dataSource.setPassword(env.getProperty("sys.spring.datasource.password"));
 		     userJdbcTemplate=new JdbcTemplate();
 		    userJdbcTemplate.setDataSource(dataSource);
 		    jdbcTemplateMap.put(dataStoreKey, userJdbcTemplate);
@@ -395,8 +395,9 @@ public class MultiServiceImpl {
 							
 
 							String[] serviceParam=relationlpstr.split(":");
-							params.put(serviceParam[0],(String)params.get(serviceParam[1]));
-							List<Map<String, Object>> dataReturn=singleServiceImpl.getDataForParams(singleService, params, apiKey,  dataStoreKey,passToken);
+							 Map<String, String> tempParams=new  HashMap<>();
+							 tempParams.put(serviceParam[0],(String)params.get(serviceParam[1]));
+							List<Map<String, Object>> dataReturn=singleServiceImpl.getDataForParams(singleService, tempParams, apiKey,  dataStoreKey,passToken);
 							sumazationList.addAll(dataReturn);
 							retObj.put(singleService, sumazationList);
 							returnData.add(retObj);
@@ -412,6 +413,7 @@ public class MultiServiceImpl {
 							String serviceRelation=serviceListParam[i];
 							String[] serviceParam=serviceRelation.split("\\.");
 
+							
 							for (Iterator iterator2 = returnData.iterator(); iterator2.hasNext();) {
 								Map<String, List<Map<String, Object>>> map = (Map<String, List<Map<String, Object>>>) iterator2.next();
 								
@@ -431,8 +433,9 @@ public class MultiServiceImpl {
 												for (Iterator iterator3 = listObj.iterator(); iterator3
 														.hasNext();) {
 													Map<String, String> map2 = (Map<String, String>) iterator3.next();
-													params.put(serviceParam[2],(String) (map2.get(serviceParam[1])));
-													List<Map<String, Object>> dataReturn=singleServiceImpl.getDataForParams(singleService, params, apiKey,  dataStoreKey,passToken);
+													 Map<String, String> tempParams=new  HashMap<>();
+													 tempParams.put(serviceParam[2],(String) (map2.get(serviceParam[1])));
+													List<Map<String, Object>> dataReturn=singleServiceImpl.getDataForParams(singleService, tempParams, apiKey,  dataStoreKey,passToken);
 													sumazationList.addAll(dataReturn);
 													retObj.put(singleService, sumazationList);
 												}
@@ -449,7 +452,17 @@ public class MultiServiceImpl {
 										 * {params.put(serviceParam[2],(String)
 										 * (hashMapStr.get(serviceParam[0]).get(0).get(serviceParam[1]))); }
 										 */
-									}else {
+									}
+									else if(serviceParam.length==2)
+									{
+										 Map<String, String> tempParams=new  HashMap<>();
+										 tempParams.put(serviceParam[1], params.get(serviceParam[0]));
+										List<Map<String, Object>> dataReturn=singleServiceImpl.getDataForParams(singleService, tempParams, apiKey,  dataStoreKey,passToken);
+										sumazationList.addAll(dataReturn);
+										retObj.put(singleService, sumazationList);
+								 
+									}
+									else {
 										
 										List<Map<String, Object>> dataReturn=singleServiceImpl.getDataForParams(singleService, params, apiKey,  dataStoreKey,passToken);
 										sumazationList.addAll(dataReturn);
@@ -457,6 +470,18 @@ public class MultiServiceImpl {
 										
 									}
 								}
+							}
+							if(returnData.size()==0&&serviceParam.length==3) {
+								 Map<String, String> tempParams=new  HashMap<>();
+								List<Map<String, Object>> dataReturn=singleServiceImpl.getDataForParams(singleService, tempParams, apiKey,  dataStoreKey,passToken);
+								sumazationList.addAll(dataReturn);
+								retObj.put(singleService, sumazationList);
+							}else if(returnData.size()==0&&serviceParam.length==2) {
+								 Map<String, String> tempParams=new  HashMap<>();
+								 tempParams.put(serviceParam[1], params.get(serviceParam[0]));
+								List<Map<String, Object>> dataReturn=singleServiceImpl.getDataForParams(singleService, tempParams, apiKey,  dataStoreKey,passToken);
+								sumazationList.addAll(dataReturn);
+								retObj.put(singleService, sumazationList);
 							}
 							returnData.add(retObj);
 						
@@ -486,8 +511,9 @@ public class MultiServiceImpl {
 											for (Iterator iterator3 = listObj.iterator(); iterator3
 													.hasNext();) {
 												Map<String, String> map2 = (Map<String, String>) iterator3.next();
-												params.put(serviceParam[2],(String) (map2.get(serviceParam[1])));
-												List<Map<String, Object>> dataReturn=singleServiceImpl.getDataForParams(singleService, params, apiKey,  dataStoreKey,passToken);
+												 Map<String, String> tempParams=new  HashMap<>();
+												 tempParams.put(serviceParam[2],(String) (map2.get(serviceParam[1])));
+												List<Map<String, Object>> dataReturn=singleServiceImpl.getDataForParams(singleService, tempParams, apiKey,  dataStoreKey,passToken);
 												sumazationList.addAll(dataReturn);
 												retObj.put(singleService, sumazationList);
 											}
@@ -496,31 +522,57 @@ public class MultiServiceImpl {
 												}
 										
 									}
-								}else {
-									
-									List<Map<String, Object>> dataReturn=singleServiceImpl.getDataForParams(singleService, params, apiKey,  dataStoreKey,passToken);
+								}else if(serviceParam.length==2)
+								{
+								 
+									 Map<String, String> tempParams=new  HashMap<>();
+									 tempParams.put(serviceParam[1], params.get(serviceParam[0]));
+									List<Map<String, Object>> dataReturn=singleServiceImpl.getDataForParams(singleService, tempParams, apiKey,  dataStoreKey,passToken);
+									sumazationList.addAll(dataReturn);
+									retObj.put(singleService, sumazationList);
+							 
+								}
+								
+								else {
+									 Map<String, String> tempParams=new  HashMap<>();
+									List<Map<String, Object>> dataReturn=singleServiceImpl.getDataForParams(singleService, tempParams, apiKey,  dataStoreKey,passToken);
 									sumazationList.addAll(dataReturn);
 									retObj.put(singleService, sumazationList);
 								
 								}
 							}
 						}
+						if(returnData.size()==0&&serviceParam.length==3) {
+							 Map<String, String> tempParams=new  HashMap<>();
+							List<Map<String, Object>> dataReturn=singleServiceImpl.getDataForParams(singleService, tempParams, apiKey,  dataStoreKey,passToken);
+							sumazationList.addAll(dataReturn);
+							retObj.put(singleService, sumazationList);
+						}else if(returnData.size()==0&&serviceParam.length==2) {
+							 Map<String, String> tempParams=new  HashMap<>();
+							 tempParams.put(serviceParam[1], params.get(serviceParam[0]));
+							List<Map<String, Object>> dataReturn=singleServiceImpl.getDataForParams(singleService, tempParams, apiKey,  dataStoreKey,passToken);
+							sumazationList.addAll(dataReturn);
+							retObj.put(singleService, sumazationList);
+						}
 						returnData.add(retObj);
 					}else if(relation.contains(":")) {
 						String[] serviceParam=relation.split(":");
-						params.put(serviceParam[0],(String)params.get(serviceParam[1]));
-						List<Map<String, Object>> dataReturn=singleServiceImpl.getDataForParams(singleService, params, apiKey,  dataStoreKey,passToken);
+						Map<String, String> tempParams=new  HashMap<>();
+						tempParams.put(serviceParam[0],(String)params.get(serviceParam[1]));
+						List<Map<String, Object>> dataReturn=singleServiceImpl.getDataForParams(singleService, tempParams, apiKey,  dataStoreKey,passToken);
 						sumazationList.addAll(dataReturn);
 						retObj.put(singleService, sumazationList);
 						returnData.add(retObj);
 					}else {
-						List<Map<String, Object>> dataReturn=singleServiceImpl.getDataForParams(singleService, params, apiKey,  dataStoreKey,passToken);
+						Map<String, String> tempParams=new  HashMap<>();
+						List<Map<String, Object>> dataReturn=singleServiceImpl.getDataForParams(singleService, tempParams, apiKey,  dataStoreKey,passToken);
 						sumazationList.addAll(dataReturn);
 						retObj.put(singleService, sumazationList);
 						returnData.add(retObj);
 					}
 					}else {
-						List<Map<String, Object>> dataReturn=singleServiceImpl.getDataForParams(singleService, params, apiKey,  dataStoreKey,passToken);
+						Map<String, String> tempParams=new  HashMap<>();
+						List<Map<String, Object>> dataReturn=singleServiceImpl.getDataForParams(singleService, tempParams, apiKey,  dataStoreKey,passToken);
 						sumazationList.addAll(dataReturn);
 						retObj.put(singleService, sumazationList);
 						returnData.add(retObj);
@@ -550,6 +602,7 @@ public class MultiServiceImpl {
 					{
 					if(relation.contains("none"))
 					{
+						
 						Map<String, Object> dataReturn=singleServiceImpl.getData(singleService, uniquekey, apiKey,  dataStoreKey,passToken);
 						retObj.put(singleService,dataReturn);
 						returnData.add(retObj);	

@@ -15,7 +15,7 @@ import { DialogBoxComponent } from '../dialog-box/dialog-box.component';
 export class ValidationComponent implements OnInit , AfterViewInit {
 	//displayedColumns: string[];// = ['position', 'name', 'weight', 'symbol'];
 	displayedColumns: string[];//=["id","uid","serviceid","attrid","name","classname","paramclassname"];
-	componentName: string='Processor Configuration';
+	componentName: string='VinValidation Configuration';
 	model = {};
 	dataSource: any;
 	data: any;
@@ -94,6 +94,29 @@ export class ValidationComponent implements OnInit , AfterViewInit {
     });
   }
 	
+openValidateDialog(action,obj) {
+	 obj.action = action;
+    let validation= {};
+    validation["action"]=action;
+    validation["validatorName"]=obj.name;
+    validation["ParamValue"]='';
+     validation["componentName"]=this.componentName;
+    let width='700px';
+ const dialogRef = this.dialog.open(DialogBoxComponent, {
+      width: width,
+      data:validation
+    });
+
+ dialogRef.afterClosed().subscribe(result => {
+	if(result!=undefined)
+     { if(result.event == 'Validate'){
+        this.validateRowData(result.data);
+      }
+     }
+    });
+
+
+	}	
 	applyFilter(event: Event) {
 		const filterValue = (event.target as HTMLInputElement).value;
 		this.dataSource.filter = filterValue.trim().toLowerCase();
@@ -137,6 +160,34 @@ ProcessorSubmit(){
     
  
   }
+ validateRowData(row_obj){
+	this.isLoading = true;
+	let map = new Map<string,string>();
+		 map.set('validatorName',row_obj.validatorName);
+	 map.set('value',row_obj.ParamValue);
+		 
+		this.authService.validateData(this.serviceName,map).subscribe((res) => {
+        console.log(res);
+  let validation= {};
+if(res)
+  {  validation["message"]="Validated success fully and parameter passed was valid";}
+else{validation["message"]="Validated success fully and parameter passed was Failed";}
+      validation["action"]="Message";
+    let width='500px';
+
+ const dialogRef = this.dialog.open(DialogBoxComponent, {
+      width: width,
+      data:validation
+    });
+
+
+       this.isLoading = false;
+    });
+    
+ 
+  }
+
+
   updateRowData(row_obj){
 	this.isLoading = true;
   const promise= this.authService.updateData(this.serviceName,row_obj);

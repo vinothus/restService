@@ -28,6 +28,7 @@ import com.vin.intercept.SimpleFilter;
 import com.vin.processor.VinRestProcessor;
 import com.vin.rest.dynamic.GenericController;
 import com.vin.rest.dynamic.MultiServiceController;
+import com.vin.validation.ParamsValidator;
 import com.vin.validation.WebConfig;
 
  
@@ -110,6 +111,27 @@ public class Application {
 					RequestMappingInfo.paths("/" + appName + "/{"+apiKey+"}/{"+dataStoreKey+"}/multiService/{service}/deleteData/{uniquekey}")
 							.methods(RequestMethod.DELETE).produces(MediaType.APPLICATION_JSON_VALUE).build(),
 							multiServiceController, multiServiceController.getClass().getMethod(MultiServiceController.getMethodName("delData"), String.class, String.class, String.class, String.class, String.class));
+			// mapping for validation and processing
+			
+			handlerMapping.registerMapping(
+					RequestMappingInfo.paths("/" + appName + "/{"+apiKey+"}/{"+dataStoreKey+"}/{service}/validateData").methods(RequestMethod.GET)
+							.produces(MediaType.APPLICATION_JSON_VALUE).build(),
+					userController, userController.getClass().getMethod(GenericController.getMethodName("validateData"), String.class, Map.class, String.class, String.class, String.class));
+		
+			handlerMapping.registerMapping(
+					RequestMappingInfo.paths("/" + appName + "/{"+apiKey+"}/{"+dataStoreKey+"}/{service}/validateDatum").methods(RequestMethod.GET)
+							.produces(MediaType.APPLICATION_JSON_VALUE).build(),
+					userController, userController.getClass().getMethod(GenericController.getMethodName("validateDatum"), String.class, Map.class, String.class, String.class, String.class));
+			handlerMapping.registerMapping(
+					RequestMappingInfo.paths("/" + appName + "/{"+apiKey+"}/{"+dataStoreKey+"}/{service}/preProcessData").methods(RequestMethod.GET)
+							.produces(MediaType.APPLICATION_JSON_VALUE).build(),
+					userController, userController.getClass().getMethod(GenericController.getMethodName("preProcessData"), String.class, Map.class, String.class, String.class, String.class));
+			handlerMapping.registerMapping(
+					RequestMappingInfo.paths("/" + appName + "/{"+apiKey+"}/{"+dataStoreKey+"}/{service}/postProcessData").methods(RequestMethod.GET)
+							.produces(MediaType.APPLICATION_JSON_VALUE).build(),
+					userController, userController.getClass().getMethod(GenericController.getMethodName("postProcessData"), String.class, Map.class, String.class, String.class, String.class));
+		
+			
 			//handlerMapping
 			//.registerMapping(
 			//		RequestMappingInfo.paths("/login").methods(RequestMethod.GET)
@@ -127,6 +149,12 @@ public class Application {
 	public VinRestProcessor vinRestProcessor()
 	{
 		return new VinRestProcessor();
+	}
+	
+	@Bean
+	public ParamsValidator paramsValidator()
+	{
+		return new ParamsValidator();
 	}
 	
 	@Bean

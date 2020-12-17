@@ -19,44 +19,22 @@
 </mat-form-field>
 <div class="mat-elevation-z8">
   <table mat-table [dataSource]="dataSource" matSort>
-
-    <!-- Position Column -->
-    <ng-container matColumnDef="id">
-      <th mat-header-cell *matHeaderCellDef mat-sort-header> ID </th>
-      <td mat-cell *matCellDef="let element"> {{element.id}} </td>
+  <ng-container matColumnDef="{{column}}" *ngFor="let column of displayedColumns">
+    <th  mat-header-cell *matHeaderCellDef mat-sort-header> {{column | titlecase }} </th>
+    <td mat-cell *matCellDef="let element"> 
+   <ng-container  *ngIf="isequalsAction(column); else elseTemplate ">
+    {{element[column]}} 
     </ng-container>
-<ng-container matColumnDef="serviceid">
-      <th mat-header-cell *matHeaderCellDef mat-sort-header> Service ID </th>
-      <td  mat-cell *matCellDef="let element"> {{element.serviceid}} </td>
-    </ng-container>
-    <ng-container matColumnDef="multiservicename">
-      <th mat-header-cell *matHeaderCellDef mat-sort-header>Multi Service Name </th>
-      <td mat-cell *matCellDef="let element"> {{element.multiservicename}} </td>
-    </ng-container>
- <ng-container matColumnDef="priority">
-      <th mat-header-cell *matHeaderCellDef mat-sort-header>Priority </th>
-      <td mat-cell *matCellDef="let element"> {{element.priority}} </td>
-    </ng-container>
-    <!-- Name Column -->
-    <ng-container matColumnDef="type">
-      <th mat-header-cell *matHeaderCellDef mat-sort-header> Type </th>
-      <td mat-cell *matCellDef="let element"> {{element.type}} </td>
-    </ng-container>
-
-    <!-- Weight Column -->
-    <ng-container matColumnDef="relationwithparam">
-      <th mat-header-cell *matHeaderCellDef mat-sort-header> Relation With Param </th>
-      <td mat-cell *matCellDef="let element"> {{element.relationwithparam}} </td>
-    </ng-container>
-    
-  <ng-container matColumnDef="action">
-      <th mat-header-cell *matHeaderCellDef> Action </th>
-      <td mat-cell *matCellDef="let element" class="action-link"> 
+    <ng-template #elseTemplate>
+  
         <mat-icon  (click)="openDialog('Add',element)" aria-hidden="false" aria-label="Example home icon">add_box</mat-icon>   <mat-icon  (click)="openDialog('Update',element)" aria-hidden="false" aria-label="Example home icon">edit</mat-icon>    <mat-icon  (click)="openDialog('Delete',element)" aria-hidden="false" aria-label="Example home icon">close</mat-icon>  
-      </td>
-    </ng-container>
+      
+    </ng-template>
+ 
+    </td>
+  </ng-container>
 
-     
+
 
     <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
     <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>

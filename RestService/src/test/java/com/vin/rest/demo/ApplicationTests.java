@@ -848,22 +848,120 @@ public class ApplicationTests {
 
 	@Test
 	public void testMultiDataGet() throws Exception
-	{
-		System.out.println("test multi test get");
-		 mvc.perform( MockMvcRequestBuilders
-	    	      .get("/myApps/system/system/service/getdata")
-	    	      .accept(MediaType.APPLICATION_JSON))
-	    	      .andDo(MockMvcResultHandlers.print())
-	    	      .andExpect(MockMvcResultMatchers.status().isOk())
-	    	      .andExpect(MockMvcResultMatchers.jsonPath("$.[*]").exists());
-		 mvc.perform( MockMvcRequestBuilders
-	    	      .get("/myApps/system/system/service/getdata")
-	    	      .accept(MediaType.APPLICATION_JSON))
-	    	      .andDo(MockMvcResultHandlers.print())
-	    	      .andExpect(MockMvcResultMatchers.status().isOk())
-	    	      .andExpect(MockMvcResultMatchers.jsonPath("$.[*]").exists());
-		
+	{System.out.println("test multi test get");
+	 ObjectMapper mapper = new ObjectMapper();
+	MvcResult serviceAttrResult = mvc.perform( MockMvcRequestBuilders
+   	      .get("/myApps/system/system/service attr/getdata")
+   	      .accept(MediaType.APPLICATION_JSON))
+   	      .andDo(MockMvcResultHandlers.print())
+   	      .andExpect(MockMvcResultMatchers.status().isOk())
+   	      .andExpect(MockMvcResultMatchers.jsonPath("$.[*]").exists()).andReturn();
+	String serviceAttrStr= serviceAttrResult.getResponse().getContentAsString();
+     List<Map<String, String>> serviceAttrMap = new ArrayList<>();
+     serviceAttrMap = mapper.readValue(serviceAttrStr, new TypeReference<List<Map<String, String>>>() {
+		});
+	MvcResult serviceResult = mvc.perform( MockMvcRequestBuilders
+   	      .get("/myApps/system/system/service/getdata")
+   	      .accept(MediaType.APPLICATION_JSON))
+   	      .andDo(MockMvcResultHandlers.print())
+   	      .andExpect(MockMvcResultMatchers.status().isOk())
+   	      .andExpect(MockMvcResultMatchers.jsonPath("$.[*]").exists()).andReturn();
+	String serviceStr= serviceResult.getResponse().getContentAsString();
+	List<Map<String, String>> serviceMap = new ArrayList<>();
+     serviceMap = mapper.readValue(serviceStr, new TypeReference<List<Map<String, String>>>() {
+		});
+	String serviceServiceId = null;
+	String serviceServiceAttrId = null;
+	
+	for (Iterator<Map<String, String>> iterator = serviceMap.iterator(); iterator.hasNext();) {
+		Map<String, String> map = (Map<String, String>) iterator.next();
+		String id = map.get("id");
+		String servicename = map.get("servicename");
+		if(servicename!=null) {
+		if(servicename.equalsIgnoreCase("service"))
+		{
+			serviceServiceId=id;	
+		}
+		else if(servicename.equalsIgnoreCase("service attr"))
+		{
+			serviceServiceAttrId=id;
+		}
+		}
+
 	}
+	
+	 // multi service
+	Map<String,String> multiServiceParam =new HashMap<>();
+	multiServiceParam.put("serviceid", serviceServiceId);
+	multiServiceParam.put("multiservicename", "multiTestgetService");
+	multiServiceParam.put("priority", "1");
+	multiServiceParam.put("type", "Single");
+	multiServiceParam.put("relationwithparam", "id.id");
+	
+		MvcResult multiServiceResult =  mvc.perform(MockMvcRequestBuilders.post("/myApps/system/system/multi service/addData")
+	            .contentType(MediaType.APPLICATION_JSON)
+	            .content(new ObjectMapper().writeValueAsString(multiServiceParam)))
+			    .andDo(MockMvcResultHandlers.print())
+	            .andExpect(MockMvcResultMatchers.status().isOk())
+	            .andReturn();
+     String multiServiceStr= multiServiceResult.getResponse().getContentAsString();
+     Map<String, String> multiServiceMap = new HashMap<String,String>();
+     multiServiceMap = mapper.readValue(multiServiceStr, new TypeReference<Map<String, String>>() {
+		});
+     
+     
+     Map<String,String> multiServiceAttrParam =new HashMap<>();
+     multiServiceAttrParam.put("serviceid", serviceServiceAttrId);
+     multiServiceAttrParam.put("multiservicename", "multiTestgetService");
+     multiServiceAttrParam.put("priority", "2");
+     multiServiceAttrParam.put("type", "Single");
+     multiServiceAttrParam.put("relationwithparam", "service.id.serviceid");
+		
+     
+     MvcResult multiServiceAttrResult =  mvc.perform(MockMvcRequestBuilders.post("/myApps/system/system/multi service/addData")
+	            .contentType(MediaType.APPLICATION_JSON)
+	            .content(new ObjectMapper().writeValueAsString(multiServiceParam)))
+			    .andDo(MockMvcResultHandlers.print())
+	            .andExpect(MockMvcResultMatchers.status().isOk())
+	            .andReturn();
+     String multiServiceAttrStr= multiServiceAttrResult.getResponse().getContentAsString();
+     Map<String, String> multiServiceAttrMap = new HashMap<String,String>();
+     multiServiceAttrMap = mapper.readValue(multiServiceAttrStr, new TypeReference<Map<String, String>>() {
+		});
+     
+    // calling multiservice
+     
+     MvcResult multiServiceCallResult = mvc.perform( MockMvcRequestBuilders
+   	      .get("/myApps/system/system/multiService/multiTestgetService/MultiDataForParams?id="+serviceServiceId)
+   	      .accept(MediaType.APPLICATION_JSON))
+   	      .andDo(MockMvcResultHandlers.print())
+   	      .andExpect(MockMvcResultMatchers.status().isOk())
+   	      .andExpect(MockMvcResultMatchers.jsonPath("$.[*]").exists()).andReturn();
+	String multiServiceCallResultStr= multiServiceCallResult.getResponse().getContentAsString();
+	List<Map<String, List<Map<String, Object>>>> multiServiceCallResulteMap = new ArrayList<>();
+	multiServiceCallResulteMap = mapper.readValue(multiServiceCallResultStr, new TypeReference<List<Map<String, List<Map<String, Object>>>>>() {
+		});
+	String delServiceID=String.valueOf(multiServiceMap.get("id"));
+   mvc.perform( MockMvcRequestBuilders
+   	      .delete("/myApps/system/system/multi service/deleteData/"+delServiceID)
+   	      .accept(MediaType.APPLICATION_JSON))
+   	      .andDo(MockMvcResultHandlers.print())
+   	      .andExpect(MockMvcResultMatchers.status().isOk())
+   	      .andExpect(MockMvcResultMatchers.jsonPath("$.id").exists())
+   	      .andExpect(MockMvcResultMatchers.jsonPath("$.id").isNotEmpty()) 
+             .andExpect(MockMvcResultMatchers.jsonPath("$.id",is(Integer.parseInt(delServiceID))));
+   
+   String delServiceAttrID=String.valueOf(multiServiceAttrMap.get("id"));
+   mvc.perform( MockMvcRequestBuilders
+   	      .delete("/myApps/system/system/multi service/deleteData/"+delServiceAttrID)
+   	      .accept(MediaType.APPLICATION_JSON))
+   	      .andDo(MockMvcResultHandlers.print())
+   	      .andExpect(MockMvcResultMatchers.status().isOk())
+   	      .andExpect(MockMvcResultMatchers.jsonPath("$.id").exists())
+   	      .andExpect(MockMvcResultMatchers.jsonPath("$.id").isNotEmpty()) 
+             .andExpect(MockMvcResultMatchers.jsonPath("$.id",is(Integer.parseInt(delServiceAttrID))));
+	 
+}
 	
 	//@Test
 	public void testPreProcessSingleService() throws Exception {

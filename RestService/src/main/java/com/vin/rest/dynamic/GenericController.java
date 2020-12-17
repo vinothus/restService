@@ -1,5 +1,6 @@
 package com.vin.rest.dynamic;
 
+import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -28,7 +29,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.errorprone.annotations.concurrent.LazyInit;
 import com.vin.processor.VinRestProcessor;
@@ -39,6 +43,7 @@ import com.vin.rest.model.EmployeeEntity;
 import com.vin.rest.repository.EmployeeRepositaryImpl;
 import com.vin.rest.service.EmployeeService;
 import com.vin.validation.ParamMapValidator;
+import com.vin.validation.ParamsValidator;
 import com.vin.validation.VinMap;
 
 import vin.rest.common.Constant;
@@ -58,6 +63,8 @@ public class GenericController {
 	EmployeeService service;
 	@Autowired
 	EmployeeRepositaryImpl employeeRepositaryImpl;
+	@Autowired
+	ParamsValidator paramsValidator;
 	
 	@Autowired
 	Validator validator;
@@ -116,6 +123,18 @@ public class GenericController {
 	private Map<String, Object> doPostProcess(String service, String apiKey, String dataStoreKey, Map<String, Object> jsonMap) {
 		 
 		jsonMap=vinRestProcessor.doPostProcess(jsonMap, apiKey,dataStoreKey,service);
+		return jsonMap; 
+	}
+	
+	private Map<String, String> doPostProcessStr(String service, String apiKey, String dataStoreKey, Map<String, String> jsonMap) throws JsonParseException, JsonMappingException, JsonProcessingException, IOException {
+		 
+		ObjectMapper mapper = new ObjectMapper();
+		Map<String, Object> paramMap = new HashMap<>();
+		paramMap = mapper.readValue(mapper.writeValueAsString(jsonMap), new TypeReference<Map<String, Object>>() {
+		});
+		paramMap=vinRestProcessor.doPostProcess(paramMap, apiKey,dataStoreKey,service);
+		jsonMap = mapper.readValue(mapper.writeValueAsString(paramMap), new TypeReference<Map<String, Object>>() {
+		});
 		return jsonMap; 
 	}
 	
@@ -219,6 +238,38 @@ public class GenericController {
 		{
 			employeeRepositaryImpl.init();
 			return new ResponseEntity<String>("initilized",new HttpHeaders(), HttpStatus.OK)	;
+		}
+		
+		@MethodName(MethodName="validateDatum")
+		@CrossOrigin
+		public ResponseEntity<String> validateDatum(@PathVariable("service") String service,
+				@RequestParam   Map<String, String> params,@PathVariable("apiKey") String apiKey,@PathVariable("dataStoreKey") String dataStoreKey,@RequestHeader(value="passToken", defaultValue = "none") String passToken) throws Exception {
+			doValidation(service, apiKey, dataStoreKey, params);
+			return  new ResponseEntity<String>("true" ,new HttpHeaders(), HttpStatus.OK)	;
+		}
+		@MethodName(MethodName="preProcessData")
+		@CrossOrigin
+		public ResponseEntity<Map<String, String>> preProcessData(@PathVariable("service") String service,
+				@RequestParam   Map<String, String> params,@PathVariable("apiKey") String apiKey,@PathVariable("dataStoreKey") String dataStoreKey,@RequestHeader(value="passToken", defaultValue = "none") String passToken) throws Exception {
+			params=doPreProcess(service, apiKey, dataStoreKey, params);
+			return  new ResponseEntity<Map<String, String>>(params ,new HttpHeaders(), HttpStatus.OK)	;
+		}
+		@MethodName(MethodName="postProcessData")
+		@CrossOrigin
+		public ResponseEntity<Map<String, String>> postProcessData(@PathVariable("service") String service,
+				@RequestParam   Map<String, String> params,@PathVariable("apiKey") String apiKey,@PathVariable("dataStoreKey") String dataStoreKey,@RequestHeader(value="passToken", defaultValue = "none") String passToken) throws Exception {
+			params=doPostProcessStr(service, apiKey, dataStoreKey, params);
+			return  new ResponseEntity<Map<String, String>>(params ,new HttpHeaders(), HttpStatus.OK)	;
+		}
+		
+		@MethodName(MethodName="validateData")
+		@CrossOrigin
+		public ResponseEntity<String> validateData(@PathVariable("service") String service,
+				@RequestParam   Map<String, String> params,@PathVariable("apiKey") String apiKey,@PathVariable("dataStoreKey") String dataStoreKey,@RequestHeader(value="passToken", defaultValue = "none") String passToken) throws Exception {
+			String validatorName=params.get("validatorName");
+			String value=params.get("value");
+			boolean validity=paramsValidator.validateSingleAttr(service, apiKey, dataStoreKey, params,validatorName, value);
+			return  new ResponseEntity<String>(String.valueOf(validity) ,new HttpHeaders(), HttpStatus.OK)	;
 		}
 		
 }
