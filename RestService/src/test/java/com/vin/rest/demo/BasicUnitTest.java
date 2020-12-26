@@ -2,6 +2,7 @@ package com.vin.rest.demo;
 
 import static org.mockito.Mockito.when;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -9,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.logging.Logger;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -27,6 +29,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vin.processor.ProcessParam;
 import com.vin.processor.Processor;
+import com.vin.processor.PropertyProcessor;
 import com.vin.processor.UpperLowerParamProcessor;
 import com.vin.processor.VinRestProcessor;
 import com.vin.rest.dynamic.MultiService;
@@ -47,6 +50,7 @@ public class BasicUnitTest {
 	    EmployeeRepositaryImpl empRep =new EmployeeRepositaryImpl();
 	    @Mock
 	    Environment env;
+	    static Logger log = Logger.getLogger(BasicUnitTest.class.getName());
 	    
 	@Test
 	public void test()
@@ -130,7 +134,7 @@ public class BasicUnitTest {
 	System.out.println("EmailMustContainFirst: "+validaity);
 		
 	}
-	@Test
+	//@Test
 	public void testCustomClassValidation() throws JsonParseException, JsonMappingException, IOException
 	{
 		Validator< String>	validator=new  ClassValidator();
@@ -163,7 +167,7 @@ public class BasicUnitTest {
 			
 	}
 	
-	//@Test
+	@Test
 	public void testTotalPreProcess() throws JsonParseException, JsonMappingException, IOException
 	{
 		Map<String, Object>  data = null;
@@ -179,7 +183,7 @@ public class BasicUnitTest {
 			  empRep.getDataForParams("tbl student", params,"system", "system", "none");
 			  params.put("id", String.valueOf( obj.get(0).get("id")));
 			  params.put("attrisprocessor", "yes");
-			  empRep.insertData("service attr", params, "system", "system", "none");
+			  empRep. updateData("service attr", params, "system", "system", "none");
 			  params.remove("id");
 			   data=	empRep.insertData("vinprocessor", params, "system", "system", "none");
 		} catch (Exception e) {
@@ -208,7 +212,7 @@ public class BasicUnitTest {
 		teardown();
 
 	}
-	//@Test
+	@Test
 	public void testTotalPostProcess() throws JsonParseException, JsonMappingException, IOException
 	{
 		Map<String, Object>  data = null;
@@ -225,7 +229,7 @@ public class BasicUnitTest {
 			  empRep.getDataForParams("tbl student", params,"system", "system", "none");
 			  params.put("id", String.valueOf( obj.get(0).get("id")));
 			  params.put("attrisprocessor", "yes");
-			  empRep.insertData("service attr", params, "system", "system", "none");
+			  empRep.updateData("service attr", params, "system", "system", "none");
 			  params.remove("id");
 			   data=	empRep.insertData("vinprocessor", params, "system", "system", "none");
 		} catch (Exception e) {
@@ -256,11 +260,17 @@ public class BasicUnitTest {
 	}
 	public void initStudent()
 	{
+		env=new MockEnvironment().withProperty("sys.spring.datasource.driver-class-name", "com.mysql.jdbc.Driver")
+				.withProperty("sys.spring.datasource.url", "jdbc:mysql://152.67.161.222/cameldb")
+				.withProperty("sys.spring.datasource.username", "root")
+				.withProperty("sys.spring.datasource.password", "vinaug@2020");
+		 
+		 ReflectionTestUtils.setField(empRep, "env",env);
 		//when(env.getProperty("sys.spring.datasource.driver-class-name") ).thenReturn("");
-		when( env.getProperty("sys.spring.datasource.driver-class-name") ).thenReturn("com.mysql.jdbc.Driver");
-		when( env.getProperty("sys.spring.datasource.url")).thenReturn("jdbc:mysql://remotemysql.com/H228Vnp5dM");
-		when( env.getProperty("sys.spring.datasource.username")).thenReturn("H228Vnp5dM");
-		when( env.getProperty("sys.spring.datasource.password")).thenReturn("mNbPRHduxC");
+		//when( env.getProperty("sys.spring.datasource.driver-class-name") ).thenReturn("com.mysql.jdbc.Driver");
+		//when( env.getProperty("sys.spring.datasource.url")).thenReturn("jdbc:mysql://remotemysql.com/H228Vnp5dM");
+		//when( env.getProperty("sys.spring.datasource.username")).thenReturn("H228Vnp5dM");
+		//when( env.getProperty("sys.spring.datasource.password")).thenReturn("mNbPRHduxC");
 		
 		jdbctemp = empRep.setUserDataStore("system", "system", "none");
 		if (!empRep.isTablePresent("TBL_STUDENT", "system", "system", "none")) {
@@ -286,4 +296,16 @@ public class BasicUnitTest {
     {
     	 jdbctemp.execute("drop table TBL_STUDENT ");		
     }
+	
+	@Test
+	public void testEncrypt()
+	{
+		log.info("test");	
+		log.info(PropertyProcessor.encryptText("plain Test", "password"));
+		log.info(PropertyProcessor.decryptText(new String( java.util.Base64.getEncoder().encode(PropertyProcessor.encryptText("plain Test", "password").getBytes()),StandardCharsets.UTF_8), "password"));
+		 String key = "Bar12345Bar12345"; // 128 bit key
+	        String initVector = "RandomInitVector"; // 16 bytes IV
+
+	        System.out.println(PropertyProcessor.decrypt(key, initVector,   PropertyProcessor.encrypt(key, initVector, "Hello World")));
+	}
 }

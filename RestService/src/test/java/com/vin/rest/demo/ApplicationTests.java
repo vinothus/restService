@@ -80,12 +80,12 @@ public class ApplicationTests {
     {
     	 jdbctemp.execute("drop table TBL_STUDENT ");		
     }
-    /** 
-	@Test
+   
+	//@Test
 	public void getData() throws Exception {
 		
 			      mvc.perform( MockMvcRequestBuilders
-			    	      .get("/myApps/system/system/tbl student/getdata?iden=234")
+			    	      .get("/"+env.getProperty("spring.application.name")+"/"+env.getProperty("systemUser")+"/"+env.getProperty("systemDatasource")+"/tbl student/"+env.getProperty("getAllData")+"?iden=234")
 			    	      .accept(MediaType.APPLICATION_JSON))
 			    	      .andDo(MockMvcResultHandlers.print())
 			    	      .andExpect(MockMvcResultMatchers.status().isOk())
@@ -94,7 +94,7 @@ public class ApplicationTests {
 		
 	}
 	
-	@Test
+	//@Test
 	public void getDataForSingleRec() throws Exception {
 		Map<String ,String> student=new HashMap<String ,String>();
 		student.put("firstname", "Lokesh");
@@ -102,7 +102,7 @@ public class ApplicationTests {
 		student.put("lastname", "jede");
 		
 		
-		MvcResult resultPost = mvc.perform(MockMvcRequestBuilders.post("/myApps/system/system/tbl student/addData")
+		MvcResult resultPost = mvc.perform(MockMvcRequestBuilders.post("/"+env.getProperty("spring.application.name")+"/"+env.getProperty("systemUser")+"/"+env.getProperty("systemDatasource")+"/tbl student/"+env.getProperty("createData"))
 	            .contentType(MediaType.APPLICATION_JSON)
 	            .content(new ObjectMapper().writeValueAsString(student)))
 	            .andExpect(MockMvcResultMatchers.status().isOk())
@@ -115,7 +115,7 @@ public class ApplicationTests {
 		}); 
 		String id=jsonMap.get("id");
 			      mvc.perform( MockMvcRequestBuilders
-			    	      .get("/myApps/system/system/tbl student/getdataForKey/"+id)
+			    	      .get("/"+env.getProperty("spring.application.name")+"/"+env.getProperty("systemUser")+"/"+env.getProperty("systemDatasource")+"/tbl student/"+env.getProperty("getOnedata")+"/"+id)
 			    	      .accept(MediaType.APPLICATION_JSON))
 			    	      .andDo(MockMvcResultHandlers.print())
 			    	      .andExpect(MockMvcResultMatchers.status().isOk())
@@ -125,7 +125,7 @@ public class ApplicationTests {
 		
 	}
 	
-	@Test
+	//@Test
 	public void insert() throws Exception {
 		
 		Map<String ,String> student=new HashMap<String ,String>();
@@ -134,7 +134,7 @@ public class ApplicationTests {
 		student.put("lastname", "jede");
 		
 		
-		MvcResult resultPost = mvc.perform(MockMvcRequestBuilders.post("/myApps/system/system/tbl student/addData")
+		MvcResult resultPost = mvc.perform(MockMvcRequestBuilders.post("/"+env.getProperty("spring.application.name")+"/"+env.getProperty("systemUser")+"/"+env.getProperty("systemDatasource")+"/tbl student/"+env.getProperty("createData"))
 	            .contentType(MediaType.APPLICATION_JSON)
 	            .content(new ObjectMapper().writeValueAsString(student)))
 	            .andExpect(MockMvcResultMatchers.status().isOk())
@@ -148,7 +148,7 @@ public class ApplicationTests {
 		String id=jsonMap.get("id");
 		
 		mvc.perform( MockMvcRequestBuilders
-	    	      .get("/myApps/system/system/tbl student/getdataForKey/"+id)
+	    	      .get("/"+env.getProperty("spring.application.name")+"/"+env.getProperty("systemUser")+"/"+env.getProperty("systemDatasource")+"/tbl student/"+env.getProperty("getOnedata")+"/"+id)
 	    	      .accept(MediaType.APPLICATION_JSON))
 	    	      .andDo(MockMvcResultHandlers.print())
 	    	      .andExpect(MockMvcResultMatchers.status().isOk())
@@ -159,7 +159,7 @@ public class ApplicationTests {
 		  
 		
 	}
-	@Test
+	//@Test
 	public void updateData() throws Exception {
 		Map<String ,String> student=new HashMap<String ,String>();
 		student.put("firstname", "Lokesh");
@@ -167,7 +167,7 @@ public class ApplicationTests {
 		student.put("lastname", "jede");
 		
 		
-		MvcResult resultPost = mvc.perform(MockMvcRequestBuilders.post("/myApps/system/system/tbl student/addData")
+		MvcResult resultPost = mvc.perform(MockMvcRequestBuilders.post("/"+env.getProperty("spring.application.name")+"/"+env.getProperty("systemUser")+"/"+env.getProperty("systemDatasource")+"/tbl student/"+env.getProperty("createData"))
 	            .contentType(MediaType.APPLICATION_JSON)
 	            .content(new ObjectMapper().writeValueAsString(student)))
 	            .andExpect(MockMvcResultMatchers.status().isOk())
@@ -181,7 +181,7 @@ public class ApplicationTests {
 		String id=jsonMap.get("id");
 		student.put("id", id);
 		student.put("lastname", "jedeupdate");
-		MvcResult resultPost1 =  mvc.perform(MockMvcRequestBuilders.put("/myApps/system/system/tbl student/updateData")
+		MvcResult resultPost1 =  mvc.perform(MockMvcRequestBuilders.put("/"+env.getProperty("spring.application.name")+"/"+env.getProperty("systemUser")+"/"+env.getProperty("systemDatasource")+"/tbl student/"+env.getProperty("updateData"))
 		            .contentType(MediaType.APPLICATION_JSON)
 		            .content(new ObjectMapper().writeValueAsString(student)))
 				    .andDo(MockMvcResultHandlers.print())
@@ -192,7 +192,7 @@ public class ApplicationTests {
 		Assert.hasText(student.get("lastname"),jsonData1);
 	}
 	
-	@Test
+	//@Test
 	public void getDeleteRec() throws Exception {
 		Map<String ,String> student=new HashMap<String ,String>();
 		student.put("firstname", "Lokesh");
@@ -200,7 +200,7 @@ public class ApplicationTests {
 		student.put("lastname", "jede");
 		
 		
-		MvcResult resultPost = mvc.perform(MockMvcRequestBuilders.post("/myApps/system/system/tbl student/addData")
+		MvcResult resultPost = mvc.perform(MockMvcRequestBuilders.post("/"+env.getProperty("spring.application.name")+"/"+env.getProperty("systemUser")+"/"+env.getProperty("systemDatasource")+"/tbl student/"+env.getProperty("createData"))
 	            .contentType(MediaType.APPLICATION_JSON)
 	            .content(new ObjectMapper().writeValueAsString(student)))
 	            .andExpect(MockMvcResultMatchers.status().isOk())
@@ -213,7 +213,7 @@ public class ApplicationTests {
 		}); 
 		String id=jsonMap.get("id");
 			      mvc.perform( MockMvcRequestBuilders
-			    	      .delete("/myApps/system/system/tbl student/deleteData/"+id)
+			    	      .delete("/"+env.getProperty("spring.application.name")+"/"+env.getProperty("systemUser")+"/"+env.getProperty("systemDatasource")+"/tbl student/"+env.getProperty("delete")+"/"+id)
 			    	      .accept(MediaType.APPLICATION_JSON))
 			    	      .andDo(MockMvcResultHandlers.print())
 			    	      .andExpect(MockMvcResultMatchers.status().isOk())
@@ -222,21 +222,21 @@ public class ApplicationTests {
 			              .andExpect(MockMvcResultMatchers.jsonPath("$.id",is(Integer.parseInt(id))));
 			      
 			      mvc.perform( MockMvcRequestBuilders
-			    	      .get("/myApps/system/system/tbl student/getdataForKey/"+id)
+			    	      .get("/"+env.getProperty("spring.application.name")+"/"+env.getProperty("systemUser")+"/"+env.getProperty("systemDatasource")+"/tbl student/"+env.getProperty("getOnedata")+"/"+id)
 			    	      .accept(MediaType.APPLICATION_JSON))
 			    	      .andDo(MockMvcResultHandlers.print())
 			    	      .andExpect(MockMvcResultMatchers.status().isOk())
 			    	      .andExpect(MockMvcResultMatchers.jsonPath("$.id").doesNotExist());
 		
 	}
-	@Test
+	//@Test
 	public void updateService() throws Exception {
 	// CREATE TABLE Service (id INTEGER(10) PRIMARY KEY,tableName VARCHAR(100),serviceName VARCHAR(100))
 		Map<String ,String> serviceData=new HashMap<String ,String>();
 		serviceData.put("tableName", "TBL_STUDENT");
 		//student.put("serviceName", "studentService");
 		
-		MvcResult resultPost = mvc.perform(MockMvcRequestBuilders.get("/myApps/system/system/service/getdata")
+		MvcResult resultPost = mvc.perform(MockMvcRequestBuilders.get("/"+env.getProperty("spring.application.name")+"/"+env.getProperty("systemUser")+"/"+env.getProperty("systemDatasource")+"/service/"+env.getProperty("getAllData"))
 	            .contentType(MediaType.APPLICATION_JSON)
 	            .param("tableName", "TBL_STUDENT"))
 	            .andExpect(MockMvcResultMatchers.status().isOk())
@@ -254,7 +254,7 @@ public class ApplicationTests {
       serviceData .put("servicename", "studentService") ;
       serviceData.put("id", id) ;
       
-      MvcResult resultPost2 =  mvc.perform(MockMvcRequestBuilders.put("/myApps/system/system/service/updateData")
+      MvcResult resultPost2 =  mvc.perform(MockMvcRequestBuilders.put("/"+env.getProperty("spring.application.name")+"/"+env.getProperty("systemUser")+"/"+env.getProperty("systemDatasource")+"/service/"+env.getProperty("updateData"))
 	            .contentType(MediaType.APPLICATION_JSON)
 	            .content(new ObjectMapper().writeValueAsString(serviceData)))
 			    .andDo(MockMvcResultHandlers.print())
@@ -266,7 +266,7 @@ public class ApplicationTests {
 		});
 		
 		assertTrue(jsonMap2.get("servicename").equals("studentService"));
-		MvcResult resultPost3 = mvc.perform(MockMvcRequestBuilders.get("/myApps/system/system/service/getdata")
+		MvcResult resultPost3 = mvc.perform(MockMvcRequestBuilders.get("/"+env.getProperty("spring.application.name")+"/"+env.getProperty("systemUser")+"/"+env.getProperty("systemDatasource")+"/service/"+env.getProperty("getAllData"))
 	            .contentType(MediaType.APPLICATION_JSON)
 	             )
 				.andDo(MockMvcResultHandlers.print())
@@ -280,7 +280,7 @@ public class ApplicationTests {
 		});
 		System.out.println(jsonMap3);
 		assertTrue(jsonMap3.size()>0);
-		MvcResult resultPost1 = mvc.perform(MockMvcRequestBuilders.get("/myApps/system/system/studentService/getdata")
+		MvcResult resultPost1 = mvc.perform(MockMvcRequestBuilders.get("/"+env.getProperty("spring.application.name")+"/"+env.getProperty("systemUser")+"/"+env.getProperty("systemDatasource")+"/studentService/"+env.getProperty("getAllData"))
 	            .contentType(MediaType.APPLICATION_JSON)
 	             )
 				.andDo(MockMvcResultHandlers.print())
@@ -294,7 +294,7 @@ public class ApplicationTests {
 		});
 		assertTrue(jsonMap1.size()>0);
 		 serviceData .put("servicename", "tbl student") ;
-		mvc.perform(MockMvcRequestBuilders.put("/myApps/system/system/service/updateData")
+		mvc.perform(MockMvcRequestBuilders.put("/"+env.getProperty("spring.application.name")+"/"+env.getProperty("systemUser")+"/"+env.getProperty("systemDatasource")+"/service/"+env.getProperty("updateData"))
 	            .contentType(MediaType.APPLICATION_JSON)
 	            .content(new ObjectMapper().writeValueAsString(serviceData)))
 			    .andDo(MockMvcResultHandlers.print())
@@ -302,17 +302,17 @@ public class ApplicationTests {
 	            .andReturn();
 	}
 	
-	@Test
+	//@Test
 	public void updateAttrb() throws Exception
 	{
-		mvc.perform(MockMvcRequestBuilders.get("/myApps/system/system/tbl student/getdata")
+		mvc.perform(MockMvcRequestBuilders.get("/"+env.getProperty("spring.application.name")+"/"+env.getProperty("systemUser")+"/"+env.getProperty("systemDatasource")+"/tbl student/"+env.getProperty("getAllData"))
 	            .contentType(MediaType.APPLICATION_JSON)
 	             
 	            )
 		        .andDo(MockMvcResultHandlers.print())
 	            .andExpect(MockMvcResultMatchers.status().isOk())
 	            .andReturn();
-		MvcResult resultPost = mvc.perform(MockMvcRequestBuilders.get("/myApps/system/system/service attr/getdata")
+		MvcResult resultPost = mvc.perform(MockMvcRequestBuilders.get("/"+env.getProperty("spring.application.name")+"/"+env.getProperty("systemUser")+"/"+env.getProperty("systemDatasource")+"/service attr/"+env.getProperty("getAllData"))
 	            .contentType(MediaType.APPLICATION_JSON)
 	             )
 				.andDo(MockMvcResultHandlers.print())
@@ -335,7 +335,7 @@ public class ApplicationTests {
 		String attrID=serviceAttrData.get("id");
 		String serviceAttrbBeforChange=serviceAttrData.get("attrname");
 		 serviceAttrData.put("attrname", "servicenameupdate");
-		 MvcResult resultPost2 =  mvc.perform(MockMvcRequestBuilders.put("/myApps/system/system/service attr/updateData")
+		 MvcResult resultPost2 =  mvc.perform(MockMvcRequestBuilders.put("/"+env.getProperty("spring.application.name")+"/"+env.getProperty("systemUser")+"/"+env.getProperty("systemDatasource")+"/service attr/"+env.getProperty("updateData"))
 		            .contentType(MediaType.APPLICATION_JSON)
 		            .content(new ObjectMapper().writeValueAsString(serviceAttrData)))
 				    .andDo(MockMvcResultHandlers.print())
@@ -348,14 +348,14 @@ public class ApplicationTests {
 			
 			assertTrue(jsonMap2.get("attrname").equals("servicenameupdate"));
 		
-			mvc.perform(MockMvcRequestBuilders.get("/myApps/system/system/service attr/getdata")
+			mvc.perform(MockMvcRequestBuilders.get("/"+env.getProperty("spring.application.name")+"/"+env.getProperty("systemUser")+"/"+env.getProperty("systemDatasource")+"/service attr/"+env.getProperty("getAllData"))
 		            .contentType(MediaType.APPLICATION_JSON)
 		             
 		            )
 			        .andDo(MockMvcResultHandlers.print())
 		            .andExpect(MockMvcResultMatchers.status().isOk())
 		            .andReturn();
-			mvc.perform(MockMvcRequestBuilders.get("/myApps/system/system/service/getdata")
+			mvc.perform(MockMvcRequestBuilders.get("/"+env.getProperty("spring.application.name")+"/"+env.getProperty("systemUser")+"/"+env.getProperty("systemDatasource")+"/service/"+env.getProperty("getAllData"))
 		            .contentType(MediaType.APPLICATION_JSON)
 		             
 		            )
@@ -370,9 +370,9 @@ public class ApplicationTests {
 					 * .andExpect(MockMvcResultMatchers.status().isOk()) .andReturn();
 					 */
 			
-			/*
+			
 				Map<String ,String> servicData=new HashMap<>(); 
-				MvcResult resultPost4 = mvc.perform(MockMvcRequestBuilders.get("/myApps/system/system/service/getdataForKey/"+serviceID)
+				MvcResult resultPost4 = mvc.perform(MockMvcRequestBuilders.get("/"+env.getProperty("spring.application.name")+"/"+env.getProperty("systemUser")+"/"+env.getProperty("systemDatasource")+"/service/"+env.getProperty("getOnedata")+"/"+serviceID)
 			            .contentType(MediaType.APPLICATION_JSON)
 			            //.content(new ObjectMapper().writeValueAsString(student))
 			            )
@@ -385,7 +385,7 @@ public class ApplicationTests {
 				}); 
 				String serviceName= jsonMap4.get("servicename");
 				
-				MvcResult resultPost3=	mvc.perform(MockMvcRequestBuilders.get("/myApps/system/system/"+serviceName+"/getdata")
+				MvcResult resultPost3=	mvc.perform(MockMvcRequestBuilders.get("/"+env.getProperty("spring.application.name")+"/"+env.getProperty("systemUser")+"/"+env.getProperty("systemDatasource")+"/"+serviceName+"/"+env.getProperty("getAllData"))
 			            .contentType(MediaType.APPLICATION_JSON)
 			             
 			            )
@@ -411,7 +411,7 @@ public class ApplicationTests {
 					assertTrue(isPresent);
 					
 					serviceAttrData.put("attrname", serviceAttrbBeforChange);
-					 mvc.perform(MockMvcRequestBuilders.put("/myApps/system/system/service attr/updateData")
+					 mvc.perform(MockMvcRequestBuilders.put("/"+env.getProperty("spring.application.name")+"/"+env.getProperty("systemUser")+"/"+env.getProperty("systemDatasource")+"/service attr/"+env.getProperty("updateData"))
 					            .contentType(MediaType.APPLICATION_JSON)
 					            .content(new ObjectMapper().writeValueAsString(serviceAttrData)))
 							    .andDo(MockMvcResultHandlers.print())
@@ -421,17 +421,17 @@ public class ApplicationTests {
 					
 				
 	}
-	@Test
+	//@Test
 	public void testminValidation() throws Exception
 	{
 		ObjectMapper mapper = new ObjectMapper();
 
-		mvc.perform(MockMvcRequestBuilders.get("/myApps/system/system/tbl student/getdata")
+		mvc.perform(MockMvcRequestBuilders.get("/"+env.getProperty("spring.application.name")+"/"+env.getProperty("systemUser")+"/"+env.getProperty("systemDatasource")+"/tbl student/"+env.getProperty("getAllData"))
 				.contentType(MediaType.APPLICATION_JSON)
 
 		).andDo(MockMvcResultHandlers.print()).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
 		MvcResult resultService = mvc
-				.perform(MockMvcRequestBuilders.get("/myApps/system/system/service/getdata")
+				.perform(MockMvcRequestBuilders.get("/"+env.getProperty("spring.application.name")+"/"+env.getProperty("systemUser")+"/"+env.getProperty("systemDatasource")+"/service/"+env.getProperty("getAllData"))
 						.contentType(MediaType.APPLICATION_JSON))
 				.andDo(MockMvcResultHandlers.print()).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
 		String resultServiceStr = resultService.getResponse().getContentAsString();
@@ -446,7 +446,7 @@ public class ApplicationTests {
 				serViceID = serviceMap.get("id");
 			}
 		}
-		MvcResult resultServiceAttr=mvc.perform(MockMvcRequestBuilders.get("/myApps/system/system/service attr/getdata")
+		MvcResult resultServiceAttr=mvc.perform(MockMvcRequestBuilders.get("/"+env.getProperty("spring.application.name")+"/"+env.getProperty("systemUser")+"/"+env.getProperty("systemDatasource")+"/service attr/"+env.getProperty("getAllData"))
 				.contentType(MediaType.APPLICATION_JSON)
 				 .param("serviceid", serViceID)
 
@@ -467,7 +467,7 @@ public class ApplicationTests {
 		
 		attrbParam.put("attrminlength", "3");
 		 
-		MvcResult updatedAttrb =  mvc.perform(MockMvcRequestBuilders.put("/myApps/system/system/service attr/updateData")
+		MvcResult updatedAttrb =  mvc.perform(MockMvcRequestBuilders.put("/"+env.getProperty("spring.application.name")+"/"+env.getProperty("systemUser")+"/"+env.getProperty("systemDatasource")+"/service attr/"+env.getProperty("updateData"))
 	            .contentType(MediaType.APPLICATION_JSON)
 	            .content(new ObjectMapper().writeValueAsString(attrbParam)))
 			    .andDo(MockMvcResultHandlers.print())
@@ -477,41 +477,41 @@ public class ApplicationTests {
       Map<String, String> updatedAttrbMap = new HashMap<String,String>();
       updatedAttrbMap = mapper.readValue(updatedAttrbStr, new TypeReference<Map<String, String>>() {
 		});
-      mvc.perform(MockMvcRequestBuilders.get("/myApps/system/system/tbl student/getdata")
+      mvc.perform(MockMvcRequestBuilders.get("/"+env.getProperty("spring.application.name")+"/"+env.getProperty("systemUser")+"/"+env.getProperty("systemDatasource")+"/tbl student/getdata")
 				.contentType(MediaType.APPLICATION_JSON)
 
 		).andDo(MockMvcResultHandlers.print()).andExpect(MockMvcResultMatchers.status().isBadRequest()).andReturn();
       
-      mvc.perform(MockMvcRequestBuilders.get("/myApps/system/system/tbl student/getdata")
+      mvc.perform(MockMvcRequestBuilders.get("/"+env.getProperty("spring.application.name")+"/"+env.getProperty("systemUser")+"/"+env.getProperty("systemDatasource")+"/tbl student/getdata")
 				.contentType(MediaType.APPLICATION_JSON)
 				 .param("firstname", "Lokesh")
 		).andDo(MockMvcResultHandlers.print()).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
       
       attrbParam.put("attrminlength", "null");
-      MvcResult againUpdatedAttrb =  mvc.perform(MockMvcRequestBuilders.put("/myApps/system/system/service attr/updateData")
+      MvcResult againUpdatedAttrb =  mvc.perform(MockMvcRequestBuilders.put("/"+env.getProperty("spring.application.name")+"/"+env.getProperty("systemUser")+"/"+env.getProperty("systemDatasource")+"/service attr/"+env.getProperty("updateData"))
 	            .contentType(MediaType.APPLICATION_JSON)
 	            .content(new ObjectMapper().writeValueAsString(attrbParam)))
 			    .andDo(MockMvcResultHandlers.print())
 	            .andExpect(MockMvcResultMatchers.status().isOk())
 	            .andReturn();
       
-      mvc.perform(MockMvcRequestBuilders.get("/myApps/system/system/tbl student/getdata")
+      mvc.perform(MockMvcRequestBuilders.get("/"+env.getProperty("spring.application.name")+"/"+env.getProperty("systemUser")+"/"+env.getProperty("systemDatasource")+"/tbl student/"+env.getProperty("getAllData"))
 				.contentType(MediaType.APPLICATION_JSON)
 		).andDo(MockMvcResultHandlers.print()).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
       
 		
 	}
-	@Test
+	//@Test
 	public void testmaxValidation() throws Exception
 	{
 		ObjectMapper mapper = new ObjectMapper();
 
-		mvc.perform(MockMvcRequestBuilders.get("/myApps/system/system/tbl student/getdata")
+		mvc.perform(MockMvcRequestBuilders.get("/"+env.getProperty("spring.application.name")+"/"+env.getProperty("systemUser")+"/"+env.getProperty("systemDatasource")+"/tbl student/"+env.getProperty("getAllData"))
 				.contentType(MediaType.APPLICATION_JSON)
 
 		).andDo(MockMvcResultHandlers.print()).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
 		MvcResult resultService = mvc
-				.perform(MockMvcRequestBuilders.get("/myApps/system/system/service/getdata")
+				.perform(MockMvcRequestBuilders.get("/"+env.getProperty("spring.application.name")+"/"+env.getProperty("systemUser")+"/"+env.getProperty("systemDatasource")+"/service/"+env.getProperty("getAllData"))
 						.contentType(MediaType.APPLICATION_JSON))
 				.andDo(MockMvcResultHandlers.print()).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
 		String resultServiceStr = resultService.getResponse().getContentAsString();
@@ -526,7 +526,7 @@ public class ApplicationTests {
 				serViceID = serviceMap.get("id");
 			}
 		}
-		MvcResult resultServiceAttr=mvc.perform(MockMvcRequestBuilders.get("/myApps/system/system/service attr/getdata")
+		MvcResult resultServiceAttr=mvc.perform(MockMvcRequestBuilders.get("/"+env.getProperty("spring.application.name")+"/"+env.getProperty("systemUser")+"/"+env.getProperty("systemDatasource")+"/service attr/"+env.getProperty("getAllData"))
 				.contentType(MediaType.APPLICATION_JSON)
 				 .param("serviceid", serViceID)
 
@@ -547,7 +547,7 @@ public class ApplicationTests {
 		
 		attrbParam.put("attrmaxlength", "20");
 		 
-		MvcResult updatedAttrb =  mvc.perform(MockMvcRequestBuilders.put("/myApps/system/system/service attr/updateData")
+		MvcResult updatedAttrb =  mvc.perform(MockMvcRequestBuilders.put("/"+env.getProperty("spring.application.name")+"/"+env.getProperty("systemUser")+"/"+env.getProperty("systemDatasource")+"/service attr/"+env.getProperty("updateData"))
 	            .contentType(MediaType.APPLICATION_JSON)
 	            .content(new ObjectMapper().writeValueAsString(attrbParam)))
 			    .andDo(MockMvcResultHandlers.print())
@@ -557,26 +557,26 @@ public class ApplicationTests {
       Map<String, String> updatedAttrbMap = new HashMap<String,String>();
       updatedAttrbMap = mapper.readValue(updatedAttrbStr, new TypeReference<Map<String, String>>() {
 		});
-      mvc.perform(MockMvcRequestBuilders.get("/myApps/system/system/tbl student/getdata")
+      mvc.perform(MockMvcRequestBuilders.get("/"+env.getProperty("spring.application.name")+"/"+env.getProperty("systemUser")+"/"+env.getProperty("systemDatasource")+"/tbl student/"+env.getProperty("getAllData"))
 				.contentType(MediaType.APPLICATION_JSON)
 				.param("firstname", "Lokesh111111111111111111111")
 
 		).andDo(MockMvcResultHandlers.print()).andExpect(MockMvcResultMatchers.status().isBadRequest()).andReturn();
       
-     // mvc.perform(MockMvcRequestBuilders.get("/myApps/system/system/tbl student/getdata")
+     // mvc.perform(MockMvcRequestBuilders.get("/"+env.getProperty("spring.application.name")+"/"+env.getProperty("systemUser")+"/"+env.getProperty("systemDatasource")+"/tbl student/getdata")
 	//			.contentType(MediaType.APPLICATION_JSON)
 		//		 .param("firstname", "Lokesh111111111111111111111")
 		//).andDo(MockMvcResultHandlers.print()).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
       
       attrbParam.put("attrmaxlength", "null");
-      MvcResult againUpdatedAttrb =  mvc.perform(MockMvcRequestBuilders.put("/myApps/system/system/service attr/updateData")
+      MvcResult againUpdatedAttrb =  mvc.perform(MockMvcRequestBuilders.put("/"+env.getProperty("spring.application.name")+"/"+env.getProperty("systemUser")+"/"+env.getProperty("systemDatasource")+"/service attr/"+env.getProperty("updateData"))
 	            .contentType(MediaType.APPLICATION_JSON)
 	            .content(new ObjectMapper().writeValueAsString(attrbParam)))
 			    .andDo(MockMvcResultHandlers.print())
 	            .andExpect(MockMvcResultMatchers.status().isOk())
 	            .andReturn();
       
-      mvc.perform(MockMvcRequestBuilders.get("/myApps/system/system/tbl student/getdata")
+      mvc.perform(MockMvcRequestBuilders.get("/"+env.getProperty("spring.application.name")+"/"+env.getProperty("systemUser")+"/"+env.getProperty("systemDatasource")+"/tbl student/"+env.getProperty("getAllData"))
 				.contentType(MediaType.APPLICATION_JSON)
 		).andDo(MockMvcResultHandlers.print()).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
       
@@ -586,18 +586,18 @@ public class ApplicationTests {
 		
 	}
 	
-	@Test
+	//@Test
 	public void testmanditoryValidation() throws Exception
 	{
 
 		ObjectMapper mapper = new ObjectMapper();
 
-		mvc.perform(MockMvcRequestBuilders.get("/myApps/system/system/tbl student/getdata")
+		mvc.perform(MockMvcRequestBuilders.get("/"+env.getProperty("spring.application.name")+"/"+env.getProperty("systemUser")+"/"+env.getProperty("systemDatasource")+"/tbl student/"+env.getProperty("getAllData"))
 				.contentType(MediaType.APPLICATION_JSON)
 
 		).andDo(MockMvcResultHandlers.print()).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
 		MvcResult resultService = mvc
-				.perform(MockMvcRequestBuilders.get("/myApps/system/system/service/getdata")
+				.perform(MockMvcRequestBuilders.get("/"+env.getProperty("spring.application.name")+"/"+env.getProperty("systemUser")+"/"+env.getProperty("systemDatasource")+"/service/"+env.getProperty("getAllData"))
 						.contentType(MediaType.APPLICATION_JSON))
 				.andDo(MockMvcResultHandlers.print()).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
 		String resultServiceStr = resultService.getResponse().getContentAsString();
@@ -612,7 +612,7 @@ public class ApplicationTests {
 				serViceID = serviceMap.get("id");
 			}
 		}
-		MvcResult resultServiceAttr=mvc.perform(MockMvcRequestBuilders.get("/myApps/system/system/service attr/getdata")
+		MvcResult resultServiceAttr=mvc.perform(MockMvcRequestBuilders.get("/"+env.getProperty("spring.application.name")+"/"+env.getProperty("systemUser")+"/"+env.getProperty("systemDatasource")+"/service attr/"+env.getProperty("getAllData"))
 				.contentType(MediaType.APPLICATION_JSON)
 				 .param("serviceid", serViceID)
 
@@ -633,7 +633,7 @@ public class ApplicationTests {
 		
 		attrbParam.put("attrismandatory", "yes");
 		 
-		MvcResult updatedAttrb =  mvc.perform(MockMvcRequestBuilders.put("/myApps/system/system/service attr/updateData")
+		MvcResult updatedAttrb =  mvc.perform(MockMvcRequestBuilders.put("/"+env.getProperty("spring.application.name")+"/"+env.getProperty("systemUser")+"/"+env.getProperty("systemDatasource")+"/service attr/"+env.getProperty("updateData"))
 	            .contentType(MediaType.APPLICATION_JSON)
 	            .content(new ObjectMapper().writeValueAsString(attrbParam)))
 			    .andDo(MockMvcResultHandlers.print())
@@ -643,41 +643,41 @@ public class ApplicationTests {
       Map<String, String> updatedAttrbMap = new HashMap<String,String>();
       updatedAttrbMap = mapper.readValue(updatedAttrbStr, new TypeReference<Map<String, String>>() {
 		});
-      mvc.perform(MockMvcRequestBuilders.get("/myApps/system/system/tbl student/getdata")
+      mvc.perform(MockMvcRequestBuilders.get("/"+env.getProperty("spring.application.name")+"/"+env.getProperty("systemUser")+"/"+env.getProperty("systemDatasource")+"/tbl student/"+env.getProperty("getAllData"))
 				.contentType(MediaType.APPLICATION_JSON)
 
 		).andDo(MockMvcResultHandlers.print()).andExpect(MockMvcResultMatchers.status().isBadRequest()).andReturn();
       
-      mvc.perform(MockMvcRequestBuilders.get("/myApps/system/system/tbl student/getdata")
+      mvc.perform(MockMvcRequestBuilders.get("/"+env.getProperty("spring.application.name")+"/"+env.getProperty("systemUser")+"/"+env.getProperty("systemDatasource")+"/tbl student/"+env.getProperty("getAllData"))
 				.contentType(MediaType.APPLICATION_JSON)
 				 .param("firstname", "Lokesh111111111111111111111")
 		).andDo(MockMvcResultHandlers.print()).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
       
       attrbParam.put("attrismandatory", "null");
-      MvcResult againUpdatedAttrb =  mvc.perform(MockMvcRequestBuilders.put("/myApps/system/system/service attr/updateData")
+      MvcResult againUpdatedAttrb =  mvc.perform(MockMvcRequestBuilders.put("/"+env.getProperty("spring.application.name")+"/"+env.getProperty("systemUser")+"/"+env.getProperty("systemDatasource")+"/service attr/"+env.getProperty("updateData"))
 	            .contentType(MediaType.APPLICATION_JSON)
 	            .content(new ObjectMapper().writeValueAsString(attrbParam)))
 			    .andDo(MockMvcResultHandlers.print())
 	            .andExpect(MockMvcResultMatchers.status().isOk())
 	            .andReturn();
       
-      mvc.perform(MockMvcRequestBuilders.get("/myApps/system/system/tbl student/getdata")
+      mvc.perform(MockMvcRequestBuilders.get("/"+env.getProperty("spring.application.name")+"/"+env.getProperty("systemUser")+"/"+env.getProperty("systemDatasource")+"/tbl student/"+env.getProperty("getAllData"))
 				.contentType(MediaType.APPLICATION_JSON)
 		).andDo(MockMvcResultHandlers.print()).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
       
 	}
-	@Test
+	//@Test
 	public void testregxValidation() throws Exception
 	{
 
 		ObjectMapper mapper = new ObjectMapper();
 
-		mvc.perform(MockMvcRequestBuilders.get("/myApps/system/system/tbl student/getdata")
+		mvc.perform(MockMvcRequestBuilders.get("/"+env.getProperty("spring.application.name")+"/"+env.getProperty("systemUser")+"/"+env.getProperty("systemDatasource")+"/tbl student/"+env.getProperty("getAllData"))
 				.contentType(MediaType.APPLICATION_JSON)
 
 		).andDo(MockMvcResultHandlers.print()).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
 		MvcResult resultService = mvc
-				.perform(MockMvcRequestBuilders.get("/myApps/system/system/service/getdata")
+				.perform(MockMvcRequestBuilders.get("/"+env.getProperty("spring.application.name")+"/"+env.getProperty("systemUser")+"/"+env.getProperty("systemDatasource")+"/service/"+env.getProperty("getAllData"))
 						.contentType(MediaType.APPLICATION_JSON))
 				.andDo(MockMvcResultHandlers.print()).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
 		String resultServiceStr = resultService.getResponse().getContentAsString();
@@ -692,7 +692,7 @@ public class ApplicationTests {
 				serViceID = serviceMap.get("id");
 			}
 		}
-		MvcResult resultServiceAttr=mvc.perform(MockMvcRequestBuilders.get("/myApps/system/system/service attr/getdata")
+		MvcResult resultServiceAttr=mvc.perform(MockMvcRequestBuilders.get("/"+env.getProperty("spring.application.name")+"/"+env.getProperty("systemUser")+"/"+env.getProperty("systemDatasource")+"/service attr/"+env.getProperty("getAllData"))
 				.contentType(MediaType.APPLICATION_JSON)
 				 .param("serviceid", serViceID)
 
@@ -713,7 +713,7 @@ public class ApplicationTests {
 		
 		attrbParam.put("attrregxvalidation", "^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+$");
 		 
-		MvcResult updatedAttrb =  mvc.perform(MockMvcRequestBuilders.put("/myApps/system/system/service attr/updateData")
+		MvcResult updatedAttrb =  mvc.perform(MockMvcRequestBuilders.put("/"+env.getProperty("spring.application.name")+"/"+env.getProperty("systemUser")+"/"+env.getProperty("systemDatasource")+"/service attr/"+env.getProperty("updateData"))
 	            .contentType(MediaType.APPLICATION_JSON)
 	            .content(new ObjectMapper().writeValueAsString(attrbParam)))
 			    .andDo(MockMvcResultHandlers.print())
@@ -723,43 +723,43 @@ public class ApplicationTests {
       Map<String, String> updatedAttrbMap = new HashMap<String,String>();
       updatedAttrbMap = mapper.readValue(updatedAttrbStr, new TypeReference<Map<String, String>>() {
 		});
-      mvc.perform(MockMvcRequestBuilders.get("/myApps/system/system/tbl student/getdata")
+      mvc.perform(MockMvcRequestBuilders.get("/"+env.getProperty("spring.application.name")+"/"+env.getProperty("systemUser")+"/"+env.getProperty("systemDatasource")+"/tbl student/"+env.getProperty("getAllData"))
 				.contentType(MediaType.APPLICATION_JSON)
 				 .param("email", "Lokesh")
 
 		).andDo(MockMvcResultHandlers.print()).andExpect(MockMvcResultMatchers.status().isBadRequest()).andReturn();
       
-      mvc.perform(MockMvcRequestBuilders.get("/myApps/system/system/tbl student/getdata")
+      mvc.perform(MockMvcRequestBuilders.get("/"+env.getProperty("spring.application.name")+"/"+env.getProperty("systemUser")+"/"+env.getProperty("systemDatasource")+"/tbl student/"+env.getProperty("getAllData"))
 				.contentType(MediaType.APPLICATION_JSON)
 				 .param("email", "Lokesh@dfgdf.dfgd")
 		).andDo(MockMvcResultHandlers.print()).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
       
       attrbParam.put("attrregxvalidation", "null");
-      MvcResult againUpdatedAttrb =  mvc.perform(MockMvcRequestBuilders.put("/myApps/system/system/service attr/updateData")
+      MvcResult againUpdatedAttrb =  mvc.perform(MockMvcRequestBuilders.put("/"+env.getProperty("spring.application.name")+"/"+env.getProperty("systemUser")+"/"+env.getProperty("systemDatasource")+"/service attr/"+env.getProperty("updateData"))
 	            .contentType(MediaType.APPLICATION_JSON)
 	            .content(new ObjectMapper().writeValueAsString(attrbParam)))
 			    .andDo(MockMvcResultHandlers.print())
 	            .andExpect(MockMvcResultMatchers.status().isOk())
 	            .andReturn();
       
-      mvc.perform(MockMvcRequestBuilders.get("/myApps/system/system/tbl student/getdata")
+      mvc.perform(MockMvcRequestBuilders.get("/"+env.getProperty("spring.application.name")+"/"+env.getProperty("systemUser")+"/"+env.getProperty("systemDatasource")+"/tbl student/"+env.getProperty("getAllData"))
 				.contentType(MediaType.APPLICATION_JSON)
 		).andDo(MockMvcResultHandlers.print()).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
       
 	}
-	@Test
+	//@Test
 	public void testcusValidation() throws Exception
 	{
 
 
 		ObjectMapper mapper = new ObjectMapper();
 
-		mvc.perform(MockMvcRequestBuilders.get("/myApps/system/system/tbl student/getdata")
+		mvc.perform(MockMvcRequestBuilders.get("/"+env.getProperty("spring.application.name")+"/"+env.getProperty("systemUser")+"/"+env.getProperty("systemDatasource")+"/tbl student/"+env.getProperty("getAllData"))
 				.contentType(MediaType.APPLICATION_JSON)
 
 		).andDo(MockMvcResultHandlers.print()).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
 		MvcResult resultService = mvc
-				.perform(MockMvcRequestBuilders.get("/myApps/system/system/service/getdata")
+				.perform(MockMvcRequestBuilders.get("/"+env.getProperty("spring.application.name")+"/"+env.getProperty("systemUser")+"/"+env.getProperty("systemDatasource")+"/service/"+env.getProperty("getAllData"))
 						.contentType(MediaType.APPLICATION_JSON))
 				.andDo(MockMvcResultHandlers.print()).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
 		String resultServiceStr = resultService.getResponse().getContentAsString();
@@ -774,7 +774,7 @@ public class ApplicationTests {
 				serViceID = serviceMap.get("id");
 			}
 		}
-		MvcResult resultServiceAttr=mvc.perform(MockMvcRequestBuilders.get("/myApps/system/system/service attr/getdata")
+		MvcResult resultServiceAttr=mvc.perform(MockMvcRequestBuilders.get("/"+env.getProperty("spring.application.name")+"/"+env.getProperty("systemUser")+"/"+env.getProperty("systemDatasource")+"/service attr/"+env.getProperty("getAllData"))
 				.contentType(MediaType.APPLICATION_JSON)
 				 .param("serviceid", serViceID)
 
@@ -795,7 +795,7 @@ public class ApplicationTests {
 		
 		attrbParam.put("attrcusvalidation", "yes");
 		 
-		MvcResult updatedAttrb =  mvc.perform(MockMvcRequestBuilders.put("/myApps/system/system/service attr/updateData")
+		MvcResult updatedAttrb =  mvc.perform(MockMvcRequestBuilders.put("/"+env.getProperty("spring.application.name")+"/"+env.getProperty("systemUser")+"/"+env.getProperty("systemDatasource")+"/service attr/"+env.getProperty("updateData"))
 	            .contentType(MediaType.APPLICATION_JSON)
 	            .content(new ObjectMapper().writeValueAsString(attrbParam)))
 			    .andDo(MockMvcResultHandlers.print())
@@ -805,35 +805,61 @@ public class ApplicationTests {
       Map<String, String> updatedAttrbMap = new HashMap<String,String>();
       updatedAttrbMap = mapper.readValue(updatedAttrbStr, new TypeReference<Map<String, String>>() {
 		});
-      mvc.perform(MockMvcRequestBuilders.get("/myApps/system/system/tbl student/getdata")
+      Map<String,String> vinValidationMap=new HashMap<>();
+      vinValidationMap.put("serviceid", serViceID);
+      vinValidationMap.put("attrid", String.valueOf(updatedAttrbMap.get("id")));
+      vinValidationMap.put("name", "EmailMustContainFirst");
+      vinValidationMap.put("classname", "com.vin.validatior.EmailMustContainFirst");
+      
+      MvcResult resultPost = mvc.perform(MockMvcRequestBuilders.post("/"+env.getProperty("spring.application.name")+"/"+env.getProperty("systemUser")+"/"+env.getProperty("systemDatasource")+"/vinvalidation/"+env.getProperty("createData"))
+	            .contentType(MediaType.APPLICATION_JSON)
+	            .content(new ObjectMapper().writeValueAsString(vinValidationMap)))
+	            .andExpect(MockMvcResultMatchers.status().isOk())
+	            .andReturn();
+		String jsonData= resultPost.getResponse().getContentAsString();
+		 
+
+		Map<String, String> jsonMap = new HashMap<>();
+		jsonMap = mapper.readValue(jsonData, new TypeReference<Map<String, String>>() {
+		}); 
+		String customvalatatorId=jsonMap.get("id");
+      
+      mvc.perform(MockMvcRequestBuilders.get("/"+env.getProperty("spring.application.name")+"/"+env.getProperty("systemUser")+"/"+env.getProperty("systemDatasource")+"/tbl student/"+env.getProperty("getAllData"))
 				.contentType(MediaType.APPLICATION_JSON)
 				 .param("email", "howtodoinjava@vinrest.com")
 				 .param("firstname", "Lokesh")
 
 		).andDo(MockMvcResultHandlers.print()).andExpect(MockMvcResultMatchers.status().isBadRequest()).andReturn();
       
-      mvc.perform(MockMvcRequestBuilders.get("/myApps/system/system/tbl student/getdata")
+      mvc.perform(MockMvcRequestBuilders.get("/"+env.getProperty("spring.application.name")+"/"+env.getProperty("systemUser")+"/"+env.getProperty("systemDatasource")+"/tbl student/"+env.getProperty("getAllData"))
 				.contentType(MediaType.APPLICATION_JSON)
 				 .param("email", "Lokesh@dfgdf.dfgd")
 		).andDo(MockMvcResultHandlers.print()).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
       
       attrbParam.put("attrcusvalidation", "null");
-      MvcResult againUpdatedAttrb =  mvc.perform(MockMvcRequestBuilders.put("/myApps/system/system/service attr/updateData")
+      MvcResult againUpdatedAttrb =  mvc.perform(MockMvcRequestBuilders.put("/"+env.getProperty("spring.application.name")+"/"+env.getProperty("systemUser")+"/"+env.getProperty("systemDatasource")+"/service attr/"+env.getProperty("updateData"))
 	            .contentType(MediaType.APPLICATION_JSON)
 	            .content(new ObjectMapper().writeValueAsString(attrbParam)))
 			    .andDo(MockMvcResultHandlers.print())
 	            .andExpect(MockMvcResultMatchers.status().isOk())
 	            .andReturn();
-      
-      mvc.perform(MockMvcRequestBuilders.get("/myApps/system/system/tbl student/getdata")
+      mvc.perform( MockMvcRequestBuilders
+       	      .delete("/"+env.getProperty("spring.application.name")+"/"+env.getProperty("systemUser")+"/"+env.getProperty("systemDatasource")+"/vinvalidation/"+env.getProperty("delete")+"/"+customvalatatorId)
+       	      .accept(MediaType.APPLICATION_JSON))
+       	      .andDo(MockMvcResultHandlers.print())
+       	      .andExpect(MockMvcResultMatchers.status().isOk())
+       	      .andExpect(MockMvcResultMatchers.jsonPath("$.id").exists())
+       	      .andExpect(MockMvcResultMatchers.jsonPath("$.id").isNotEmpty()) 
+                 .andExpect(MockMvcResultMatchers.jsonPath("$.id",is(Integer.parseInt(customvalatatorId))));
+      mvc.perform(MockMvcRequestBuilders.get("/"+env.getProperty("spring.application.name")+"/"+env.getProperty("systemUser")+"/"+env.getProperty("systemDatasource")+"/tbl student/"+env.getProperty("getAllData"))
 				.contentType(MediaType.APPLICATION_JSON)
 		).andDo(MockMvcResultHandlers.print()).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
       
-	}**/
-	//@Test
+	} 
+	@Test
 	public void testMultiDataInsert()
 	{
-		
+	System.out.println("multi test");	
 	}
 	//@Test
 	public void testMultiDataUpdata()
@@ -846,12 +872,12 @@ public class ApplicationTests {
 		
 	}
 
-	@Test
+	//@Test
 	public void testMultiDataGet() throws Exception
 	{System.out.println("test multi test get");
 	 ObjectMapper mapper = new ObjectMapper();
 	MvcResult serviceAttrResult = mvc.perform( MockMvcRequestBuilders
-   	      .get("/myApps/system/system/service attr/getdata")
+   	      .get("/"+env.getProperty("spring.application.name")+"/"+env.getProperty("systemUser")+"/"+env.getProperty("systemDatasource")+"/service attr/"+env.getProperty("getAllData"))
    	      .accept(MediaType.APPLICATION_JSON))
    	      .andDo(MockMvcResultHandlers.print())
    	      .andExpect(MockMvcResultMatchers.status().isOk())
@@ -861,7 +887,7 @@ public class ApplicationTests {
      serviceAttrMap = mapper.readValue(serviceAttrStr, new TypeReference<List<Map<String, String>>>() {
 		});
 	MvcResult serviceResult = mvc.perform( MockMvcRequestBuilders
-   	      .get("/myApps/system/system/service/getdata")
+   	      .get("/"+env.getProperty("spring.application.name")+"/"+env.getProperty("systemUser")+"/"+env.getProperty("systemDatasource")+"/service/"+env.getProperty("getAllData"))
    	      .accept(MediaType.APPLICATION_JSON))
    	      .andDo(MockMvcResultHandlers.print())
    	      .andExpect(MockMvcResultMatchers.status().isOk())
@@ -898,7 +924,7 @@ public class ApplicationTests {
 	multiServiceParam.put("type", "Single");
 	multiServiceParam.put("relationwithparam", "id.id");
 	
-		MvcResult multiServiceResult =  mvc.perform(MockMvcRequestBuilders.post("/myApps/system/system/multi service/addData")
+		MvcResult multiServiceResult =  mvc.perform(MockMvcRequestBuilders.post("/"+env.getProperty("spring.application.name")+"/"+env.getProperty("systemUser")+"/"+env.getProperty("systemDatasource")+"/multi service/"+env.getProperty("createData"))
 	            .contentType(MediaType.APPLICATION_JSON)
 	            .content(new ObjectMapper().writeValueAsString(multiServiceParam)))
 			    .andDo(MockMvcResultHandlers.print())
@@ -918,7 +944,7 @@ public class ApplicationTests {
      multiServiceAttrParam.put("relationwithparam", "service.id.serviceid");
 		
      
-     MvcResult multiServiceAttrResult =  mvc.perform(MockMvcRequestBuilders.post("/myApps/system/system/multi service/addData")
+     MvcResult multiServiceAttrResult =  mvc.perform(MockMvcRequestBuilders.post("/"+env.getProperty("spring.application.name")+"/"+env.getProperty("systemUser")+"/"+env.getProperty("systemDatasource")+"/multi service/"+env.getProperty("createData"))
 	            .contentType(MediaType.APPLICATION_JSON)
 	            .content(new ObjectMapper().writeValueAsString(multiServiceParam)))
 			    .andDo(MockMvcResultHandlers.print())
@@ -932,7 +958,7 @@ public class ApplicationTests {
     // calling multiservice
      
      MvcResult multiServiceCallResult = mvc.perform( MockMvcRequestBuilders
-   	      .get("/myApps/system/system/multiService/multiTestgetService/MultiDataForParams?id="+serviceServiceId)
+   	      .get("/"+env.getProperty("spring.application.name")+"/"+env.getProperty("systemUser")+"/"+env.getProperty("systemDatasource")+"/"+env.getProperty("multiService")+"/multiTestgetService/"+env.getProperty("getMultipleAllData")+"?id="+serviceServiceId)
    	      .accept(MediaType.APPLICATION_JSON))
    	      .andDo(MockMvcResultHandlers.print())
    	      .andExpect(MockMvcResultMatchers.status().isOk())
@@ -943,7 +969,7 @@ public class ApplicationTests {
 		});
 	String delServiceID=String.valueOf(multiServiceMap.get("id"));
    mvc.perform( MockMvcRequestBuilders
-   	      .delete("/myApps/system/system/multi service/deleteData/"+delServiceID)
+   	      .delete("/"+env.getProperty("spring.application.name")+"/"+env.getProperty("systemUser")+"/"+env.getProperty("systemDatasource")+"/multi service/"+env.getProperty("delete")+"/"+delServiceID)
    	      .accept(MediaType.APPLICATION_JSON))
    	      .andDo(MockMvcResultHandlers.print())
    	      .andExpect(MockMvcResultMatchers.status().isOk())
@@ -953,7 +979,7 @@ public class ApplicationTests {
    
    String delServiceAttrID=String.valueOf(multiServiceAttrMap.get("id"));
    mvc.perform( MockMvcRequestBuilders
-   	      .delete("/myApps/system/system/multi service/deleteData/"+delServiceAttrID)
+   	      .delete("/"+env.getProperty("spring.application.name")+"/"+env.getProperty("systemUser")+"/"+env.getProperty("systemDatasource")+"/multi service/"+env.getProperty("delete")+"/"+delServiceAttrID)
    	      .accept(MediaType.APPLICATION_JSON))
    	      .andDo(MockMvcResultHandlers.print())
    	      .andExpect(MockMvcResultMatchers.status().isOk())
@@ -966,12 +992,12 @@ public class ApplicationTests {
 	//@Test
 	public void testPreProcessSingleService() throws Exception {
 		 mvc.perform( MockMvcRequestBuilders
-	    	      .get("/myApps/system/system/tbl student/getdata?iden=234")
+	    	      .get("/"+env.getProperty("spring.application.name")+"/"+env.getProperty("systemUser")+"/"+env.getProperty("systemDatasource")+"/tbl student/"+env.getProperty("getAllData")+"?iden=234")
 	    	      .accept(MediaType.APPLICATION_JSON))
 	    	      .andDo(MockMvcResultHandlers.print())
 	    	      .andExpect(MockMvcResultMatchers.status().isOk())
 	    	      .andExpect(MockMvcResultMatchers.jsonPath("$.[*]").exists());
-			MvcResult resultPost = mvc.perform(MockMvcRequestBuilders.get("/myApps/system/system/service/getdata")
+			MvcResult resultPost = mvc.perform(MockMvcRequestBuilders.get("/"+env.getProperty("spring.application.name")+"/"+env.getProperty("systemUser")+"/"+env.getProperty("systemDatasource")+"/service/"+env.getProperty("getAllData"))
 		            .contentType(MediaType.APPLICATION_JSON)
 		            .param("tableName", "TBL_STUDENT"))
 		            .andExpect(MockMvcResultMatchers.status().isOk())
@@ -984,7 +1010,7 @@ public class ApplicationTests {
 	       System.out.println(jsonMap);  
 	       Map<String ,String> serviceAttrData=jsonMap.get(0);
 		   String serviceID=serviceAttrData.get("id");
-	       MvcResult attrbResult = mvc.perform(MockMvcRequestBuilders.get("/myApps/system/system/service attr/getdata")
+	       MvcResult attrbResult = mvc.perform(MockMvcRequestBuilders.get("/"+env.getProperty("spring.application.name")+"/"+env.getProperty("systemUser")+"/"+env.getProperty("systemDatasource")+"/service attr/"+env.getProperty("getAllData"))
 		            .contentType(MediaType.APPLICATION_JSON)
 		            .param("serviceid", serviceID)
 		            .param("attrname", "firstname"))
@@ -1002,7 +1028,7 @@ public class ApplicationTests {
 			   String attrID=AttrData.get("id");
 			  
 				
-				 MvcResult vinprocessorResult = mvc.perform(MockMvcRequestBuilders.get("/myApps/system/system/vinprocessor/getdata")
+				 MvcResult vinprocessorResult = mvc.perform(MockMvcRequestBuilders.get("/"+env.getProperty("spring.application.name")+"/"+env.getProperty("systemUser")+"/"+env.getProperty("systemDatasource")+"/vinprocessor/"+env.getProperty("getAllData"))
 				            .contentType(MediaType.APPLICATION_JSON)
 				            .param("serviceid", serviceID)
 				            .param("name", "uppertolower")
@@ -1022,7 +1048,7 @@ public class ApplicationTests {
 							params.put("attrid", attrID);
 							params.put("name", "uppertolower");
 							params.put("classname", "com.vin.processor.UpperLowerParamProcessor");  
-							vinprocessorResult	=	  mvc.perform(MockMvcRequestBuilders.post("/myApps/system/system/vinprocessor/addData")
+							vinprocessorResult	=	  mvc.perform(MockMvcRequestBuilders.post("/"+env.getProperty("spring.application.name")+"/"+env.getProperty("systemUser")+"/"+env.getProperty("systemDatasource")+"/vinprocessor/"+env.getProperty("createData"))
 						            .contentType(MediaType.APPLICATION_JSON)
 						            .content(new ObjectMapper().writeValueAsString(params)))
 								    .andDo(MockMvcResultHandlers.print())
@@ -1036,14 +1062,14 @@ public class ApplicationTests {
 					}
 					
 					 mvc.perform( MockMvcRequestBuilders
-				    	      .get("/myApps/system/system/tbl student/getdata?firstname=LOKESH")
+				    	      .get("/"+env.getProperty("spring.application.name")+"/"+env.getProperty("systemUser")+"/"+env.getProperty("systemDatasource")+"/tbl student/"+env.getProperty("getAllData")+"?firstname=LOKESH")
 				    	      .accept(MediaType.APPLICATION_JSON))
 				    	      .andDo(MockMvcResultHandlers.print())
 				    	      .andExpect(MockMvcResultMatchers.status().isOk())
 				    	      .andExpect(MockMvcResultMatchers.jsonPath("$.[*]").exists());
 					 String id=String.valueOf(vinprocessorMap.get(0).get("id"));
 				      mvc.perform( MockMvcRequestBuilders
-				    	      .delete("/myApps/system/system/vinprocessor/deleteData/"+id)
+				    	      .delete("/"+env.getProperty("spring.application.name")+"/"+env.getProperty("systemUser")+"/"+env.getProperty("systemDatasource")+"/vinprocessor/"+env.getProperty("delete")+"/"+id)
 				    	      .accept(MediaType.APPLICATION_JSON))
 				    	      .andDo(MockMvcResultHandlers.print())
 				    	      .andExpect(MockMvcResultMatchers.status().isOk())
@@ -1056,12 +1082,12 @@ public class ApplicationTests {
 	//@Test
 	public void testPostProcessSingleService() throws Exception {
 		 mvc.perform( MockMvcRequestBuilders
-	    	      .get("/myApps/system/system/tbl student/getdata?iden=234")
+	    	      .get("/"+env.getProperty("spring.application.name")+"/"+env.getProperty("systemUser")+"/"+env.getProperty("systemDatasource")+"/tbl student/"+env.getProperty("getAllData")+"?iden=234")
 	    	      .accept(MediaType.APPLICATION_JSON))
 	    	      .andDo(MockMvcResultHandlers.print())
 	    	      .andExpect(MockMvcResultMatchers.status().isOk())
 	    	      .andExpect(MockMvcResultMatchers.jsonPath("$.[*]").exists());
-			MvcResult resultPost = mvc.perform(MockMvcRequestBuilders.get("/myApps/system/system/service/getdata")
+			MvcResult resultPost = mvc.perform(MockMvcRequestBuilders.get("/"+env.getProperty("spring.application.name")+"/"+env.getProperty("systemUser")+"/"+env.getProperty("systemDatasource")+"/service/"+env.getProperty("getAllData"))
 		            .contentType(MediaType.APPLICATION_JSON)
 		            .param("tableName", "TBL_STUDENT"))
 		            .andExpect(MockMvcResultMatchers.status().isOk())
@@ -1076,7 +1102,7 @@ public class ApplicationTests {
 	       
 	       Map<String ,String> serviceAttrData=jsonMap.get(0);
 		   String serviceID=String.valueOf(serviceAttrData.get("id"));
-	       MvcResult attrbResult = mvc.perform(MockMvcRequestBuilders.get("/myApps/system/system/service attr/getdata")
+	       MvcResult attrbResult = mvc.perform(MockMvcRequestBuilders.get("/"+env.getProperty("spring.application.name")+"/"+env.getProperty("systemUser")+"/"+env.getProperty("systemDatasource")+"/service attr/"+env.getProperty("getAllData"))
 		            .contentType(MediaType.APPLICATION_JSON)
 		            .param("serviceid", serviceID)
 		            .param("attrname", "firstname"))
@@ -1093,7 +1119,7 @@ public class ApplicationTests {
 			 Map<String ,String> AttrData=attrbnMap.get(0);
 			   String attrID=String.valueOf(AttrData.get("id"));
 			  
-		   MvcResult vinprocessorResult = mvc.perform(MockMvcRequestBuilders.get("/myApps/system/system/vinprocessor/getdata")
+		   MvcResult vinprocessorResult = mvc.perform(MockMvcRequestBuilders.get("/"+env.getProperty("spring.application.name")+"/"+env.getProperty("systemUser")+"/"+env.getProperty("systemDatasource")+"/vinprocessor/"+env.getProperty("getAllData"))
 				            .contentType(MediaType.APPLICATION_JSON)
 				            .param("serviceid", serviceID)
 				            .param("name", "uppertolower")
@@ -1114,7 +1140,7 @@ public class ApplicationTests {
 					params.put("attrid", attrID);
 					params.put("name", "uppertolower");
 					params.put("classname", "com.vin.processor.UpperLowerParamProcessor");  
-					vinprocessorResult	=	  mvc.perform(MockMvcRequestBuilders.post("/myApps/system/system/vinprocessor/addData")
+					vinprocessorResult	=	  mvc.perform(MockMvcRequestBuilders.post("/"+env.getProperty("spring.application.name")+"/"+env.getProperty("systemUser")+"/"+env.getProperty("systemDatasource")+"/vinprocessor/"+env.getProperty("createData"))
 				            .contentType(MediaType.APPLICATION_JSON)
 				            .content(new ObjectMapper().writeValueAsString(params)))
 						    .andDo(MockMvcResultHandlers.print())
@@ -1129,7 +1155,7 @@ public class ApplicationTests {
 			
 			
 			 mvc.perform( MockMvcRequestBuilders
-		    	      .get("/myApps/system/system/tbl student/getdata?firstname=LOKESH")
+		    	      .get("/"+env.getProperty("spring.application.name")+"/"+env.getProperty("systemUser")+"/"+env.getProperty("systemDatasource")+"/tbl student/"+env.getProperty("getAllData")+"?firstname=LOKESH")
 		    	      .accept(MediaType.APPLICATION_JSON))
 		    	      .andDo(MockMvcResultHandlers.print())
 		    	      .andExpect(MockMvcResultMatchers.status().isOk())
@@ -1137,7 +1163,7 @@ public class ApplicationTests {
 			  
 				String id=String.valueOf(vinprocessorMap.get(0).get("id"));
 			      mvc.perform( MockMvcRequestBuilders
-			    	      .delete("/myApps/system/system/vinprocessor/deleteData/"+id)
+			    	      .delete("/"+env.getProperty("spring.application.name")+"/"+env.getProperty("systemUser")+"/"+env.getProperty("systemDatasource")+"/vinprocessor/"+env.getProperty("delete")+"/"+id)
 			    	      .accept(MediaType.APPLICATION_JSON))
 			    	      .andDo(MockMvcResultHandlers.print())
 			    	      .andExpect(MockMvcResultMatchers.status().isOk())

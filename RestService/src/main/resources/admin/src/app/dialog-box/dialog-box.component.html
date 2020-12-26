@@ -2,9 +2,14 @@
   <mat-icon class="close-icon" color="warn">close</mat-icon>
 </button>
 <!-- dialog-box.component.html -->
- <div class="header text-center"   *ngIf="action == 'Update' || action == 'Validate'  || action == 'Add'  || action == 'Delete'  ;">
+ <div class="header text-center"   *ngIf="action == 'Update' || action == 'Add'  || action == 'Delete'  ;">
 
    <h1 class="title" mat-dialog-title> <strong> {{action}}  {{componentName}}</strong></h1>
+  </div>
+  
+  <div class="header text-center"   *ngIf="action == 'Validate' ;">
+
+   <h1 class="title" mat-dialog-title> <strong> {{componentName}}</strong></h1>
   </div>
 
 <div mat-dialog-content  style="width: 100%; margin: 0px;">
@@ -34,7 +39,7 @@
   <div class="form-group  input-group col-md-12"   *ngFor="let data of local_data| keyvalue" >
    <!--  <label for="{{data.key}}">{{data.key}}</label> -->
     <div class="input-group-prepend" style="height: 38px; border-right: 1px solid #ced4da !important; width: 100px;">
-          <span class="input-group-text" style="color: #000000; width: 100px; overflow: hidden;   white-space: nowrap;    text-overflow: ellipsis; " id="inputGroupPrepend2{{data.key}}">{{data.key | titlecase}}&nbsp;</span>
+          <span class="input-group-text" style="color: #000000; width: 100px; overflow: hidden;   white-space: nowrap;    text-overflow: ellipsis;     display: inline-block; " id="inputGroupPrepend2{{data.key}}" title="{{data.key | titlecase}}" >{{data.key | titlecase}}&nbsp;</span>
         </div>
     <input type="text"  value="{{data.value}}" formControlName="{{data.key}}" class="form-control" id="{{data.key}}" aria-describedby="Help" placeholder="{{data.key}}">
      <mat-icon    aria-hidden="false" aria-label="Example home icon">edit</mat-icon> 
@@ -50,7 +55,7 @@
   <div class="form-group  input-group col-md-12"   *ngFor="let data of local_data| keyvalue" >
    <!--  <label for="{{data.key}}">{{data.key}}</label> -->
     <div class="input-group-prepend" style="height: 38px; border-right: 1px solid #ced4da !important; width: 100px;">
-          <span class="input-group-text" style="color: #000000; width: 100px; overflow: hidden;   white-space: nowrap;    text-overflow: ellipsis; " id="inputGroupPrepend2{{data.key}}">{{data.key | titlecase}}&nbsp;</span>
+          <span class="input-group-text" style="color: #000000; width: 100px; overflow: hidden;   white-space: nowrap;    text-overflow: ellipsis;     display: inline-block;  " id="inputGroupPrepend2{{data.key}}" title="{{data.key | titlecase}}" >{{data.key | titlecase}}&nbsp;</span>
         </div>
     <input type="text"  value="{{data.value}}" formControlName="{{data.key}}" class="form-control" id="{{data.key}}" aria-describedby="Help" placeholder="{{data.key}}">
      <mat-icon    aria-hidden="false" aria-label="Example home icon">edit</mat-icon> 
@@ -66,7 +71,7 @@
   <div class="form-group input-group col-md-12"  *ngFor="let data of local_data| keyvalue" >
    <!--  <label for="{{data.key}}">{{data.key}}</label> -->
      <div class="input-group-prepend"  style="height: 38px; border-right: 1px solid #ced4da !important;">
-          <span class="input-group-text" style="color: #000000; width: 100px; overflow: hidden;   white-space: nowrap;    text-overflow: ellipsis; " id="inputGroupPrepend2{{data.key}}">{{data.key | titlecase}}&nbsp;</span>
+          <span class="input-group-text" style="color: #000000; width: 100px; overflow: hidden;   white-space: nowrap;    text-overflow: ellipsis;     display: inline-block; " id="inputGroupPrepend2{{data.key}}" title="{{data.key | titlecase}}">{{data.key | titlecase}}&nbsp;</span>
         </div>
     <input type="text" formControlName="{{data.key}}"  class="form-control" id="{{data.key}}" aria-describedby="Help" placeholder="{{data.key}}">
      <mat-icon    aria-hidden="false" aria-label="Example home icon">add_box</mat-icon> 
@@ -109,4 +114,2006 @@
   <button mat-button (click)="closeDialog()" mat-flat-button color="warn">Cancel</button>
 </div>
 
+<div  class="header text-center"  *ngIf="action == 'Service'; ">
+   <h1 class="title" mat-dialog-title> <strong> Api calls Avalible for service {{this.local_data.service}} </strong></h1>
+   <mat-tab-group>
+  <mat-tab label="Create"> 
+   <div class="container" style="height:650px;">
+    <div class="row" style="background-color: #18ce0f;text-align: start;border-radius: 8px;padding-bottom: 8px;padding-top: 10px;">
+  <div class="col-1" >POST</div>
+    <div style="    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+     " class="col-10" title="{{posturl}}">
+     {{posturl}}
+    </div>
+    <div  class="col-1">
+    <span style="display:flex; justify-content:flex-end; width:100%; padding:0;" > <mat-icon aria-hidden="false" aria-label="Example home icon">https</mat-icon></span>
+    </div>
+   
+  </div>
+   
+   
+  <div class="row"  style="background-color: #caffbb;">
  
+    <div class="col-3">
+   <span style="display:flex; justify-content:flex-end; width:100%; padding:10px;" ><strong> Parameters</strong></span> 
+    </div>
+    <div class="col-9"  style="padding-top: 4px;">
+    <span style="display:flex; justify-content:flex-end; width:100%; padding:0;" >   <button   id="posttry" mat-raised-button color="accent" (click)="tryClick('posttry')" >try it out</button></span>
+    
+    </div>
+    <hr style="width:100%;text-align:left;margin-left:0">
+  </div>
+ 
+   <div class="row" style="background-color: #caffbb;">
+    <div class="col-3">
+   <span ><strong>  Name</strong></span> 
+    </div>
+    <div class="col-9">
+    <span > <strong> Description</strong>
+    </span>
+    
+    </div>
+   
+  </div>
+  
+    <div class="row" style="background-color: #caffbb;">
+    <div class="col-3">
+   <span >   body </span>
+   <span class="invalid-feedback">
+                   * required 
+                     
+                </span> 
+    </div>
+    <div class="col-9">
+    <p style="text-align: start;"> Json object as  Post request to Create {{this.local_data.service}}</p>
+  
+    
+    </div>
+   
+  </div>
+  
+   <div class="row" style="background-color: #caffbb;">
+    <div class="col-3">
+    </div>
+  <div class="col-9">
+  <mat-tab-group>
+  <mat-tab label="Example Value"> 
+
+  <div class="mb-3">
+   <textarea     id="putText" style="height: 250px; width: 400px; display: block;"  [(ngModel)] = "valueJsonStr">
+{{valueJsonStr}}
+</textarea>
+   
+     </div>
+     
+ </mat-tab>
+  <mat-tab label="Model"> 
+<div class="mb-3">
+   <textarea  disabled=true   id="postTextmodel" style="height: 250px; width: 400px; display: block;">
+
+{{sampleJson}}
+</textarea>
+</div>
+ </mat-tab>
+  
+</mat-tab-group>
+</div>
+  
+  </div>
+  <div class="row" style="background-color: #caffbb;">
+   <div class="col-12">
+    <button style="width: 100%; display:{{postexecutebuttondis}};" (click) ="calApi('POST',this.local_data.service,'create',this.local_data.dsname)" id="postsingleBut" class="btn btn-primary mb-3">Execute {{this.local_data.service}} POST Api Call</button>
+  </div>
+    <div class="col-12" *ngIf="postisLoading" 
+   style="display: flex; justify-content: center; align-items: center; ">
+  <mat-progress-spinner 
+    color="primary" 
+    mode="indeterminate">
+  </mat-progress-spinner>
+</div> </div>
+   
+   <div *ngIf="postResLoading"  class="row" style="
+    background-color: #333;
+    color: white;
+    /* vertical-align: middle; */
+    text-align: start;
+    border-radius: 8px;
+    /* padding: 10px; */
+">
+  
+   <div class="col-3" style="
+    padding-top: 8px;
+"> <label>Request  URL:</label></div><div style="
+    padding-top: 8px;
+" class="col-9">  {{prefixurl }} {{posturl}}</div>
+      <div class="col-12" style="
+    padding-top: 8px;
+"> <label>Server Response</label></div>
+
+  <div class="col-3" style="
+    padding-top: 8px;
+"> <label>Code</label></div>
+
+  
+  <div class="col-9" style="
+    padding-top: 8px;
+"> <label>Response Body</label></div>
+<div  class="col-3" style="
+    padding-top: 8px;
+">
+{{postcode}}
+</div>
+<div  class="col-9" style="padding-top: 8px;overflow: hidden;white-space: break-spaces;text-overflow: ellipsis;display: inline-block;">
+{{postbody}}
+</div>
+  </div>
+  
+  
+  <div class="row" style="background-color: #caffbb;">
+    <div class="col-3">
+   <span style="display:flex; justify-content:flex-end; width:100%; padding:10px;" ><strong> Responses</strong></span> 
+    </div>
+    <div class="col-9">
+    <span style="display:flex; justify-content:flex-end; width:100%; padding:10px;" >   
+Response content type : application/json</span>
+    
+    </div>
+    <hr style="width:100%;text-align:left;margin-left:0">
+  </div>
+  <div class="row" style="background-color: #caffbb;">
+    <div class="col-3">
+   <span ><strong>  Code</strong></span> 
+    </div>
+    <div class="col-9">
+    <span > <strong> Description</strong>
+    </span>
+    
+    </div>
+   <hr style="width:100%;text-align:left;margin-left:0">
+  </div>
+  
+   <div class="row" style="background-color: #caffbb;">
+    <div class="col-3">
+   200/201
+    </div>
+    <div class="col-9">
+      <div class="mb-3">
+   
+  <p style="text-align: start;"> The Requested call for  {{this.local_data.service}} was successfully updated  </p>
+     </div>
+     
+    
+    </div>
+   
+  </div>
+  
+  <div class="row" style="background-color: #caffbb;">
+    <div class="col-3">
+   404
+    </div>
+    <div class="col-9">
+      <div class="mb-3">
+   
+   <p style="text-align: start;">  The Requested call for  {{this.local_data.service}} was not found  </p>
+     </div>
+     
+    
+    </div>
+   
+  </div>
+  <div class="row" style="background-color: #caffbb;">
+    <div class="col-3">
+   500
+    </div>
+    <div class="col-9">
+      <div class="mb-3">
+   
+   <p style="text-align: start;">  Internal server error  </p>
+     </div>
+     
+    
+    </div>
+   
+  </div>
+   <div class="row" style="background-color: #caffbb;">
+    <div class="col-3">
+   400
+    </div>
+    <div class="col-9">
+      <div class="mb-3">
+   
+   <p style="text-align: start;">  Bad Request contains validation Error  </p>
+     </div>
+     
+    
+    </div>
+   
+  </div>
+  
+  </div>
+   
+  </mat-tab>
+  <mat-tab label="Update"> 
+   <div class="container" style="height:650px;">
+    <div class="row" style="background-color: #ffbc50;text-align: start;border-radius: 8px;padding-bottom: 8px;padding-top: 10px;">
+  <div class="col-1" >PUT</div>
+    <div style="    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+     " class="col-10" title="{{posturl}}">
+     {{puturl}}
+    </div>
+    <div  class="col-1">
+    <span style="display:flex; justify-content:flex-end; width:100%; padding:0;" > <mat-icon aria-hidden="false" aria-label="Example home icon">https</mat-icon></span>
+    </div>
+   
+  </div>
+   
+   
+   
+  <div class="row"  style="background-color: #ffe0ad;">
+ 
+    <div class="col-3">
+   <span style="display:flex; justify-content:flex-end; width:100%; padding:10px;" ><strong> Parameters</strong></span> 
+    </div>
+    <div class="col-9"  style="padding-top: 4px;">
+    <span style="display:flex; justify-content:flex-end; width:100%; padding:0;" >   <button   id="puttry" mat-raised-button color="accent" (click)="tryClick('puttry')" >try it out</button></span>
+    
+    </div>
+    <hr style="width:100%;text-align:left;margin-left:0">
+  </div>
+ 
+   <div class="row" style="background-color: #ffe0ad;">
+    <div class="col-3">
+   <span ><strong>  Name</strong></span> 
+    </div>
+    <div class="col-9">
+    <span > <strong> Description</strong>
+    </span>
+    
+    </div>
+   
+  </div>
+  
+    <div class="row" style="background-color:#ffe0ad;">
+    <div class="col-3">
+   <span >   body </span>
+   <span class="invalid-feedback">
+                   * required 
+                     
+                </span> 
+    </div>
+    <div class="col-9">
+    <p style="text-align: start;"> Json object as  Put request to Update {{this.local_data.service}}</p>
+  
+    
+    </div>
+   
+  </div>
+  
+   <div class="row" style="background-color: #ffe0ad;">
+    <div class="col-3">
+    </div>
+  <div class="col-9">
+  <mat-tab-group>
+  <mat-tab label="Example Value"> 
+
+  <div class="mb-3">
+   <textarea     id="putText" style="height: 250px; width: 400px; display: block;"  [(ngModel)] = "valueJsonStr">
+{{valueJsonStr}}
+</textarea>
+   
+     </div>
+     
+ </mat-tab>
+  <mat-tab label="Model"> 
+<div class="mb-3">
+   <textarea  disabled=true   id="putTextmodel" style="height: 250px; width: 400px; display: block;">
+
+{{sampleJson}}
+</textarea>
+</div>
+ </mat-tab>
+  
+</mat-tab-group>
+</div>
+  
+  </div>
+  <div class="row" style="background-color: #ffe0ad;">
+   <div class="col-12">
+    <button style="width: 100%; display:{{puteexecutebuttondis}};" (click) ="calApi('PUT',this.local_data.service,'create',this.local_data.dsname)" id="putsingleBut" class="btn btn-primary mb-3">Execute {{this.local_data.service}} PUT Api Call</button>
+  </div>
+    <div class="col-12" *ngIf="putisLoading" 
+   style="display: flex; justify-content: center; align-items: center; ">
+  <mat-progress-spinner 
+    color="primary" 
+    mode="indeterminate">
+  </mat-progress-spinner>
+</div> </div>
+   
+   <div *ngIf="putResLoading"  class="row" style="
+    background-color: #333;
+    color: white;
+    /* vertical-align: middle; */
+    text-align: start;
+    border-radius: 8px;
+    /* padding: 10px; */
+">
+  
+   <div class="col-3" style="
+    padding-top: 8px;
+"> <label>Request  URL:</label></div><div style="
+    padding-top: 8px;
+" class="col-9">  {{prefixurl }} {{puturl}}</div>
+      <div class="col-12" style="
+    padding-top: 8px;
+"> <label>Server Response</label></div>
+
+  <div class="col-3" style="
+    padding-top: 8px;
+"> <label>Code</label></div>
+
+  
+  <div class="col-9" style="
+    padding-top: 8px;
+"> <label>Response Body</label></div>
+<div  class="col-3" style="
+    padding-top: 8px;
+">
+{{putcode}}
+</div>
+<div  class="col-9" style="padding-top: 8px;overflow: hidden;white-space: break-spaces;text-overflow: ellipsis;display: inline-block;">
+{{putbody}}
+</div>
+  </div>
+  
+  
+  <div class="row" style="background-color: #ffe0ad;">
+    <div class="col-3">
+   <span style="display:flex; justify-content:flex-end; width:100%; padding:10px;" ><strong> Responses</strong></span> 
+    </div>
+    <div class="col-9">
+    <span style="display:flex; justify-content:flex-end; width:100%; padding:10px;" >   
+Response content type : application/json</span>
+    
+    </div>
+    <hr style="width:100%;text-align:left;margin-left:0">
+  </div>
+  <div class="row" style="background-color: #ffe0ad;">
+    <div class="col-3">
+   <span ><strong>  Code</strong></span> 
+    </div>
+    <div class="col-9">
+    <span > <strong> Description</strong>
+    </span>
+    
+    </div>
+   <hr style="width:100%;text-align:left;margin-left:0">
+  </div>
+  
+   <div class="row" style="background-color: #ffe0ad;">
+    <div class="col-3">
+   200/201
+    </div>
+    <div class="col-9">
+      <div class="mb-3">
+   
+  <p style="text-align: start;"> The Requested call for  {{this.local_data.service}} was successfully updated  </p>
+     </div>
+     
+    
+    </div>
+   
+  </div>
+  
+  <div class="row" style="background-color: #ffe0ad;">
+    <div class="col-3">
+   404
+    </div>
+    <div class="col-9">
+      <div class="mb-3">
+   
+   <p style="text-align: start;">  The Requested call for  {{this.local_data.service}} was not found  </p>
+     </div>
+     
+    
+    </div>
+   
+  </div>
+  <div class="row" style="background-color: #ffe0ad;">
+    <div class="col-3">
+   500
+    </div>
+    <div class="col-9">
+      <div class="mb-3">
+   
+   <p style="text-align: start;">  Internal server error  </p>
+     </div>
+     
+    
+    </div>
+   
+  </div>
+   <div class="row" style="background-color: #ffe0ad;">
+    <div class="col-3">
+   400
+    </div>
+    <div class="col-9">
+      <div class="mb-3">
+   
+   <p style="text-align: start;">  Bad Request contains validation Error  </p>
+     </div>
+     
+    
+    </div>
+   
+  </div>
+   
+   
+   
+   </div>
+  
+  </mat-tab>
+   <mat-tab label="Retrive"> 
+   <div class="container" style="height:650px; background-color: #b5dffd;">
+    <div class="row" style="background-color: #46b3ff;text-align: start;border-radius: 8px;padding-bottom: 8px;padding-top: 10px;">
+  <div class="col-1" >GET</div>
+    <div style="    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+     " class="col-10" title="{{geturl}}">
+     {{geturl}}
+    </div>
+    <div  class="col-1">
+    <span style="display:flex; justify-content:flex-end; width:100%; padding:0;" > <mat-icon aria-hidden="false" aria-label="Example home icon">https</mat-icon></span>
+    </div>
+   </div>
+    
+  <div class="row"  style="background-color:  #b5dffd">
+    <div class="col-3">
+   <span style="display:flex; justify-content:flex-end; width:100%; padding:10px;" ><strong> Parameters</strong></span> 
+    </div>
+    <div class="col-9"  style="padding-top: 4px;">
+    <span style="display:flex; justify-content:flex-end; width:100%; padding:0;" >   <button  id="getsingletry" mat-raised-button color="accent"  (click)="tryClick('getsingletry')"  >try it out</button></span>
+    
+    </div>
+    <hr style="width:100%;text-align:left;margin-left:0">
+  </div>
+ 
+   <div class="row" style="background-color:  #b5dffd">
+    <div class="col-3">
+   <span ><strong>  Name</strong></span> 
+    </div>
+    <div class="col-9">
+    <span > <strong> Description</strong>
+    </span>
+    
+    </div>
+    <hr style="width:100%;text-align:left;margin-left:0">
+  </div>
+  
+    <div class="row" style="background-color:  #b5dffd">
+    <div class="col-3">
+   <span >   id </span>
+   <span class="invalid-feedback">
+                   * required 
+                     
+                </span> 
+    </div>
+    <div class="col-9">
+    <p style="text-align: start;"> Id to retrive {{this.local_data.service}}, string representation of integer</p>
+  
+    
+    </div>
+   
+  </div>
+  <div class="row" style="background-color:  #b5dffd">
+    <div class="col-3">
+   
+    </div>
+    <div class="col-9">
+      <div [formGroup]="getsingleForm" class="mb-3">
+   
+  <input type="number"  class="form-control" formControlName="getsingleid" id="getsingleid"      placeholder="id"  required maxlength="30" minlength="1" number
+     name="getsingleid">
+    <div *ngIf="g['getsingleid'].invalid && (g['getsingleid'].dirty ||g['getsingleid'].touched)"
+    class="invalid-feedback">
+  <div *ngIf="g['getsingleid'].errors">
+    Id  Must Valid One.
+  </div>
+  
+</div>
+     </div>
+     
+    
+    </div>
+   
+  </div>
+  <div class="row" style="background-color:  #b5dffd">
+   <div class="col-12">
+    <button style="width: 100%; display:{{getsingleexecutebuttondis}};"  [disabled]="!getsingleForm.valid"    (click) ="  calApi('GET',this.local_data.service,'getOne',this.local_data.dsname)" id="getsingleBut"  class="btn btn-primary mb-3">Execute {{this.local_data.service}} GET Api Call</button>
+  </div>
+   <div class="col-12" *ngIf="getisLoading" 
+   style="display: flex; justify-content: center; align-items: center; ">
+  <mat-progress-spinner 
+    color="primary" 
+    mode="indeterminate">
+  </mat-progress-spinner>
+</div>
+  </div>
+  
+  
+   
+   <div *ngIf="getResLoading"  class="row" style="
+    background-color: #333;
+    color: white;
+    /* vertical-align: middle; */
+    text-align: start;
+    border-radius: 8px;
+    /* padding: 10px; */
+">
+  
+   <div class="col-3" style="
+    padding-top: 8px;
+"> <label>Request  URL:</label></div><div style="
+    padding-top: 8px;
+" class="col-9">  {{getdisurl}}</div>
+      <div class="col-12" style="
+    padding-top: 8px;
+"> <label>Server Response</label></div>
+
+  <div class="col-3" style="
+    padding-top: 8px;
+"> <label>Code</label></div>
+
+  
+  <div class="col-9" style="
+    padding-top: 8px;
+"> <label>Response Body</label></div>
+<div  class="col-3" style="
+    padding-top: 8px;
+">
+{{getcode}}
+</div>
+<div  class="col-9" style="padding-top: 8px;overflow: hidden;white-space: break-spaces;text-overflow: ellipsis;display: inline-block;">
+{{getbody}}
+</div>
+  </div>
+  
+  <div class="row" style="background-color:  #b5dffd">
+    <div class="col-3">
+   <span style="display:flex; justify-content:flex-end; width:100%; padding:10px;" ><strong> Responses</strong></span> 
+    </div>
+    <div class="col-9">
+    <span style="display:flex; justify-content:flex-end; width:100%; padding:10px;" >   
+Response content type : application/json</span>
+    
+    </div>
+    <hr style="width:100%;text-align:left;margin-left:0">
+  </div>
+  <div class="row" style="background-color:  #b5dffd">
+    <div class="col-3">
+   <span ><strong>  Code</strong></span> 
+    </div>
+    <div class="col-9">
+    <span > <strong> Description</strong>
+    </span>
+    
+    </div>
+   <hr style="width:100%;text-align:left;margin-left:0">
+  </div>
+  
+   <div class="row" style="background-color:  #b5dffd">
+    <div class="col-3">
+   200
+    </div>
+    <div class="col-9">
+      <div class="mb-3">
+   
+  <p style="text-align: start;"> The Requested call for  {{this.local_data.service}} was successfully retrive  </p>
+     </div>
+     
+    
+    </div>
+   
+  </div>
+  
+  <div class="row" style="background-color:  #b5dffd">
+    <div class="col-3">
+   404
+    </div>
+    <div class="col-9">
+      <div class="mb-3">
+   
+   <p style="text-align: start;">  The Requested call for  {{this.local_data.service}} was not found  </p>
+     </div>
+     
+    
+    </div>
+   
+  </div>
+  <div class="row" style="background-color:  #b5dffd">
+    <div class="col-3">
+   500
+    </div>
+    <div class="col-9">
+      <div class="mb-3">
+   
+   <p style="text-align: start;">  Internal server error  </p>
+     </div>
+     
+    
+    </div>
+   
+  </div>
+   <div class="row" style="background-color:  #b5dffd">
+    <div class="col-3">
+   400
+    </div>
+    <div class="col-9">
+      <div class="mb-3">
+   
+   <p style="text-align: start;">  Bad Request contains validation Error  </p>
+     </div>
+     
+    
+    </div>
+   
+  </div>
+  </div>
+   
+  </mat-tab>
+  <mat-tab label="RetriveAll"> 
+   <div class="container"  style="height:650px; background-color: #b5dffd;" >
+    <div class="row" style="background-color: #46b3ff;text-align: start;border-radius: 8px;padding-bottom: 8px;padding-top: 10px;">
+  <div class="col-2" >GET ALL</div>
+    <div style="    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+     " class="col-9" title="{{getAllurl}}">
+     {{getAllurl}}
+    </div>
+    <div  class="col-1">
+    <span style="display:flex; justify-content:flex-end; width:100%; padding:0;" > <mat-icon aria-hidden="false" aria-label="Example home icon">https</mat-icon></span>
+    </div>
+   </div>
+   
+   
+   
+  <div class="row"  style="background-color:  #b5dffd">
+    <div class="col-3">
+   <span style="display:flex; justify-content:flex-end; width:100%; padding:10px;" ><strong> Parameters</strong></span> 
+    </div>
+    <div class="col-9"  style="padding-top: 4px;">
+    <span style="display:flex; justify-content:flex-end; width:100%; padding:0;" >   <button  id="getAlltry" mat-raised-button color="accent"  (click)="tryClick('getAlltry')"  >try it out</button></span>
+    
+    </div>
+    <hr style="width:100%;text-align:left;margin-left:0">
+  </div>
+ 
+   <div class="row" style="background-color:  #b5dffd">
+    <div class="col-3">
+   <span ><strong>  Name</strong></span> 
+    </div>
+    <div class="col-9">
+    <span > <strong> Description</strong>
+    </span>
+    
+    </div>
+    <hr style="width:100%;text-align:left;margin-left:0">
+  </div>
+  
+ <!--    <div class="row" style="background-color:  #b5dffd">
+    <div class="col-3">
+   <span >   id </span>
+   <span class="invalid-feedback">
+                   * required 
+                     
+                </span> 
+    </div>
+    <div class="col-9">
+    <p style="text-align: start;"> Id to retrive {{this.local_data.service}}, string representation of integer</p>
+  
+    
+    </div>
+   
+  </div> -->
+  <div class="row" style="background-color:  #b5dffd">
+    <div class="col-3">
+   
+    </div>
+    <div class="col-9">
+     <!--  <div  class="mb-3">
+    
+  <input type="number"  class="form-control" formControlName="getAllsingleid" id="getAllsingleid"      placeholder="id"  
+     name="getAllsingleid">
+    <div *ngIf="h['getAllsingleid'].invalid && (h['getAllsingleid'].dirty ||h['getAllsingleid'].touched)"
+    class="invalid-feedback">
+  <div *ngIf="h['getAllsingleid'].errors">
+    Id  Must Valid One.
+  </div>
+  
+</div>
+     </div> -->
+     
+    
+    </div >
+       
+    <div class="container" [formGroup]="getAllsingleForm"  *ngFor="let data of attrb_data| keyvalue" >
+     <div class="row"    style="background-color:  #b5dffd">
+    <div class="col-3"  style="text-align: start;">
+    <label for="{{data.key}}">{{data.key}}</label>
+    </div>
+    <div class="col-9">
+     <input type="text" class="form-control" id="{{data.key}}"  formControlName="{{data.key}}"   placeholder="Enter {{data.key}}">
+      <div *ngIf=" h[data.key].errors" class="invalid-feedback">
+                    <div *ngIf="h[data.key].errors['required']">{{data.key}} is required</div>
+                     
+                </div>
+    </div>
+    </div></div> 
+   
+  </div>
+  <div class="row" style="background-color:  #b5dffd">
+   <div class="col-12">
+    <button style="width: 100%; display:{{getAllsingleexecutebuttondis}};"  [disabled]="!getAllsingleForm.valid"    (click) ="  calApi('GETALL',this.local_data.service,'getOne',this.local_data.dsname)" id="getsingleBut"  class="btn btn-primary mb-3">Execute {{this.local_data.service}} GET Api Call</button>
+  </div>
+   <div class="col-12" *ngIf="getAllisLoading" 
+   style="display: flex; justify-content: center; align-items: center; ">
+  <mat-progress-spinner 
+    color="primary" 
+    mode="indeterminate">
+  </mat-progress-spinner>
+</div>
+  </div>
+  
+  
+   
+   <div *ngIf="getAllResLoading"  class="row" style="
+    background-color: #333;
+    color: white;
+    /* vertical-align: middle; */
+    text-align: start;
+    border-radius: 8px;
+    /* padding: 10px; */
+">
+  
+   <div class="col-3" style="
+    padding-top: 8px;
+"> <label>Request  URL:</label></div><div style="
+    padding-top: 8px;
+" class="col-9">  {{getAlldisurl}}</div>
+      <div class="col-12" style="
+    padding-top: 8px;
+"> <label>Server Response</label></div>
+
+  <div class="col-3" style="
+    padding-top: 8px;
+"> <label>Code</label></div>
+
+  
+  <div class="col-9" style="
+    padding-top: 8px;
+"> <label>Response Body</label></div>
+<div  class="col-3" style="
+    padding-top: 8px;
+">
+{{getAllcode}}
+</div>
+<div  class="col-9" style="padding-top: 8px;overflow: hidden;white-space: break-spaces;text-overflow: ellipsis;display: inline-block;">
+{{getAllbody}}
+</div>
+  </div>
+  
+  <div class="row" style="background-color:  #b5dffd">
+    <div class="col-3">
+   <span style="display:flex; justify-content:flex-end; width:100%; padding:10px;" ><strong> Responses</strong></span> 
+    </div>
+    <div class="col-9">
+    <span style="display:flex; justify-content:flex-end; width:100%; padding:10px;" >   
+Response content type : application/json</span>
+    
+    </div>
+    <hr style="width:100%;text-align:left;margin-left:0">
+  </div>
+  <div class="row" style="background-color:  #b5dffd">
+    <div class="col-3">
+   <span ><strong>  Code</strong></span> 
+    </div>
+    <div class="col-9">
+    <span > <strong> Description</strong>
+    </span>
+    
+    </div>
+   <hr style="width:100%;text-align:left;margin-left:0">
+  </div>
+  
+   <div class="row" style="background-color:  #b5dffd">
+    <div class="col-3">
+   200
+    </div>
+    <div class="col-9">
+      <div class="mb-3">
+   
+  <p style="text-align: start;"> The Requested call for  {{this.local_data.service}} was successfully retrive  </p>
+     </div>
+     
+    
+    </div>
+   
+  </div>
+  
+  <div class="row" style="background-color:  #b5dffd">
+    <div class="col-3">
+   404
+    </div>
+    <div class="col-9">
+      <div class="mb-3">
+   
+   <p style="text-align: start;">  The Requested call for  {{this.local_data.service}} was not found  </p>
+     </div>
+     
+    
+    </div>
+   
+  </div>
+  <div class="row" style="background-color:  #b5dffd">
+    <div class="col-3">
+   500
+    </div>
+    <div class="col-9">
+      <div class="mb-3">
+   
+   <p style="text-align: start;">  Internal server error  </p>
+     </div>
+     
+    
+    </div>
+   
+  </div>
+   <div class="row" style="background-color:  #b5dffd">
+    <div class="col-3">
+   400
+    </div>
+    <div class="col-9">
+      <div class="mb-3">
+   
+   <p style="text-align: start;">  Bad Request contains validation Error  </p>
+     </div>
+     
+    
+    </div>
+   
+  </div>
+   
+  </div>
+  
+  
+  </mat-tab>
+   <mat-tab label="Delete"> 
+   
+    <div class="container" Style="height:650px; background-color: #f7b2b2">
+    <div class="row" style="background-color: #ff5050;text-align: start;border-radius: 8px;padding-bottom: 8px;padding-top: 10px;">
+  <div class="col-2" >DELETE</div>
+    <div style="    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+     " class="col-9" title="{{deleteurl}}">
+     {{deleteurl}}
+    </div>
+    <div  class="col-1">
+    <span style="display:flex; justify-content:flex-end; width:100%; padding:0;" > <mat-icon aria-hidden="false" aria-label="Example home icon">https</mat-icon></span>
+    </div>
+   </div>
+   
+   
+   <div class="row"  style="background-color:  #f7b2b2">
+    <div class="col-3">
+   <span style="display:flex; justify-content:flex-end; width:100%; padding:10px;" ><strong> Parameters</strong></span> 
+    </div>
+    <div class="col-9"  style="padding-top: 4px;">
+    <span style="display:flex; justify-content:flex-end; width:100%; padding:0;" >   <button  id="deletetry" mat-raised-button color="accent"  (click)="tryClick('deletetry')"  >try it out</button></span>
+    
+    </div>
+    <hr style="width:100%;text-align:left;margin-left:0">
+  </div>
+ 
+   <div class="row" style="background-color:  #f7b2b2">
+    <div class="col-3">
+   <span ><strong>  Name</strong></span> 
+    </div>
+    <div class="col-9">
+    <span > <strong> Description</strong>
+    </span>
+    
+    </div>
+    <hr style="width:100%;text-align:left;margin-left:0">
+  </div>
+  
+    <div class="row" style="background-color:  #f7b2b2">
+    <div class="col-3">
+   <span >   id </span>
+   <span class="invalid-feedback">
+                   * required 
+                     
+                </span> 
+    </div>
+    <div class="col-9">
+    <p style="text-align: start;"> Id to delete {{this.local_data.service}}, string representation of integer</p>
+  
+    
+    </div>
+   
+  </div>
+  <div class="row" style="background-color:  #f7b2b2">
+    <div class="col-3">
+   
+    </div>
+    <div class="col-9">
+      <div [formGroup]="delsingleForm" class="mb-3">
+   
+  <input type="number"  class="form-control" formControlName="delsingleid" id="delsingleid"      placeholder="id"  required maxlength="30" minlength="1" number
+     name="getsingleid">
+    <div *ngIf="d['delsingleid'].invalid && (d['delsingleid'].dirty ||d['delsingleid'].touched)"
+    class="invalid-feedback">
+  <div *ngIf="d['delsingleid'].errors">
+    Id  Must Valid One.
+  </div>
+  
+</div>
+     </div>
+     
+    
+    </div>
+   
+  </div>
+  <div class="row" style="background-color:  #f7b2b2">
+   <div class="col-12">
+    <button style="width: 100%; display:{{delsingleexecutebuttondis}};"  [disabled]="!delsingleForm.valid"    (click) ="  calApi('DELETE',this.local_data.service,'getOne',this.local_data.dsname)"     class="btn btn-primary mb-3">Execute {{this.local_data.service}} DELETE Api Call</button>
+  </div>
+   <div class="col-12" *ngIf="deleteisLoading" 
+   style="display: flex; justify-content: center; align-items: center; ">
+  <mat-progress-spinner 
+    color="primary" 
+    mode="indeterminate">
+  </mat-progress-spinner>
+</div>
+  </div>
+  
+  
+   
+   <div *ngIf="deleteResLoading"  class="row" style="
+    background-color: #333;
+    color: white;
+    /* vertical-align: middle; */
+    text-align: start;
+    border-radius: 8px;
+    /* padding: 10px; */
+">
+  
+   <div class="col-3" style="
+    padding-top: 8px;
+"> <label>Request  URL:</label></div><div style="
+    padding-top: 8px;
+" class="col-9">  {{deldisurl}}</div>
+      <div class="col-12" style="
+    padding-top: 8px;
+"> <label>Server Response</label></div>
+
+  <div class="col-3" style="
+    padding-top: 8px;
+"> <label>Code</label></div>
+
+  
+  <div class="col-9" style="
+    padding-top: 8px;
+"> <label>Response Body</label></div>
+<div  class="col-3" style="
+    padding-top: 8px;
+">
+{{deletecode}}
+</div>
+<div  class="col-9" style="padding-top: 8px;overflow: hidden;white-space: break-spaces;text-overflow: ellipsis;display: inline-block;">
+{{deletebody}}
+</div>
+  </div>
+  
+  <div class="row" style="background-color:  #f7b2b2">
+    <div class="col-3">
+   <span style="display:flex; justify-content:flex-end; width:100%; padding:10px;" ><strong> Responses</strong></span> 
+    </div>
+    <div class="col-9">
+    <span style="display:flex; justify-content:flex-end; width:100%; padding:10px;" >   
+Response content type : application/json</span>
+    
+    </div>
+    <hr style="width:100%;text-align:left;margin-left:0">
+  </div>
+  <div class="row" style="background-color:  #f7b2b2">
+    <div class="col-3">
+   <span ><strong>  Code</strong></span> 
+    </div>
+    <div class="col-9">
+    <span > <strong> Description</strong>
+    </span>
+    
+    </div>
+   <hr style="width:100%;text-align:left;margin-left:0">
+  </div>
+  
+   <div class="row" style="background-color:  #f7b2b2">
+    <div class="col-3">
+   200
+    </div>
+    <div class="col-9">
+      <div class="mb-3">
+   
+  <p style="text-align: start;"> The Requested call for  {{this.local_data.service}} was successfully retrive  </p>
+     </div>
+     
+    
+    </div>
+   
+  </div>
+  
+  <div class="row" style="background-color:  #f7b2b2">
+    <div class="col-3">
+   404
+    </div>
+    <div class="col-9">
+      <div class="mb-3">
+   
+   <p style="text-align: start;">  The Requested call for  {{this.local_data.service}} was not found  </p>
+     </div>
+     
+    
+    </div>
+   
+  </div>
+  <div class="row" style="background-color: #f7b2b2">
+    <div class="col-3">
+   500
+    </div>
+    <div class="col-9">
+      <div class="mb-3">
+   
+   <p style="text-align: start;">  Internal server error  </p>
+     </div>
+     
+    
+    </div>
+   
+  </div>
+   <div class="row" style="background-color:  #f7b2b2">
+    <div class="col-3">
+   400
+    </div>
+    <div class="col-9">
+      <div class="mb-3">
+   
+   <p style="text-align: start;">  Bad Request contains validation Error  </p>
+     </div>
+     
+    
+    </div>
+   
+  </div>
+   
+  </div>
+  
+  </mat-tab>
+  </mat-tab-group>
+<!-- <mat-accordion>
+
+ <mat-expansion-panel  style="background-color: #caffbb;">
+  <mat-expansion-panel-header  class="alert alert-success" role="alert">
+    <mat-panel-title>
+      POST
+    </mat-panel-title>
+    
+    <mat-panel-description>
+     <div class="container">
+  <div class="row">
+    <div style="    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+     width: 500px;" class="col-11" title="{{posturl}}">
+     {{posturl}}
+    </div>
+    <div  class="col-1">
+    <span style="display:flex; justify-content:flex-end; width:100%; padding:0;" > <mat-icon aria-hidden="false" aria-label="Example home icon">https</mat-icon></span>
+    </div>
+   
+  </div></div>
+    
+    </mat-panel-description>
+  
+  </mat-expansion-panel-header>
+  <div class="container" >
+  <div class="row">
+    <div class="col-3">
+   <span style="display:flex; justify-content:flex-end; width:100%; padding:10px;" ><strong> Parameters</strong></span> 
+    </div>
+    <div class="col-9">
+    <span style="display:flex; justify-content:flex-end; width:100%; padding:0;" >   <button   id="posttry" mat-raised-button color="accent" (click)="tryClick('posttry')" >try it out</button></span>
+    
+    </div>
+   
+  </div>
+  <hr style="width:100%;text-align:left;margin-left:0">
+   <div class="row">
+    <div class="col-3">
+   <span ><strong>  Name</strong></span> 
+    </div>
+    <div class="col-9">
+    <span > <strong> Description</strong>
+    </span>
+    
+    </div>
+   
+  </div>
+  
+    <div class="row">
+    <div class="col-3">
+   <span >   body </span>
+   <span class="invalid-feedback">
+                   * required 
+                     
+                </span> 
+    </div>
+    <div class="col-9">
+    <p style="text-align: start;"> json object as  put request to Create {{this.local_data.service}}</p>
+  
+    
+    </div>
+   
+  </div>
+  
+   <div class="row">
+    <div class="col-3">
+    </div>
+  <div class="col-9">
+  <mat-tab-group>
+  <mat-tab label="Example Value"> 
+
+  <div class="mb-3">
+   <textarea     id="putText" style="height: 250px; width: 400px; display: block;"  [(ngModel)] = "valueJsonStr">
+{{valueJsonStr}}
+</textarea>
+   
+     </div>
+     
+ </mat-tab>
+  <mat-tab label="Model"> 
+<div class="mb-3">
+   <textarea  disabled=true   id="postTextmodel" style="height: 250px; width: 400px; display: block;">
+
+{{sampleJson}}
+</textarea>
+</div>
+ </mat-tab>
+  
+</mat-tab-group>
+</div>
+  
+  </div>
+  <div class="row">
+   <div class="col-12">
+    <button style="width: 100%; display:{{postexecutebuttondis}};" (click) ="calApi('POST',this.local_data.service,'create',this.local_data.dsid)" id="putsingleBut" class="btn btn-primary mb-3">Execute {{this.local_data.service}} POST Api Call</button>
+  </div>
+  </div>
+  
+  <div class="row">
+    <div class="col-3">
+   <span style="display:flex; justify-content:flex-end; width:100%; padding:10px;" ><strong> Responses</strong></span> 
+    </div>
+    <div class="col-9">
+    <span style="display:flex; justify-content:flex-end; width:100%; padding:10px;" >   
+Response content type : application/json</span>
+    
+    </div>
+    <hr style="width:100%;text-align:left;margin-left:0">
+  </div>
+  <div class="row">
+    <div class="col-3">
+   <span ><strong>  Code</strong></span> 
+    </div>
+    <div class="col-9">
+    <span > <strong> Description</strong>
+    </span>
+    
+    </div>
+   <hr style="width:100%;text-align:left;margin-left:0">
+  </div>
+  
+   <div class="row">
+    <div class="col-3">
+   200/201
+    </div>
+    <div class="col-9">
+      <div class="mb-3">
+   
+  <p style="text-align: start;"> The Requested call for  {{this.local_data.service}} was successfully updated  </p>
+     </div>
+     
+    
+    </div>
+   
+  </div>
+  
+  <div class="row">
+    <div class="col-3">
+   404
+    </div>
+    <div class="col-9">
+      <div class="mb-3">
+   
+   <p style="text-align: start;">  The Requested call for  {{this.local_data.service}} was not found  </p>
+     </div>
+     
+    
+    </div>
+   
+  </div>
+  <div class="row">
+    <div class="col-3">
+   500
+    </div>
+    <div class="col-9">
+      <div class="mb-3">
+   
+   <p style="text-align: start;">  Internal server error  </p>
+     </div>
+     
+    
+    </div>
+   
+  </div>
+   <div class="row">
+    <div class="col-3">
+   400
+    </div>
+    <div class="col-9">
+      <div class="mb-3">
+   
+   <p style="text-align: start;">  Bad Request contains validation Error  </p>
+     </div>
+     
+    
+    </div>
+   
+  </div>
+  
+  </div>
+   
+</mat-expansion-panel>
+
+ <mat-expansion-panel  style="background-color: #ffe0ad;">
+  <mat-expansion-panel-header  class="alert alert-warning" role="alert">
+    <mat-panel-title>
+      PUT
+    </mat-panel-title>
+    
+    <mat-panel-description>
+     <div class="container">
+  <div class="row">
+    <div style="    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+     width: 500px;" class="col-11" title="{{puturl}}">
+    {{puturl}}
+    </div>
+    <div  class="col-1">
+    <span style="display:flex; justify-content:flex-end; width:100%; padding:0;" > <mat-icon aria-hidden="false" aria-label="Example home icon">https</mat-icon></span>
+    </div>
+   
+  </div></div>
+       
+    </mat-panel-description>
+  
+  </mat-expansion-panel-header>
+  <div class="container" style="height:420px; overflow-y:scroll;" >
+  <div class="row">
+    <div class="col-3">
+   <span style="display:flex; justify-content:flex-end; width:100%; padding:10px;" ><strong> Parameters</strong></span> 
+    </div>
+    <div class="col-9">
+    <span style="display:flex; justify-content:flex-end; width:100%; padding:0;" >   <button id="puttry" mat-raised-button color="accent" (click)="tryClick('puttry')" >try it out</button></span>
+    
+    </div>
+   
+  </div>
+  <hr style="width:100%;text-align:left;margin-left:0">
+   <div class="row">
+    <div class="col-3">
+   <span ><strong>  Name</strong></span> 
+    </div>
+    <div class="col-9">
+    <span > <strong> Description</strong>
+    </span>
+    
+    </div>
+    <hr style="width:100%;text-align:left;margin-left:0">
+  </div>
+    <div class="row">
+    <div class="col-3">
+   <span >   body </span>
+   <span class="invalid-feedback">
+                   * required 
+                     
+                </span> 
+    </div>
+    <div class="col-9">
+    <p style="text-align: start;"> json object as  put request to update {{this.local_data.service}}</p>
+  
+    
+    </div>
+   
+  </div>
+  
+   <div class="row">
+    <div class="col-3">
+    </div>
+  <div class="col-9">
+  <mat-tab-group>
+  <mat-tab label="Example Value"> 
+
+  <div class="mb-3">
+   <textarea     id="putText" style="height: 250px; width: 400px; display: block;"  [(ngModel)] = "valueJsonStr">
+
+{{valueJsonStr}}
+</textarea>
+   
+     </div>
+     
+ </mat-tab>
+  <mat-tab label="Model"> 
+<div class="mb-3">
+   <textarea  disabled=true   id="putTextmodel" style="height: 250px; width: 400px; display: block;">
+
+{{sampleJson}}
+</textarea>
+</div>
+ </mat-tab>
+  
+</mat-tab-group>
+</div>
+  
+  </div>
+  <div class="row">
+   <div class="col-12">
+    <button style="width: 100%; display:{{puteexecutebuttondis}};" (click) ="calApi('PUT',this.local_data.service,'Update',this.local_data.dsname)" id="putsingleBut" class="btn btn-primary mb-3">Execute {{this.local_data.service}} PUT Api Call</button>
+  </div>
+ 
+  <div class="col-12" *ngIf="putisLoading" 
+   style="display: flex; justify-content: center; align-items: center; ">
+  <mat-progress-spinner 
+    color="primary" 
+    mode="indeterminate">
+  </mat-progress-spinner>
+</div> </div><br>
+   <div *ngIf="putResLoading"  class="row" style="
+    background-color: #333;
+    color: white;
+    /* vertical-align: middle; */
+    text-align: start;
+    border-radius: 8px;
+    /* padding: 10px; */
+">
+  
+   <div class="col-3" style="
+    padding-top: 8px;
+"> <label>Request  URL:</label></div><div style="
+    padding-top: 8px;
+" class="col-9">  {{prefixurl }} {{puturl}}</div>
+      <div class="col-12" style="
+    padding-top: 8px;
+"> <label>Server Response</label></div>
+
+  <div class="col-3" style="
+    padding-top: 8px;
+"> <label>Code</label></div>
+
+  
+  <div class="col-9" style="
+    padding-top: 8px;
+"> <label>Response Body</label></div>
+<div  class="col-3" style="
+    padding-top: 8px;
+">
+{{putcode}}
+</div>
+<div  class="col-9" style="padding-top: 8px;overflow: hidden;white-space: break-spaces;text-overflow: ellipsis;display: inline-block;">
+{{putbody}}
+</div>
+  </div>
+  <div class="row">
+    <div class="col-3">
+   <span style="display:flex; justify-content:flex-end; width:100%; padding:10px;" ><strong> Responses</strong></span> 
+    </div>
+    <div class="col-9">
+    <span style="display:flex; justify-content:flex-end; width:100%; padding:10px;" >   
+Response content type : application/json</span>
+    
+    </div>
+    <hr style="width:100%;text-align:left;margin-left:0">
+  </div>
+  <div class="row">
+    <div class="col-3">
+   <span ><strong>  Code</strong></span> 
+    </div>
+    <div class="col-9">
+    <span > <strong> Description</strong>
+    </span>
+    
+    </div>
+   <hr style="width:100%;text-align:left;margin-left:0">
+  </div>
+  
+   <div class="row">
+    <div class="col-3">
+   200/201
+    </div>
+    <div class="col-9">
+      <div class="mb-3">
+   
+  <p style="text-align: start;"> The Requested call for  {{this.local_data.service}} was successfully updated  </p>
+     </div>
+     
+    
+    </div>
+   
+  </div>
+  
+  <div class="row">
+    <div class="col-3">
+   404
+    </div>
+    <div class="col-9">
+      <div class="mb-3">
+   
+   <p style="text-align: start;">  The Requested call for  {{this.local_data.service}} was not found  </p>
+     </div>
+     
+    
+    </div>
+   
+  </div>
+  <div class="row">
+    <div class="col-3">
+   500
+    </div>
+    <div class="col-9">
+      <div class="mb-3">
+   
+   <p style="text-align: start;">  Internal server error  </p>
+     </div>
+     
+    
+    </div>
+   
+  </div>
+   <div class="row">
+    <div class="col-3">
+   400
+    </div>
+    <div class="col-9">
+      <div class="mb-3">
+   
+   <p style="text-align: start;">  Bad Request contains validation Error  </p>
+     </div>
+     
+    
+    </div>
+   
+  </div>
+  
+  </div>
+</mat-expansion-panel>
+
+ <mat-expansion-panel   style="background-color: #b5dffd">
+  <mat-expansion-panel-header  class="alert alert-info" role="alert">
+    <mat-panel-title>
+     GET
+    </mat-panel-title>
+    
+    <mat-panel-description>
+  
+     <div class="container">
+  <div class="row">
+    <div style="    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+     width: 500px;" class="col-11" title="{{geturl}}">
+    {{geturl}}
+    </div>
+    <div  class="col-1">
+    <span style="display:flex; justify-content:flex-end; width:100%; padding:0;" > <mat-icon aria-hidden="false" aria-label="Example home icon">https</mat-icon></span>
+    </div>
+   
+  </div></div>
+    </mat-panel-description>
+  
+  </mat-expansion-panel-header>
+  <div class="container" >
+  <div class="row">
+    <div class="col-3">
+   <span style="display:flex; justify-content:flex-end; width:100%; padding:10px;" ><strong> Parameters</strong></span> 
+    </div>
+    <div class="col-9">
+    <span style="display:flex; justify-content:flex-end; width:100%; padding:0;" >   <button  id="getsingletry" mat-raised-button color="accent"  (click)="tryClick('getsingletry')"  >try it out</button></span>
+    
+    </div>
+   
+  </div>
+  <hr style="width:100%;text-align:left;margin-left:0">
+   <div class="row">
+    <div class="col-3">
+   <span ><strong>  Name</strong></span> 
+    </div>
+    <div class="col-9">
+    <span > <strong> Description</strong>
+    </span>
+    
+    </div>
+    <hr style="width:100%;text-align:left;margin-left:0">
+  </div>
+  
+    <div class="row">
+    <div class="col-3">
+   <span >   id </span>
+   <span class="invalid-feedback">
+                   * required 
+                     
+                </span> 
+    </div>
+    <div class="col-9">
+    <p style="text-align: start;"> Id to retrive {{this.local_data.service}}, string representation of integer</p>
+  
+    
+    </div>
+   
+  </div>
+  <div class="row">
+    <div class="col-3">
+   
+    </div>
+    <div class="col-9">
+      <div class="mb-3">
+   
+  <input   class="form-control" id="getsingleid"  [disabled]="getsingleinputDisabled" placeholder="id">
+     </div>
+     
+    
+    </div>
+   
+  </div>
+  <div class="row">
+   <div class="col-12">
+    <button style="width: 100%; display:{{getsingleexecutebuttondis}};" (click) ="calApi('GET',this.local_data.service,'getOne',this.local_data.dsid)" id="getsingleBut" class="btn btn-primary mb-3">Execute {{this.local_data.service}} GET Api Call</button>
+  </div>
+  </div>
+  
+  <div class="row">
+    <div class="col-3">
+   <span style="display:flex; justify-content:flex-end; width:100%; padding:10px;" ><strong> Responses</strong></span> 
+    </div>
+    <div class="col-9">
+    <span style="display:flex; justify-content:flex-end; width:100%; padding:10px;" >   
+Response content type : application/json</span>
+    
+    </div>
+    <hr style="width:100%;text-align:left;margin-left:0">
+  </div>
+  <div class="row">
+    <div class="col-3">
+   <span ><strong>  Code</strong></span> 
+    </div>
+    <div class="col-9">
+    <span > <strong> Description</strong>
+    </span>
+    
+    </div>
+   <hr style="width:100%;text-align:left;margin-left:0">
+  </div>
+  
+   <div class="row">
+    <div class="col-3">
+   200
+    </div>
+    <div class="col-9">
+      <div class="mb-3">
+   
+  <p style="text-align: start;"> The Requested call for  {{this.local_data.service}} was successfully retrive  </p>
+     </div>
+     
+    
+    </div>
+   
+  </div>
+  
+  <div class="row">
+    <div class="col-3">
+   404
+    </div>
+    <div class="col-9">
+      <div class="mb-3">
+   
+   <p style="text-align: start;">  The Requested call for  {{this.local_data.service}} was not found  </p>
+     </div>
+     
+    
+    </div>
+   
+  </div>
+  <div class="row">
+    <div class="col-3">
+   500
+    </div>
+    <div class="col-9">
+      <div class="mb-3">
+   
+   <p style="text-align: start;">  Internal server error  </p>
+     </div>
+     
+    
+    </div>
+   
+  </div>
+   <div class="row">
+    <div class="col-3">
+   400
+    </div>
+    <div class="col-9">
+      <div class="mb-3">
+   
+   <p style="text-align: start;">  Bad Request contains validation Error  </p>
+     </div>
+     
+    
+    </div>
+   
+  </div>
+  </div>
+</mat-expansion-panel>
+
+<mat-expansion-panel style="background-color: #b5dffd">
+  <mat-expansion-panel-header  class="alert alert-info" role="alert">
+    <mat-panel-title>
+     GET
+    </mat-panel-title>
+    
+    <mat-panel-description>
+      <div class="container">
+  <div class="row">
+    <div style="    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+     width: 500px;" class="col-11" title="{{getAllurl}}">
+    {{getAllurl}}
+    </div>
+    <div  class="col-1">
+    <span style="display:flex; justify-content:flex-end; width:100%; padding:0;" > <mat-icon aria-hidden="false" aria-label="Example home icon">https</mat-icon></span>
+    </div>
+   
+  </div></div>
+      </mat-panel-description>
+  
+  </mat-expansion-panel-header>
+  <div class="container" >
+  <div class="row">
+    <div class="col-3">
+   <span style="display:flex; justify-content:flex-end; width:100%; padding:10px;" ><strong> Parameters</strong></span> 
+    </div>
+    <div class="col-9">
+    <span style="display:flex; justify-content:flex-end; width:100%; padding:0;" >   <button  id="getAlltry" mat-raised-button color="accent" (click)="tryClick('getAlltry')" >try it out</button></span>
+    
+    </div>
+   
+  </div>
+  <hr style="width:100%;text-align:left;margin-left:0">
+   <div class="row">
+    <div class="col-3">
+   <span ><strong>  Name</strong></span> 
+    </div>
+    <div class="col-9">
+    <span > <strong> Description</strong>
+    </span>
+    
+    </div>
+   
+  </div>
+  
+    <div class="row">
+    <div class="col-3">
+   <span >   id </span>
+   <span class="invalid-feedback">
+                   * required 
+                     
+                </span> 
+    </div>
+    <div class="col-9">
+    <p style="text-align: start;"> Id to retrive {{this.local_data.service}}, string representation of integer</p>
+  
+    
+    </div>
+   
+  </div>
+  <div class="row">
+    <div class="col-3">
+   
+    </div>
+    <div class="col-9">
+      <div class="mb-3">
+   
+  <input   class="form-control" id="getAllid"  [disabled]="getAllsingleinputDisabled" placeholder="id">
+     </div>
+     
+    
+    </div>
+   
+  </div>
+  <div class="row">
+   <div class="col-12">
+    <button style="width: 100%; display:{{getAllsingleexecutebuttondis}};"  (click) ="calApi('GETALL',this.local_data.service,'getAll',this.local_data.dsid)"  id="getAllBut" class="btn btn-primary mb-3">Execute {{this.local_data.service}} GET Api Call</button>
+  </div>
+  </div>
+  
+  <div class="row">
+    <div class="col-3">
+   <span style="display:flex; justify-content:flex-end; width:100%; padding:10px;" ><strong> Responses</strong></span> 
+    </div>
+    <div class="col-9">
+    <span style="display:flex; justify-content:flex-end; width:100%; padding:10px;" >   
+Response content type : application/json</span>
+    
+    </div>
+    <hr style="width:100%;text-align:left;margin-left:0">
+  </div>
+  <div class="row">
+    <div class="col-3">
+   <span ><strong>  Code</strong></span> 
+    </div>
+    <div class="col-9">
+    <span > <strong> Description</strong>
+    </span>
+    
+    </div>
+   <hr style="width:100%;text-align:left;margin-left:0">
+  </div>
+  
+   <div class="row">
+    <div class="col-3">
+   200
+    </div>
+    <div class="col-9">
+      <div class="mb-3">
+   
+  <p style="text-align: start;"> The Requested call for  {{this.local_data.service}} was successfully retrive  </p>
+     </div>
+     
+    
+    </div>
+   
+  </div>
+  
+  <div class="row">
+    <div class="col-3">
+   404
+    </div>
+    <div class="col-9">
+      <div class="mb-3">
+   
+   <p style="text-align: start;">  The Requested call for  {{this.local_data.service}} was not found  </p>
+     </div>
+     
+    
+    </div>
+   
+  </div>
+  <div class="row">
+    <div class="col-3">
+   500
+    </div>
+    <div class="col-9">
+      <div class="mb-3">
+   
+   <p style="text-align: start;">  Internal server error  </p>
+     </div>
+     
+    
+    </div>
+   
+  </div>
+   <div class="row">
+    <div class="col-3">
+   400
+    </div>
+    <div class="col-9">
+      <div class="mb-3">
+   
+   <p style="text-align: start;">  Bad Request contains validation Error  </p>
+     </div>
+     
+    
+    </div>
+   
+  </div>
+  
+  </div>
+</mat-expansion-panel>
+   
+      <mat-expansion-panel style="background-color:  #f7b2b2" >
+  <mat-expansion-panel-header  class="alert alert-danger" role="alert">
+    <mat-panel-title>
+     DELETE
+    </mat-panel-title>
+    
+    <mat-panel-description>
+    
+     <div class="container">
+  <div class="row">
+    <div style="    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+     width: 500px;" class="col-11" title="{{deleteurl}}">
+    {{deleteurl}}
+    </div>
+    <div  class="col-1">
+    <span style="display:flex; justify-content:flex-end; width:100%; padding:0;" > <mat-icon aria-hidden="false" aria-label="Example home icon">https</mat-icon></span>
+    </div>
+   
+  </div></div>
+    
+    </mat-panel-description>
+  
+  </mat-expansion-panel-header>
+   <div class="container" >
+  <div class="row">
+    <div class="col-3">
+   <span style="display:flex; justify-content:flex-end; width:100%; padding:10px;" ><strong> Parameters</strong></span> 
+    </div>
+    <div class="col-9">
+    <span style="display:flex; justify-content:flex-end; width:100%; padding:0;" >   <button id="deletetry" mat-raised-button color="accent" value="try it out" (click)="tryClick('deletetry')">try it out</button></span>
+    
+    </div>
+   
+  </div>
+  <hr style="width:100%;text-align:left;margin-left:0">
+   <div class="row">
+    <div class="col-3">
+   <span ><strong>  Name</strong></span> 
+    </div>
+    <div class="col-9">
+    <span > <strong> Description</strong>
+    </span>
+    
+    </div>
+   <hr style="width:100%;text-align:left;margin-left:0">
+  </div>
+   <div class="row">
+    <div class="col-3">
+   <span >   id </span>
+   <span class="invalid-feedback">
+                   * required 
+                     
+                </span> 
+    </div>
+    <div class="col-9">
+    <p style="text-align: start;"> Id to delete {{this.local_data.service}}, string representation of integer</p>
+  
+    
+    </div>
+   
+  </div>
+  <div class="row">
+    <div class="col-3">
+   
+    </div>
+    <div class="col-9">
+      <div class="mb-3">
+   
+  <input   class="form-control" id="deleteid"  [disabled]="inputDisabled" placeholder="id">
+     </div>
+     
+    
+    </div>
+   
+  </div>
+  <div class="row">
+   <div class="col-12">
+    <button style="width: 100%; display:{{executebuttondis}};"  (click) ="calApi('DELETE',this.local_data.service,'delete',this.local_data.dsid)" id="deleteBut" class="btn btn-primary mb-3">Execute {{this.local_data.service}} delete Api Call</button>
+  </div>
+  </div>
+  
+  <div class="row">
+    <div class="col-3">
+   <span style="display:flex; justify-content:flex-end; width:100%; padding:10px;" ><strong> Responses</strong></span> 
+    </div>
+    <div class="col-9">
+    <span style="display:flex; justify-content:flex-end; width:100%; padding:10px;" >   
+Response content type : application/json</span>
+    
+    </div>
+    <hr style="width:100%;text-align:left;margin-left:0">
+  </div>
+  <div class="row">
+    <div class="col-3">
+   <span ><strong>  Code</strong></span> 
+    </div>
+    <div class="col-9">
+    <span > <strong> Description</strong>
+    </span>
+    
+    </div>
+   <hr style="width:100%;text-align:left;margin-left:0">
+  </div>
+  
+   <div class="row">
+    <div class="col-3">
+   200
+    </div>
+    <div class="col-9">
+      <div class="mb-3">
+   
+  <p style="text-align: start;"> The Requested call for  {{this.local_data.service}} was successfully deleted  </p>
+     </div>
+     
+    
+    </div>
+   
+  </div>
+  
+  <div class="row">
+    <div class="col-3">
+   404
+    </div>
+    <div class="col-9">
+      <div class="mb-3">
+   
+   <p style="text-align: start;">  The Requested call for  {{this.local_data.service}} was not found  </p>
+     </div>
+     
+    
+    </div>
+   
+  </div>
+  <div class="row">
+    <div class="col-3">
+   500
+    </div>
+    <div class="col-9">
+      <div class="mb-3">
+   
+   <p style="text-align: start;">  Internal server error  </p>
+     </div>
+     
+    
+    </div>
+   
+  </div>
+   <div class="row">
+    <div class="col-3">
+   400
+    </div>
+    <div class="col-9">
+      <div class="mb-3">
+   
+   <p style="text-align: start;">  Bad Request contains validation Error  </p>
+     </div>
+     
+    
+    </div>
+   
+  </div>
+  
+  </div>
+</mat-expansion-panel>
+  </mat-accordion>  -->
+   <div  class="header text-center"  >
+  <button mat-button (click)="doAction()">Ok</button>&nbsp;
+  <button mat-button (click)="closeDialog()" mat-flat-button color="warn">Cancel</button>
+</div>
+</div>

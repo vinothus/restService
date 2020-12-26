@@ -1,1 +1,3 @@
 ng add @angular/material
+npm install crypto-js --save  
+npm install bootstrap --save  

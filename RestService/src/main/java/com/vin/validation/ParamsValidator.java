@@ -41,6 +41,7 @@ public class ParamsValidator implements ConstraintValidator<ParamMapValidator,Ma
 	public static Map<String,List<Map<String, Object>>> userVinValidationAttrMap= new ConcurrentHashMap<>();
 	public static Map<String,List<Map<String, Object>>> userApiKeyMap= new ConcurrentHashMap<>();
 	public static Map<String, Object> reflecClass=new ConcurrentHashMap<>();
+	public static Map<String, String> UserApiMap=new ConcurrentHashMap<>();
 	@Autowired
 	EmployeeRepositaryImpl employeeRepositaryImpl;
 	
@@ -263,10 +264,7 @@ if(service_id!=null) {
 	        }
 }
 		}
-		if(valid&&serviceName.equals("service attr")&&dataStoreKey.equalsIgnoreCase("system"))
-		{
-			clearCache();
-		}
+		
 		log.info("Validator :" + value);
 		return true;
 	}
@@ -325,13 +323,15 @@ if(service_id!=null) {
 		employeeRepositaryImpl.createSysTable();
 	}
 
-	public boolean doCustomValidation(String apiKey,String datasourceKey,String service,ConstraintValidatorContext context, boolean valid, String validationClass,
+	public boolean doCustomValidation(String apiKey,String datasourceKey,String service,ConstraintValidatorContext context1, boolean valid, String validationClass,
 			Map<String, Object> Attrbmap, Map<String, String> mapofVal, String valueFmParam,Environment env) {
 		try {
 			if(reflecClass.get(validationClass)==null)
 			{
-				reflecClass.put(validationClass, (com.vin.validatior.Validator) Class
-					.forName(validationClass).newInstance());
+				AutowireCapableBeanFactory factory = context.getAutowireCapableBeanFactory();
+				com.vin.validatior.Validator bean = (com.vin.validatior.Validator) factory.createBean(Class
+						.forName(validationClass).newInstance().getClass(), AutowireCapableBeanFactory.AUTOWIRE_CONSTRUCTOR, false);
+				reflecClass.put(validationClass,bean);
 			}
 			if(reflecClass.get(validationClass)!=null)
 			{
@@ -342,8 +342,8 @@ if(service_id!=null) {
 						om.writeValueAsString(getAllKnownProperties(env)));
 				log.info(validationClass);
 				if (!valididy) {
-					context.disableDefaultConstraintViolation();
-					context.buildConstraintViolationWithTemplate(validator.getErrorMsg().replace("$", valueFmParam))
+					context1.disableDefaultConstraintViolation();
+					context1.buildConstraintViolationWithTemplate(validator.getErrorMsg().replace("$", valueFmParam))
 							.addConstraintViolation();
 
 					valid = false;

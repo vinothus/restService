@@ -1,5 +1,8 @@
 package com.vin.rest.repository;
 
+import static com.vin.validation.ParamsValidator.dsidMap;
+import static com.vin.validation.ParamsValidator.UserApiMap;
+
 import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
@@ -135,7 +138,13 @@ public class EmployeeRepositaryImpl {
 
 	private void insertServiceTablesUsr(String apiKey, String dataStoreKey) throws Exception {
 		String userId=getUidForapiKey( apiKey);
-		String dsId =getdsidFordsName(dataStoreKey);
+		String dsId =null;
+		if (dsidMap.get(dataStoreKey + ":" + apiKey) == null) {
+			dsId = getdsidFordsName(dataStoreKey);
+			dsidMap.put(dataStoreKey + ":" + apiKey, dsId);
+		} else {
+			dsId = dsidMap.get(dataStoreKey + ":" + apiKey);
+		}
 		for (Map.Entry<String,Map<DbTable,List<DbColumn>>> entryUsr : userTableColumnMap.entrySet()) {
              String userApi= entryUsr.getKey();
              Map<DbTable,List<DbColumn>> tablecolumnMap=entryUsr.getValue();
@@ -165,17 +174,17 @@ public class EmployeeRepositaryImpl {
 				DbColumn dbColumn = iterator.next();
 				String serviceAttrid = getServiceAttrID(serviceid, dbColumn.getName(), apiKey,  dataStoreKey);
 				if (maxRecAttr != null && serviceAttrid == null) {
-					String serviceAttrQuery = " INSERT INTO Service_Attr (id, service_id , attrName, colName) values ((SELECT MAX( id )+1 FROM Service_Attr serA) ,'"
+					String serviceAttrQuery = " INSERT INTO Service_Attr (id, service_id , attrName, colName ,colType) values ((SELECT MAX( id )+1 FROM Service_Attr serA) ,'"
 							+ serviceid + "','" + dbColumn.getName().toLowerCase().replace("_", "") + "','"
-							+ dbColumn.getName() + "') ";
+							+ dbColumn.getName() + "' ,'"+dbColumn.getTypeNameSQL()+"') ";
 					quries.add(serviceAttrQuery);
 					//setUserDataStore(apiKey, "system","none").execute(serviceAttrQuery);
 				} else if (maxRecAttr == null) {
 
 					{
-						String serviceAttrQuery = " INSERT INTO Service_Attr (id, service_id , attrName, colName) values (0 ,'"
+						String serviceAttrQuery = " INSERT INTO Service_Attr (id, service_id , attrName, colName,colType) values (0 ,'"
 								+ serviceid + "','" + dbColumn.getName().toLowerCase().replace("_", "") + "','"
-								+ dbColumn.getName() + "') ";
+								+ dbColumn.getName() + "' ,'"+dbColumn.getTypeNameSQL()+"') ";
 						//quries.add(serviceAttrQuery);
 						setUserDataStore(apiKey, "system","none").execute(serviceAttrQuery);
 						maxRecAttr = findMax("Service_Attr", apiKey,  "system","none");
@@ -682,6 +691,16 @@ public class EmployeeRepositaryImpl {
 		 setUserDataStore(apiKey, "system","none").execute("INSERT INTO Datastore (id, uid, type, name, url, driver) VALUES " + 
 		 		"(0, 0, 'type', 'system', 'url', 'driver') ;"); 
 	 }
+	 if(tableName.getName().equalsIgnoreCase("VinProcessor"))
+	 {
+		 setUserDataStore(apiKey, "system","none").execute("INSERT INTO  VinProcessor (id,uid,name,classname)  VALUES " + 
+		 		"(0,0,'yekeulav','com.vin.processor.PropertyProcessor');"); 
+	 }
+	 if(tableName.getName().equalsIgnoreCase("VinProcessor"))
+	 {
+		 setUserDataStore(apiKey, "system","none").execute("INSERT INTO  VinProcessor (id,uid,name,classname)  VALUES " + 
+		 		"(0,0,'yekeulav','com.vin.processor.PropertyProcessor');"); 
+	 }
 		
 	}
 
@@ -710,6 +729,7 @@ public class EmployeeRepositaryImpl {
 		DbColumn serUId;
 		DbColumn attrName;
 		DbColumn colName;
+		DbColumn colType;
 		DbColumn attrEnable;
 		DbColumn attrBuName;
 		DbColumn attrBuIcon;
@@ -830,6 +850,7 @@ public class EmployeeRepositaryImpl {
 		//serUId = tableDataStore.addColumn("uid", Types.INTEGER, 10);
 		attrName = tableServiceAttr.addColumn("attrName", Types.VARCHAR, 100);
 		colName = tableServiceAttr.addColumn("colName", Types.VARCHAR, 100);
+		colType = tableServiceAttr.addColumn("colType", Types.VARCHAR, 100);
 		 attrEnable= tableServiceAttr.addColumn("attrEnable", Types.VARCHAR, 100);
 		 attrBuName= tableServiceAttr.addColumn("attrBuName", Types.VARCHAR, 10);
 		 attrBuIcon= tableServiceAttr.addColumn("attrBuIcon", Types.VARCHAR, 100);
@@ -1635,6 +1656,7 @@ public class EmployeeRepositaryImpl {
 		if (isUpdate > 0) {
 		if(tableName.equalsIgnoreCase("SERVICE_ATTR"))
 		{
+			ParamsValidator.clearCache();
 			System.out.println("select S.id as id, S.tableName as tableName, S.serviceName as serviceName, SA.colName as colName, SA.attrName as attrName  from Service S Service_Attr SA, jdbcTemplate where S.id=  '"+params.get("serviceid")+"'  and S.id=SA.service_id ");
 			List<Map<String, Object>> serviceDatum = setUserDataStore(apiKey, "system","none")
 					.queryForList("select S.id as id, S.tableName as tableName, S.serviceName as serviceName, SA.colName as colName, SA.attrName as attrName  from Service S, Service_Attr SA  where S.id=  '"+params.get("serviceid")+"'  and S.id=SA.service_id ");
@@ -1977,7 +1999,15 @@ public class EmployeeRepositaryImpl {
 				
 				id=(	(BigDecimal) map.get("id")).toString();
 			}
-			serviceAttrbMap(id, (String) map.get("serviceName"), apiKey,  dataSource);
+			if(!serviceAttrbMap(id, (String) map.get("serviceName"), apiKey,  dataSource))
+			{
+				  try {
+					insertServiceTables(tableName, apiKey,  dataStoreKey);
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
 
 		}
 		 if(!isPresent)
@@ -2010,8 +2040,8 @@ public class EmployeeRepositaryImpl {
 		 }
 	}
 
-	public void serviceAttrbMap(String id, String serviceName,String apiKey, String dataStoreKey) {
-
+	public boolean serviceAttrbMap(String id, String serviceName,String apiKey, String dataStoreKey) {
+		boolean setService=false;
 		Map<String, String> studentAttrbMap = new TreeMap<String, String>(String.CASE_INSENSITIVE_ORDER);
 		List<Map<String, Object>> serviceDatum = setUserDataStore(apiKey, "system","none")
 				.queryForList("select colName, attrName from Service_Attr where service_id = '" + id + "'");
@@ -2024,7 +2054,7 @@ public class EmployeeRepositaryImpl {
 		}
 		for (Iterator<Map<String, Object>> iterator = serviceDatum.iterator(); iterator.hasNext();) {
 			Map<String, Object> map = iterator.next();
-
+			setService=true;
 			AttrbMap.put((String) map.get("colName".toUpperCase()), (String) map.get("attrName".toUpperCase()));
 			usrServiceAttrbMap.put(serviceName, AttrbMap);
 			//serviceAttrbMap.put(serviceName, AttrbMap);
@@ -2036,7 +2066,7 @@ public class EmployeeRepositaryImpl {
 		{
 			userServiceAttrbMap.get(dataStoreKey).putAll(usrServiceAttrbMap);
 		}
-		 
+		return  setService;
 	}
 	private String getUidForSerId(String id,String apiKey)
 	{
@@ -2046,10 +2076,16 @@ public class EmployeeRepositaryImpl {
 	}
 	private String getUidForapiKey(String apiKey) 
 	{
+		if(UserApiMap.get(apiKey)!=null) {
+			return UserApiMap.get(apiKey);
+		}else {
 		List<Map<String, Object>> serviceDatum = setUserDataStore(apiKey, "system","none")
 				.queryForList("select id ,apikey  from User where   apikey = ?" , new Object[] {apiKey});
 		String uid=String.valueOf(serviceDatum.get(0).get("id"));
+		UserApiMap.put(apiKey, uid);
 		return	uid;
+		}
+		
 	}
 	public String getdsidFordsName(String dataStoreKey)  
 	{
@@ -2069,8 +2105,13 @@ public class EmployeeRepositaryImpl {
 	
 	private void insertServiceTables(String tableName,String apiKey, String dataStoreKey) throws Exception {
 		String userId=getUidForapiKey( apiKey);
-		String dsId =getdsidFordsName(dataStoreKey);
-		
+		String dsId =null;
+		if (dsidMap.get(dataStoreKey + ":" + apiKey) == null) {
+			dsId = getdsidFordsName(dataStoreKey);
+			dsidMap.put(dataStoreKey + ":" + apiKey, dsId);
+		} else {
+			dsId = dsidMap.get(dataStoreKey + ":" + apiKey);
+		}
 			String serviceInsertQuery = "INSERT INTO   Service (id ,tableName , serviceName , uid , dsid )   values( (SELECT MAX( id )+1 FROM Service ser) , '"
 					+ tableName + "', '" + tableName.toLowerCase().replace("_", " ") + "','"+userId+"' , '"+dsId+"'  )";
 			String serviceid = getServiceID(tableName, apiKey,  dataStoreKey,userId,dsId);
@@ -2099,17 +2140,17 @@ public class EmployeeRepositaryImpl {
 				//String serviceAttrid = getServiceAttrID(serviceid, dbColumn.getName(), apiKey,  dataStoreKey);
 				String serviceAttrid = getServiceAttrIDByList(attrbData, serviceid,  dbColumn.getName().toLowerCase().replace("_", ""));
 				if (maxRecAttr != null && serviceAttrid == null) {
-					String serviceAttrQuery = " INSERT INTO Service_Attr (id, service_id , attrName, colName) values ((SELECT MAX( id )+1 FROM Service_Attr serA) ,'"
+					String serviceAttrQuery = " INSERT INTO Service_Attr (id, service_id , attrName, colName,colType) values ((SELECT MAX( id )+1 FROM Service_Attr serA) ,'"
 							+ serviceid + "','" + dbColumn.getName().toLowerCase().replace("_", "") + "','"
-							+ dbColumn.getName() + "') ";
+							+ dbColumn.getName() + "','"+dbColumn.getTypeNameSQL()+"') ";
 					quries.add(serviceAttrQuery);
 					//setUserDataStore(apiKey, "system","none").execute(serviceAttrQuery);
 				} else if (maxRecAttr == null) {
 
 					{
-						String serviceAttrQuery = " INSERT INTO Service_Attr (id, service_id , attrName, colName) values (0 ,'"
+						String serviceAttrQuery = " INSERT INTO Service_Attr (id, service_id , attrName, colName,colType) values (0 ,'"
 								+ serviceid + "','" + dbColumn.getName().toLowerCase().replace("_", "") + "','"
-								+ dbColumn.getName() + "') ";
+								+ dbColumn.getName() + "' ,'"+dbColumn.getTypeNameSQL()+"') ";
 						//quries.add(serviceAttrQuery);
 						setUserDataStore(apiKey, "system","none").execute(serviceAttrQuery);
 						maxRecAttr = findMax("Service_Attr", apiKey,  "system","none");
@@ -2127,7 +2168,13 @@ public class EmployeeRepositaryImpl {
 	}
 	private void insertServiceTables(String apiKey, String dataStoreKey) throws Exception {
 		String userId=getUidForapiKey( apiKey);
-		String dsId =getdsidFordsName(dataStoreKey);
+		String dsId =null;
+		if (dsidMap.get(dataStoreKey + ":" + apiKey) == null) {
+			dsId = getdsidFordsName(dataStoreKey);
+			dsidMap.put(dataStoreKey + ":" + apiKey, dsId);
+		} else {
+			dsId = dsidMap.get(dataStoreKey + ":" + apiKey);
+		}
 		for (Map.Entry<String,Map<DbTable, List<DbColumn>>> entryUsr : userTableColumnMap.entrySet()) {
 			Map<DbTable, List<DbColumn>>  tableColumnMapUsr=entryUsr.getValue();
 		for (Map.Entry<DbTable, List<DbColumn>> entry : tableColumnMapUsr.entrySet()) {
@@ -2157,17 +2204,17 @@ public class EmployeeRepositaryImpl {
 				//String serviceAttrid = getServiceAttrID(serviceid, dbColumn.getName(), apiKey,  dataStoreKey);
 				String serviceAttrid = getServiceAttrIDByList(attrbData, serviceid,  dbColumn.getName().toLowerCase().replace("_", ""));
 				if (maxRecAttr != null && serviceAttrid == null) {
-					String serviceAttrQuery = " INSERT INTO Service_Attr (id, service_id , attrName, colName) values ((SELECT MAX( id )+1 FROM Service_Attr serA) ,'"
+					String serviceAttrQuery = " INSERT INTO Service_Attr (id, service_id , attrName, colName,colType) values ((SELECT MAX( id )+1 FROM Service_Attr serA) ,'"
 							+ serviceid + "','" + dbColumn.getName().toLowerCase().replace("_", "") + "','"
-							+ dbColumn.getName() + "') ";
+							+ dbColumn.getName() + "' ,'"+dbColumn.getTypeNameSQL()+"') ";
 					quries.add(serviceAttrQuery);
 					//setUserDataStore(apiKey, "system","none").execute(serviceAttrQuery);
 				} else if (maxRecAttr == null) {
 
 					{
-						String serviceAttrQuery = " INSERT INTO Service_Attr (id, service_id , attrName, colName) values (0 ,'"
+						String serviceAttrQuery = " INSERT INTO Service_Attr (id, service_id , attrName, colName,colType) values (0 ,'"
 								+ serviceid + "','" + dbColumn.getName().toLowerCase().replace("_", "") + "','"
-								+ dbColumn.getName() + "') ";
+								+ dbColumn.getName() + "'  ,'"+dbColumn.getTypeNameSQL()+"') ";
 						//quries.add(serviceAttrQuery);
 						setUserDataStore(apiKey, "system","none").execute(serviceAttrQuery);
 						maxRecAttr = findMax("Service_Attr", apiKey,  "system","none");

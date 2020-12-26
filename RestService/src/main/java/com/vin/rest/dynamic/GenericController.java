@@ -13,6 +13,7 @@ import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.servlet.error.ErrorController;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -66,6 +67,8 @@ public class GenericController {
 	@Autowired
 	ParamsValidator paramsValidator;
 	
+	@Autowired
+	private Environment env;
 	@Autowired
 	Validator validator;
 	@Autowired
@@ -132,11 +135,47 @@ public class GenericController {
 		Map<String, Object> paramMap = new HashMap<>();
 		paramMap = mapper.readValue(mapper.writeValueAsString(jsonMap), new TypeReference<Map<String, Object>>() {
 		});
-		paramMap=vinRestProcessor.doPostProcess(paramMap, apiKey,dataStoreKey,service);
-		jsonMap = mapper.readValue(mapper.writeValueAsString(paramMap), new TypeReference<Map<String, Object>>() {
-		});
+		
+		
+	String paramMapStr = null;
+	try {
+		paramMapStr = vinRestProcessor.dopostProcessStr(apiKey, dataStoreKey, service,jsonMap.get("processorClassName"),  paramMap, jsonMap.get("value"), env);
+	} catch (InstantiationException | IllegalAccessException | ClassNotFoundException | IOException e) {
+		e.printStackTrace();
+	}
+	//vinRestProcessor.dopostProcess(paramMap, apiKey,dataStoreKey,service);
+	try {	jsonMap = mapper.readValue(paramMapStr, new TypeReference<Map<String, String>>() {
+		});}catch(Exception e) {
+			jsonMap=new HashMap<>();
+			jsonMap.put("processedValue", paramMapStr);
+		}
 		return jsonMap; 
 	}
+	
+	private Map<String, String> doPreProcessStr(String service, String apiKey, String dataStoreKey, Map<String, String> jsonMap) throws JsonParseException, JsonMappingException, JsonProcessingException, IOException {
+		 
+		ObjectMapper mapper = new ObjectMapper();
+		Map<String, Object> paramMap = new HashMap<>();
+		paramMap = mapper.readValue(mapper.writeValueAsString(jsonMap), new TypeReference<Map<String, Object>>() {
+		});
+		
+		
+	String paramMapStr = null;
+	try {
+		Map<String,Object> attrMap=new HashMap();
+		paramMapStr = vinRestProcessor.dopreProcessStr(apiKey, dataStoreKey, service,jsonMap.get("processorClassName"),  paramMap, jsonMap.get("value"), env);
+	} catch (InstantiationException | IllegalAccessException | ClassNotFoundException | IOException e) {
+		e.printStackTrace();
+	}
+	//vinRestProcessor.dopostProcess(paramMap, apiKey,dataStoreKey,service);
+	try {	jsonMap = mapper.readValue(paramMapStr, new TypeReference<Map<String, String>>() {
+	});}catch(Exception e) {
+		jsonMap=new HashMap<>();
+		jsonMap.put("processedValue", paramMapStr);
+	}
+	return jsonMap; 
+	}
+	
 	
 	
 	@MethodName(MethodName="updateData")
@@ -251,7 +290,7 @@ public class GenericController {
 		@CrossOrigin
 		public ResponseEntity<Map<String, String>> preProcessData(@PathVariable("service") String service,
 				@RequestParam   Map<String, String> params,@PathVariable("apiKey") String apiKey,@PathVariable("dataStoreKey") String dataStoreKey,@RequestHeader(value="passToken", defaultValue = "none") String passToken) throws Exception {
-			params=doPreProcess(service, apiKey, dataStoreKey, params);
+			params=doPreProcessStr(service, apiKey, dataStoreKey, params);
 			return  new ResponseEntity<Map<String, String>>(params ,new HttpHeaders(), HttpStatus.OK)	;
 		}
 		@MethodName(MethodName="postProcessData")

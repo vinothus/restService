@@ -22,7 +22,7 @@
   <ng-container matColumnDef="{{column}}" *ngFor="let column of displayedColumns">
     <th  mat-header-cell *matHeaderCellDef mat-sort-header> {{column | titlecase }} </th>
     <td mat-cell *matCellDef="let element"> 
-   <ng-container  *ngIf="isequalsAction(column); else elseTemplate ">
+   <ng-container  *ngIf="column!='action'; else elseTemplate ">
     {{element[column]}} 
     </ng-container>
     <ng-template #elseTemplate>

@@ -13,6 +13,8 @@ import java.util.logging.Logger;
 import javax.validation.ConstraintValidatorContext;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
+import org.springframework.context.ApplicationContext;
 import org.springframework.core.env.Environment;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
@@ -37,6 +39,9 @@ public class VinRestProcessor implements Processor<String,Object> {
 	
 	@Autowired
 	private Environment env;
+	
+	@Autowired
+	ApplicationContext context;
 	
 	Logger log = Logger.getLogger(VinRestProcessor.class.getName());
 	
@@ -291,13 +296,15 @@ public class VinRestProcessor implements Processor<String,Object> {
 		}
 		
 	}
-	private String dopreProcess(String apiKey,String datasourceKey,String service , String processorClassName,
+	public String dopreProcess(String apiKey,String datasourceKey,String service , String processorClassName,
 			Map<String, Object> Attrbmap, Map<String, String> mapofVal, String valueFmParam,Environment env) throws InstantiationException,IOException, IllegalAccessException, ClassNotFoundException, JsonProcessingException {
 		String retValue = null;
 		if(reflecClass.get(processorClassName)==null)
 		{
-			reflecClass.put(processorClassName, (com.vin.processor.ProcessParam) Class
-				.forName(processorClassName).newInstance());
+			AutowireCapableBeanFactory factory = context.getAutowireCapableBeanFactory();
+			com.vin.processor.ProcessParam bean = (com.vin.processor.ProcessParam) factory.createBean(Class
+					.forName(processorClassName).newInstance().getClass(), AutowireCapableBeanFactory.AUTOWIRE_CONSTRUCTOR, false);
+			reflecClass.put(processorClassName,bean);
 		}
 		if(reflecClass.get(processorClassName)!=null)
 		{
@@ -311,13 +318,16 @@ public class VinRestProcessor implements Processor<String,Object> {
 		}
 		return retValue;
 	}
-	private String dopostProcess(String apiKey,String datasourceKey,String service , String processorClassName,
+	public String dopostProcess(String apiKey,String datasourceKey,String service , String processorClassName,
 			Map<String, Object> Attrbmap, Map<String, Object> mapofVal, String valueFmParam,Environment env) throws InstantiationException,IOException, IllegalAccessException, ClassNotFoundException, JsonProcessingException {
 		String retValue = null;
 		if(reflecClass.get(processorClassName)==null)
 		{
-			reflecClass.put(processorClassName, (com.vin.processor.ProcessParam) Class
-				.forName(processorClassName).newInstance());
+			AutowireCapableBeanFactory factory = context.getAutowireCapableBeanFactory();
+			com.vin.processor.ProcessParam bean = (com.vin.processor.ProcessParam) factory.createBean(Class
+					.forName(processorClassName).newInstance().getClass(), AutowireCapableBeanFactory.AUTOWIRE_CONSTRUCTOR, false);
+			reflecClass.put(processorClassName,bean);
+			 
 		}
 		if(reflecClass.get(processorClassName)!=null)
 		{
@@ -331,6 +341,118 @@ public class VinRestProcessor implements Processor<String,Object> {
 		}
 		return retValue;
 	}
+	public String dopostProcessStr(String apiKey,String datasourceKey,String service , String processorsName,
+			Map<String, Object> mapofVal, String valueFmParam,Environment env) throws InstantiationException,IOException, IllegalAccessException, ClassNotFoundException, JsonProcessingException {
+		String retValue = null;
+		String processorClassName=null;
+		 for (Entry<String, List<Map<String, Object>>> entry : userProcessorAttrMap.entrySet())  
+			{
+				List<Map<String, Object>> prossorList = entry.getValue();
+				for (Iterator<Map<String, Object>> iterator = prossorList.iterator(); iterator.hasNext();) {
+					Map<String, Object> map = (Map<String, Object>) iterator.next();
+					if (String.valueOf(map.get("name")).equalsIgnoreCase(processorsName)) {
+						processorClassName = String.valueOf(map.get("classname"));
+						break;
+					}
+
+				}
+				if (processorClassName != null) {
+					break;
+				}
+			}
+		 if(processorClassName==null)
+			{
+				List<Map<String, Object>> obj = employeeRepositaryImpl.setUserDataStore(apiKey, "system", "none")
+						.queryForList("select * from VinProcessor where name= ? ", new Object[] { processorsName });
+				String processorKey=null;
+				for (Iterator<Map<String, Object>> iterator = obj.iterator(); iterator.hasNext();) {
+					Map<String, Object> map = (Map<String, Object>) iterator.next();
+					if (String.valueOf(map.get("name")).equalsIgnoreCase(processorsName)) {
+						processorClassName = String.valueOf(map.get("classname"));
+						processorKey=	map.get("attr_id")+":"+map.get("service_id");
+						break;
+					}
+
+				}
+				userProcessorAttrMap.put(processorKey,obj);
+			}
+		if(processorClassName!=null&&reflecClass.get(processorClassName)==null)
+		{
+			AutowireCapableBeanFactory factory = context.getAutowireCapableBeanFactory();
+			com.vin.processor.ProcessParam bean = (com.vin.processor.ProcessParam) factory.createBean(Class
+					.forName(processorClassName).newInstance().getClass(), AutowireCapableBeanFactory.AUTOWIRE_CONSTRUCTOR, false);
+			reflecClass.put(processorClassName,bean);
+			 
+		}
+		if(processorClassName!=null&&reflecClass.get(processorClassName)!=null)
+		{
+		com.vin.processor.ProcessParam processor = (com.vin.processor.ProcessParam) reflecClass.get(processorClassName);
+		ObjectMapper om=new ObjectMapper();
+		 retValue=processor.doPostProcess(valueFmParam,apiKey,datasourceKey,service,om.writeValueAsString(mapofVal),om.writeValueAsString(mapofVal),om.writeValueAsString(ParamsValidator.getAllKnownProperties(env)));
+		}
+		if(retValue==null)
+		{
+			return valueFmParam;
+		}
+		return retValue;
+	}
+	
+	public String dopreProcessStr(String apiKey,String datasourceKey,String service , String processorsName,
+			Map<String, Object> mapofVal, String valueFmParam,Environment env) throws InstantiationException,IOException, IllegalAccessException, ClassNotFoundException, JsonProcessingException {
+		String retValue = null;
+		String processorClassName=null;
+		 for (Entry<String, List<Map<String, Object>>> entry : userProcessorAttrMap.entrySet())  
+			{
+				List<Map<String, Object>> prossorList = entry.getValue();
+				for (Iterator<Map<String, Object>> iterator = prossorList.iterator(); iterator.hasNext();) {
+					Map<String, Object> map = (Map<String, Object>) iterator.next();
+					if (String.valueOf(map.get("name")).equalsIgnoreCase(processorsName)) {
+						processorClassName = String.valueOf(map.get("classname"));
+						break;
+					}
+
+				}
+				if (processorClassName != null) {
+					break;
+				}
+			}
+		 if(processorClassName==null)
+			{
+				List<Map<String, Object>> obj = employeeRepositaryImpl.setUserDataStore(apiKey, "system", "none")
+						.queryForList("select * from VinProcessor where name= ? ", new Object[] { processorsName });
+				String processorKey=null;
+				for (Iterator<Map<String, Object>> iterator = obj.iterator(); iterator.hasNext();) {
+					Map<String, Object> map = (Map<String, Object>) iterator.next();
+					if (String.valueOf(map.get("name")).equalsIgnoreCase(processorsName)) {
+						processorClassName = String.valueOf(map.get("classname"));
+						processorKey=	map.get("attr_id")+":"+map.get("service_id");
+						break;
+					}
+
+				}
+				userProcessorAttrMap.put(processorKey,obj);
+			}
+		if(processorClassName!=null&&reflecClass.get(processorClassName)==null)
+		{
+			AutowireCapableBeanFactory factory = context.getAutowireCapableBeanFactory();
+			com.vin.processor.ProcessParam bean = (com.vin.processor.ProcessParam) factory.createBean(Class
+					.forName(processorClassName).newInstance().getClass(), AutowireCapableBeanFactory.AUTOWIRE_CONSTRUCTOR, false);
+			reflecClass.put(processorClassName,bean);
+			 
+		}
+		if(processorClassName!=null&&reflecClass.get(processorClassName)!=null)
+		{
+		com.vin.processor.ProcessParam processor = (com.vin.processor.ProcessParam) reflecClass.get(processorClassName);
+		ObjectMapper om=new ObjectMapper();
+		 retValue=processor.doPreProcess(valueFmParam,apiKey,datasourceKey,service,om.writeValueAsString(mapofVal),om.writeValueAsString(mapofVal),om.writeValueAsString(ParamsValidator.getAllKnownProperties(env)));
+		}
+		if(retValue==null)
+		{
+			return valueFmParam;
+		}
+		return retValue;
+	}
+	
 	@Override
 	public Map<String, Object> doPostProcess(Map<String, Object> param, String... value) {
 		

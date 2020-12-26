@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormBuilder, FormGroup,Validators  } from "@angular/forms";
-import * as Survey from "survey-angular";
+//import * as Survey from "survey-angular";
 import { AuthService } from '../auth/auth-service.service';
 
 @Component({
@@ -41,9 +41,9 @@ export class LoginComponent implements OnInit {
 
   ngOnInit() {
 	console.log(this.surveyJSON);
-	var survey = new Survey.Model(this.surveyJSON);
-   survey.onComplete.add(sendDataToServer);
-    Survey.SurveyWindowNG.render("surveyElement", {model:survey});
+	//var survey = new Survey.Model(this.surveyJSON);
+   //survey.onComplete.add(sendDataToServer);
+  //  Survey.SurveyWindowNG.render("surveyElement", {model:survey});
 	 this.loginForm= this.formBuilder.group({
      email: ['', [Validators.required, Validators.email,Validators.pattern('^[A-Za-z0-9._%+-]+@[a-z0-9.-]+\\.[A-Za-z]{2,4}$')]],
       password: ['', Validators.required]
