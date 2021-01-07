@@ -39,10 +39,13 @@ import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.healthmarketscience.sqlbuilder.BetweenCondition;
 import com.healthmarketscience.sqlbuilder.BinaryCondition;
 import com.healthmarketscience.sqlbuilder.CreateTableQuery;
 import com.healthmarketscience.sqlbuilder.DeleteQuery;
+import com.healthmarketscience.sqlbuilder.InCondition;
 import com.healthmarketscience.sqlbuilder.InsertQuery;
+import com.healthmarketscience.sqlbuilder.OrderObject;
 import com.healthmarketscience.sqlbuilder.SelectQuery;
 import com.healthmarketscience.sqlbuilder.UpdateQuery;
 import com.healthmarketscience.sqlbuilder.dbspec.Constraint;
@@ -58,6 +61,8 @@ import com.vin.rest.exception.ServiceNotFoundException;
 import com.vin.rest.model.EmployeeEntity;
 import com.vin.validation.ParamsValidator;
 import com.vin.validation.ServiceConstraintViolation;
+
+import vin.rest.common.Constant;
 
 @Component
 public class EmployeeRepositaryImpl {
@@ -102,7 +107,7 @@ public class EmployeeRepositaryImpl {
 
 	}
 
-	private void initGoldenTables(String apiKey, String dataStoreKey,String passToken) throws Exception {
+	private void initGoldenTables(String apiKey, String dataStoreKey,String passToken) throws DatabaseAuthException {
 		List<DbTable> serviceTables = initializeTable();
 		boolean serviceTabisPresent = false;
 		for (Iterator<DbTable> iterator = serviceTables.iterator(); iterator.hasNext();) {
@@ -136,7 +141,7 @@ public class EmployeeRepositaryImpl {
 
  
 
-	private void insertServiceTablesUsr(String apiKey, String dataStoreKey) throws Exception {
+	private void insertServiceTablesUsr(String apiKey, String dataStoreKey) throws  DatabaseAuthException {
 		String userId=getUidForapiKey( apiKey);
 		String dsId =null;
 		if (dsidMap.get(dataStoreKey + ":" + apiKey) == null) {
@@ -203,7 +208,7 @@ public class EmployeeRepositaryImpl {
 	}
 
 	private Map<String, Map<DbTable, List<DbColumn>>> getMetaDatumUsr(String apiKey, String dataStoreKey,
-			String passToken) {
+			String passToken) throws  DatabaseAuthException{
 		loadSQLBuilderSchema();
 		Map<String,Map<DbTable, List<DbColumn>>> metaDatum = new HashMap<>();
 		Map<DbTable, List<DbColumn>> metaDatumUsr = new HashMap<>();
@@ -399,6 +404,13 @@ public class EmployeeRepositaryImpl {
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
+		}
+		catch (DatabaseAuthException e) {
+			 throw e;
+				}
+		catch(Exception e)
+		{
+			
 		}finally {
 			
 		}
@@ -407,14 +419,17 @@ public class EmployeeRepositaryImpl {
 	}
 
 	private  void loadSQLBuilderSchema() {
-		specficationObj = new DbSpec();
 		
+		if (specficationObj == null) {
+			specficationObj = new DbSpec();
+		}
+
 		schemaObj = specficationObj.addDefaultSchema();
 	}
 
 
 
-	public Map<DbTable, List<DbColumn>> getMetaDatum(String apiKey, String dataStoreKey,String passToken)  {
+	public Map<DbTable, List<DbColumn>> getMetaDatum(String apiKey, String dataStoreKey,String passToken) throws  DatabaseAuthException {
 		loadSQLBuilderSchema();
 		Map<DbTable, List<DbColumn>> metaDatum = new HashMap<>();
 		DatabaseMetaData md;
@@ -608,14 +623,22 @@ public class EmployeeRepositaryImpl {
 			
 			}
 		} catch (SQLException e) {
+			
 			e.printStackTrace();
+		}
+		catch (DatabaseAuthException e) {
+			 throw e;
+				}
+		catch(Exception e)
+		{
+			 
 		}finally {
 			
 		}
 		return metaDatum;
 	}
 
-	public void createDbTable(DbTable tableName,String apiKey, String dataStoreKey) {
+	public void createDbTable(DbTable tableName,String apiKey, String dataStoreKey) throws  DatabaseAuthException{
 		log.info("\n=======Creating '" + tableName.getName() + "' In The Database=======\n");
 		loadSQLBuilderSchema();
 		try {
@@ -626,6 +649,10 @@ public class EmployeeRepositaryImpl {
 			setUserDataStore(apiKey, "system","none").execute(createTableQuery);
 			insertGoldenDataifAny(tableName,apiKey);
 		}  catch (Exception sqlException) {
+			if(sqlException  instanceof DatabaseAuthException)
+			{
+				throw sqlException;
+			}
 			if(sqlException instanceof java.sql.SQLSyntaxErrorException || sqlException instanceof org.springframework.jdbc.BadSqlGrammarException)
 			{
 				log.info("table creation failed with Syntax Error");
@@ -671,7 +698,12 @@ public class EmployeeRepositaryImpl {
 					insertGoldenDataifAny(tableName,apiKey);
 				}catch(Exception e)
 				{
-				log.info(e.getMessage());	
+				log.info(e.getMessage());
+				
+				if(e  instanceof DatabaseAuthException)
+				{
+					throw e;
+				}
 				}
 			}
 			
@@ -680,67 +712,122 @@ public class EmployeeRepositaryImpl {
 		log.info("\n=======The '" + tableName.getName() + "' Successfully Created In The Database=======\n");
 	}
 
-	private void insertGoldenDataifAny(DbTable tableName,String apiKey) {
+	private void insertGoldenDataifAny(DbTable tableName,String apiKey) throws  DatabaseAuthException{
 	 if(tableName.getName().equalsIgnoreCase("User"))
 	 {
 		 setUserDataStore(apiKey, "system","none").execute("INSERT INTO User (id, name, apikey, password, phoneno, email, address) VALUES " + 
 		 		"(0, 'systemuser', 'system', 'vinaug@2020', '+919790524267', 'Vinoth.Paulraj@vinrest.com', 'Plot no 35,1st Street,XXX Nagar,XXXX') ;");
 	 }
-	 if(tableName.getName().equalsIgnoreCase("Datastore"))
+	 else if(tableName.getName().equalsIgnoreCase("Datastore"))
 	 {
 		 setUserDataStore(apiKey, "system","none").execute("INSERT INTO Datastore (id, uid, type, name, url, driver) VALUES " + 
 		 		"(0, 0, 'type', 'system', 'url', 'driver') ;"); 
 	 }
-	 if(tableName.getName().equalsIgnoreCase("VinProcessor"))
+	 else if(tableName.getName().equalsIgnoreCase("VinProcessor"))
 	 {
 		 setUserDataStore(apiKey, "system","none").execute("INSERT INTO  VinProcessor (id,uid,name,classname)  VALUES " + 
 		 		"(0,0,'yekeulav','com.vin.processor.PropertyProcessor');"); 
 	 }
-	 if(tableName.getName().equalsIgnoreCase("VinProcessor"))
+	 else if(tableName.getName().equalsIgnoreCase("VinValidation"))
 	 {
-		 setUserDataStore(apiKey, "system","none").execute("INSERT INTO  VinProcessor (id,uid,name,classname)  VALUES " + 
-		 		"(0,0,'yekeulav','com.vin.processor.PropertyProcessor');"); 
+		 setUserDataStore(apiKey, "system","none").execute("INSERT INTO  VinValidation (id,uid,name,classname,attr_id)  VALUES " + 
+		 		"(0,0,'rotadilavssalc','com.vin.validatiorr.ClassValidator',999);"); 
 	 }
-		
+		else if (tableName.getName().equalsIgnoreCase("Service")) {
+			String serviceattr = getTableName("service attr", "system", "system", "none");
+			if (serviceattr == null) {
+				createDbTable(createServiceAttrTableObj(), "system", "system");
+			}
+			try {
+				insertServiceTables("Service", "system", "system");
+				setServiceTableMap("Service", "system", "system");
+				setTableColumn("Service", "system", "system", "none");
+				insertServiceTables("Service_Attr", "system", "system");
+				setServiceTableMap("Service_Attr", "system", "system");
+				setTableColumn("Service_Attr", "system", "system", "none");
+				
+			} catch (DatabaseAuthException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+		} else if (tableName.getName().equalsIgnoreCase("Service_Attr")) {
+			String service = getTableName("service", "system", "system", "none");
+			if (service == null) {
+				createDbTable(createServiceTableObj(), "system", "system");
+			}
+			try {
+				insertServiceTables("Service", "system", "system");
+				setServiceTableMap("Service", "system", "system");
+				setTableColumn("Servicer", "system", "system", "none");
+				insertServiceTables("Service_Attr", "system", "system");
+				setServiceTableMap("Service_Attr", "system", "system");
+				setTableColumn("Service_Attr", "system", "system", "none");
+			} catch (DatabaseAuthException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+		}
+	 else if(tableName.getName().equalsIgnoreCase("Multi_Service")) {
+			
+			try {
+				String serviceattr = getTableName("service attr", "system", "system", "none");
+				if (serviceattr == null) {
+					createDbTable(createServiceAttrTableObj(), "system", "system");
+				}
+				String service = getTableName("service", "system", "system", "none");
+				if (service == null) {
+					createDbTable(createServiceTableObj(), "system", "system");
+				}
+				String serId = getServiceID("Service", "system", "system", "0", "0");
+				if (serId == null) {
+					insertServiceTables("Service", "system", "system");
+					setServiceTableMap("Service", "system", "system");
+					setTableColumn("Service", "system", "system", "none");
+					serId = getServiceID("Service", "system", "system", "0", "0");
+				}if(serId!=null) {
+					serviceAttrbMap(serId, "Service", apiKey, "system");
+				}
+				String attrId = getServiceID("Service_Attr", "system", "system", "0", "0");
+				if (attrId == null) {
+					insertServiceTables("Service_Attr", "system", "system");
+					setServiceTableMap("Service_Attr", "system", "system");
+					setTableColumn("Service_Attr", "system", "system", "none");
+					attrId = getServiceID("Service_Attr", "system", "system", "0", "0");
+				}if(attrId!=null) {
+					
+					serviceAttrbMap(attrId, "Service_Attr", apiKey, "system");
+				}
+				 setUserDataStore(apiKey, "system","none").execute("INSERT INTO  Multi_Service (id,uid,service_id,priority,type,relationwithparam,multiserviceBussinessName,multiservicename,multiserviceEnable)  VALUES " + 
+					 		"(0,0,'"+serId+"','0','Single','id.id,tablename.tablename,servicename.servicename,"+Constant.IN_CONDITION+"id."+Constant.IN_CONDITION+"id','"+env.getProperty("multiserviceBussinessName")+"','"+env.getProperty("multiservicename")+"','1');");
+				 setUserDataStore(apiKey, "system","none").execute("INSERT INTO  Multi_Service (id,uid,service_id,priority,type,relationwithparam,multiserviceBussinessName,multiservicename,multiserviceEnable)  VALUES " + 
+					 		"(1,0,'"+attrId+"','1','Single','service.id.serviceid','"+env.getProperty("multiserviceBussinessName")+"','"+env.getProperty("multiservicename")+"','1');");
+				clearCache();
+			} catch (DatabaseAuthException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+	 }
 	}
 
 	public List<DbTable> initializeTable() {
 
 		loadSQLBuilderSchema();
-		// Service
-		DbColumn id;
-		DbColumn tableName;
-		DbColumn serviceName;
-		DbColumn serDSId;
-		DbColumn serviceBussinessName;
-		DbColumn addFlag;
-		DbColumn updateFlag;
-		DbColumn deleteFlag;
-		DbColumn retriveFlag;
-		DbColumn workFlowFlag;
-		DbColumn addBuName;
-		DbColumn upBuName;
-		DbColumn delName;
-		DbColumn serviceEnable;
-		DbColumn serviceUIDesign;
-		// Service_Attr
-		DbColumn attrid;
-		DbColumn serid;
-		DbColumn serUId;
-		DbColumn attrName;
-		DbColumn colName;
-		DbColumn colType;
-		DbColumn attrEnable;
-		DbColumn attrBuName;
-		DbColumn attrBuIcon;
-		DbColumn attrCusValidation;
-		DbColumn attrminLength;
-		DbColumn attrMaxLength;
-		DbColumn attrRegXvalidation;
-		DbColumn attrIsMandatory;
-		DbColumn attrIsProcessor;
+		
+		
 		// Multi_Service
 		DbColumn multiseviceid;
+		DbColumn multiseviceUid;
 		DbColumn multisevice_id;
 		DbColumn multiseviceName;
 		DbColumn multisevicePriority;
@@ -811,8 +898,8 @@ public class EmployeeRepositaryImpl {
 		
 		
 		
-		DbTable tableService = schemaObj.addTable("Service");
-		DbTable tableServiceAttr = schemaObj.addTable("Service_Attr");
+		DbTable tableService = createServiceTableObj();
+		DbTable tableServiceAttr = createServiceAttrTableObj();
 		DbTable tableMultiService = schemaObj.addTable("Multi_Service");
 		DbTable tableUser = schemaObj.addTable("User");
 		DbTable tableDataStore = schemaObj.addTable("Datastore");
@@ -825,45 +912,13 @@ public class EmployeeRepositaryImpl {
 
 		// Service
 
-		id = tableService.addColumn("id", Types.INTEGER, 10);
-		id.primaryKey();
-		tableName = tableService.addColumn("tableName", Types.VARCHAR, 100);
-		serviceName = tableService.addColumn("serviceName", Types.VARCHAR, 100);
-		serUId = tableService.addColumn("uid", Types.INTEGER, 10);
-		serDSId= tableService.addColumn("dsid", Types.INTEGER, 10);
-		serviceBussinessName=tableService.addColumn("serviceBussinessName", Types.VARCHAR, 100);
-		 addFlag=tableService.addColumn("addFlag", Types.VARCHAR, 10);
-		 updateFlag=tableService.addColumn("updateFlag", Types.VARCHAR, 10);
-		 deleteFlag=tableService.addColumn("deleteFlag", Types.VARCHAR, 10);
-		 retriveFlag=tableService.addColumn("retriveFlag", Types.VARCHAR, 10);
-		 workFlowFlag=tableService.addColumn("workFlowFlag", Types.VARCHAR, 100);
-		 addBuName=tableService.addColumn("addBuName", Types.VARCHAR, 100);
-		 upBuName=tableService.addColumn("upBuName", Types.VARCHAR, 100);
-		 delName=tableService.addColumn("delName", Types.VARCHAR, 100);
-		 serviceEnable=tableService.addColumn("serviceEnable", Types.VARCHAR, 10);
-		 serviceUIDesign=tableService.addColumn("serviceUIDesign", Types.VARCHAR, 100);
-		// Service_Attr
-
-		attrid = tableServiceAttr.addColumn("id", Types.INTEGER, 10);
-		attrid.primaryKey();
-		serid = tableServiceAttr.addColumn("service_id", Types.INTEGER, 10);
-		//serUId = tableDataStore.addColumn("uid", Types.INTEGER, 10);
-		attrName = tableServiceAttr.addColumn("attrName", Types.VARCHAR, 100);
-		colName = tableServiceAttr.addColumn("colName", Types.VARCHAR, 100);
-		colType = tableServiceAttr.addColumn("colType", Types.VARCHAR, 100);
-		 attrEnable= tableServiceAttr.addColumn("attrEnable", Types.VARCHAR, 100);
-		 attrBuName= tableServiceAttr.addColumn("attrBuName", Types.VARCHAR, 10);
-		 attrBuIcon= tableServiceAttr.addColumn("attrBuIcon", Types.VARCHAR, 100);
-		 attrCusValidation= tableServiceAttr.addColumn("attrCusValidation", Types.VARCHAR, 100);
-		 attrminLength= tableServiceAttr.addColumn("attrminLength", Types.VARCHAR, 100);
-		 attrMaxLength= tableServiceAttr.addColumn("attrMaxLength", Types.VARCHAR, 100);
-		 attrRegXvalidation= tableServiceAttr.addColumn("attrRegXvalidation", Types.VARCHAR, 100);
-		 attrIsMandatory= tableServiceAttr.addColumn("attrIsMandatory", Types.VARCHAR, 10);
-		 attrIsProcessor= tableServiceAttr.addColumn("attrIsProcessor", Types.VARCHAR, 10);
+	
+		
 
 		// Multi_Service
 
 		multiseviceid = tableMultiService.addColumn("id", Types.INTEGER, 10);
+		multiseviceUid = tableMultiService.addColumn("uid", Types.INTEGER, 10);
 		multiseviceid.primaryKey();
 		multisevice_id = tableMultiService.addColumn("service_id", Types.VARCHAR, 100);
 		multiseviceName = tableMultiService.addColumn("multiservicename", Types.VARCHAR, 100);
@@ -958,7 +1013,98 @@ public class EmployeeRepositaryImpl {
 		return initialTable;
 	}
 
-	public Map<String, Object> insertData(String service, Map<String, String> params,String apiKey, String dataStoreKey,String passToken) throws Exception {
+	public  DbTable createServiceTableObj()
+	{
+		loadSQLBuilderSchema();
+		// Service
+		DbTable tableService = schemaObj.addTable("Service");
+		DbColumn id;
+		DbColumn tableName;
+		DbColumn serviceName;
+		DbColumn serUId;
+		DbColumn serDSId;
+		DbColumn serviceBussinessName;
+		DbColumn addFlag;
+		DbColumn updateFlag;
+		DbColumn deleteFlag;
+		DbColumn retriveFlag;
+		DbColumn workFlowFlag;
+		DbColumn addBuName;
+		DbColumn upBuName;
+		DbColumn delName;
+		DbColumn serviceEnable;
+		DbColumn serviceUIDesign;
+
+		id = tableService.addColumn("id", Types.INTEGER, 10);
+		id.primaryKey();
+		tableName = tableService.addColumn("tableName", Types.VARCHAR, 100);
+		serviceName = tableService.addColumn("serviceName", Types.VARCHAR, 100);
+		serUId = tableService.addColumn("uid", Types.INTEGER, 10);
+		serDSId = tableService.addColumn("dsid", Types.INTEGER, 10);
+		serviceBussinessName = tableService.addColumn("serviceBussinessName", Types.VARCHAR, 100);
+		addFlag = tableService.addColumn("addFlag", Types.VARCHAR, 10);
+		updateFlag = tableService.addColumn("updateFlag", Types.VARCHAR, 10);
+		deleteFlag = tableService.addColumn("deleteFlag", Types.VARCHAR, 10);
+		retriveFlag = tableService.addColumn("retriveFlag", Types.VARCHAR, 10);
+		workFlowFlag = tableService.addColumn("workFlowFlag", Types.VARCHAR, 100);
+		addBuName = tableService.addColumn("addBuName", Types.VARCHAR, 100);
+		upBuName = tableService.addColumn("upBuName", Types.VARCHAR, 100);
+		delName = tableService.addColumn("delName", Types.VARCHAR, 100);
+		serviceEnable = tableService.addColumn("serviceEnable", Types.VARCHAR, 10);
+		serviceUIDesign = tableService.addColumn("serviceUIDesign", Types.VARCHAR, 100);
+
+		return tableService;
+	}
+	public  DbTable createServiceAttrTableObj()
+	{
+		loadSQLBuilderSchema();
+		// Service_Attr
+		DbColumn attrid;
+		DbColumn serid;
+		DbColumn attrName;
+		DbColumn colName;
+		DbColumn colType;
+		DbColumn attrEnable;
+		DbColumn attrBuName;
+		DbColumn attrBuIcon;
+		DbColumn attrCusValidation;
+		DbColumn attrminLength;
+		DbColumn attrMaxLength;
+		DbColumn attrRegXvalidation;
+		DbColumn attrRegXvalidationMsg;
+		DbColumn attrIsMandatory;
+		DbColumn attrIsProcessor;
+		DbColumn attrProcessorName;
+		DbColumn attrValidatorName;
+		DbColumn attrValidatorMsg;
+		DbColumn attrValMethods;
+		DbTable tableServiceAttr = schemaObj.addTable("Service_Attr");
+		// Service_Attr
+
+		attrid = tableServiceAttr.addColumn("id", Types.INTEGER, 10);
+		attrid.primaryKey();
+		serid = tableServiceAttr.addColumn("service_id", Types.INTEGER, 10);
+		// serUId = tableDataStore.addColumn("uid", Types.INTEGER, 10);
+		attrName = tableServiceAttr.addColumn("attrName", Types.VARCHAR, 100);
+		colName = tableServiceAttr.addColumn("colName", Types.VARCHAR, 100);
+		colType = tableServiceAttr.addColumn("colType", Types.VARCHAR, 100);
+		attrEnable = tableServiceAttr.addColumn("attrEnable", Types.VARCHAR, 100);
+		attrBuName = tableServiceAttr.addColumn("attrBuName", Types.VARCHAR, 10);
+		attrBuIcon = tableServiceAttr.addColumn("attrBuIcon", Types.VARCHAR, 100);
+		attrCusValidation = tableServiceAttr.addColumn("attrCusValidation", Types.VARCHAR, 100);
+		attrminLength = tableServiceAttr.addColumn("attrminLength", Types.VARCHAR, 100);
+		attrMaxLength = tableServiceAttr.addColumn("attrMaxLength", Types.VARCHAR, 100);
+		attrRegXvalidation = tableServiceAttr.addColumn("attrRegXvalidation", Types.VARCHAR, 100);
+		attrRegXvalidationMsg= tableServiceAttr.addColumn("attrRegXvalidationMsg", Types.VARCHAR, 100);
+		attrIsMandatory = tableServiceAttr.addColumn("attrIsMandatory", Types.VARCHAR, 10);
+		attrIsProcessor = tableServiceAttr.addColumn("attrIsProcessor", Types.VARCHAR, 10);
+		attrProcessorName= tableServiceAttr.addColumn("attrProcessorName", Types.VARCHAR, 100);
+		attrValidatorName= tableServiceAttr.addColumn("attrValidatorName", Types.VARCHAR, 100);
+		attrValMethods= tableServiceAttr.addColumn("attrValMethods", Types.VARCHAR, 100);
+		attrValidatorMsg=tableServiceAttr.addColumn("attrValidatorMsg", Types.VARCHAR, 100);
+		return tableServiceAttr;
+	}
+	public Map<String, Object> insertData(String service, Map<String, String> params,String apiKey, String dataStoreKey,String passToken) throws Exception,DatabaseAuthException {
 		loadSQLBuilderSchema();
 		ObjectMapper mapper = new ObjectMapper();
 		String tableName = null;
@@ -978,7 +1124,10 @@ public class EmployeeRepositaryImpl {
 		boolean isUpdate = false;
 		//Map<String, String> attribParamMap = serviceAttrbMap.get(service);
 		Map<String, String> attribParamMap = userServiceAttrbMap.get(dataStoreKey).get(service);
-		
+		if(attribParamMap==null) {
+			setServiceTableMap(tableName, apiKey, "system");
+			attribParamMap = userServiceAttrbMap.get(dataStoreKey).get(service);
+		}
 		for (Map.Entry<DbTable, List<DbColumn>> entry : userTableColumnMap.get(dataStoreKey).entrySet()) {
 			DbTable table = entry.getKey();
 			if (table.getName().equalsIgnoreCase(tableName)) {
@@ -1059,13 +1208,13 @@ public class EmployeeRepositaryImpl {
 	}
 
 	
-	private void testJDBC(JdbcTemplate userJdbcTemplate) {
+	private void testJDBC(JdbcTemplate userJdbcTemplate) throws  DatabaseAuthException{
 		 
 		List<Map<String,Object>> data=userJdbcTemplate.queryForList(" show tables ");
 		System.out.println(data);
 	}
 
-	public JdbcTemplate setUserDataStore(String apiKey, String dataStoreKey,String passToken) {
+	public JdbcTemplate setUserDataStore(String apiKey, String dataStoreKey,String passToken) throws  DatabaseAuthException{
 		 JdbcTemplate userJdbcTemplate;
 		 try {	
 		if(jdbcTemplateMap.get(dataStoreKey)==null)
@@ -1120,12 +1269,12 @@ public class EmployeeRepositaryImpl {
 		return userJdbcTemplate;
 	}
 
-	private void arrangeGoldenDataForTable(String tableName,String apiKey, String dataStoreKey,String passToken) {
+	private void arrangeGoldenDataForTable(String tableName,String apiKey, String dataStoreKey,String passToken) throws DatabaseAuthException, Exception {
 		loadSQLBuilderSchema();
 		setTableColumn(tableName, apiKey,  dataStoreKey,passToken);
 		
 	}
-	private void arrangeGoldenData(String service,String apiKey, String dataStoreKey,String passToken) {
+	private void arrangeGoldenData(String service,String apiKey, String dataStoreKey,String passToken) throws DatabaseAuthException {
 		loadSQLBuilderSchema();
 		if(!isPresentinDB(service, apiKey,  dataStoreKey,passToken))
 		{
@@ -1135,7 +1284,7 @@ public class EmployeeRepositaryImpl {
 	}
 
 	 
-	private boolean isPresentinDB(String service,String apiKey, String dataStoreKey,String passToken)  {
+	private boolean isPresentinDB(String service,String apiKey, String dataStoreKey,String passToken)  throws DatabaseAuthException{
         
 		String selectQuery = " select tableName from Service where serviceName = '" + service + "' and uid = ( select id  from User where   apikey =  '"+apiKey+"' ) and dsid= (select id   from Datastore  where   name =  '"+dataStoreKey+"') ";
 		List<Map<String, Object>> data = new ArrayList<Map<String, Object>>();
@@ -1156,15 +1305,18 @@ public class EmployeeRepositaryImpl {
 					try {
 						tableName = (String) data.get(0).get("tableName");
 						setTableColumn(tableName, apiKey,  dataStoreKey, passToken);
-					} catch (Exception e) {
-
+					}catch (DatabaseAuthException e) {
+						 throw e;
+							}
+					catch (Exception e) { 
+						
 					}
 				}
 			}
 		return isPresent;
 	}
 
-	public void createSysTable() {
+	public void createSysTable() throws DatabaseAuthException{
 		List<DbTable> serviceTables = initializeTable();
 		for (Iterator<DbTable> iterator = serviceTables.iterator(); iterator.hasNext();) {
 			DbTable dbTable = iterator.next();
@@ -1191,13 +1343,17 @@ public class EmployeeRepositaryImpl {
 
 			}
 		} catch (Exception e) {
+			if(e instanceof DatabaseAuthException)
+			{
+				throw e;
+			}
 			log.info(e.getMessage());
 			return isPresent;
 		}
 		 
 		return isPresent;
 	}
-	private String getTableName(String service,String apiKey, String dataStoreKey,String passToken) {
+	private String getTableName(String service,String apiKey, String dataStoreKey,String passToken) throws  DatabaseAuthException{
 
 		String selectQuery = " show tables ";
 		List<Map<String, Object>> data = new ArrayList<Map<String, Object>>();
@@ -1261,6 +1417,10 @@ public class EmployeeRepositaryImpl {
 				
 			}
 		} catch (Exception e) {
+			if(e instanceof DatabaseAuthException)
+			{
+				throw e;
+			}
 			log.info(e.getMessage());
 			return isPresent;
 		}
@@ -1268,7 +1428,7 @@ public class EmployeeRepositaryImpl {
 		return isPresent;
 	}
 	
-	public String refreshMataData(String serviceName,String apiKey, String dataStoreKey) throws RecordNotFoundException
+	public String refreshMataData(String serviceName,String apiKey, String dataStoreKey) throws RecordNotFoundException , DatabaseAuthException
 	{
 		List<Map<String, Object>> serviceDatum = setUserDataStore(apiKey, "system","none")
 				.queryForList("select id, tableName, serviceName from Service where serviceName= '"+serviceName+"'");
@@ -1321,7 +1481,7 @@ public class EmployeeRepositaryImpl {
 		return id;
 	}
 
-	private void setTableColumn(String tableName,String apiKey, String dataStoreKey,String passToken) {
+	private void setTableColumn(String tableName,String apiKey, String dataStoreKey,String passToken) throws DatabaseAuthException {
 		boolean isTablePresent=false;
 		DatabaseMetaData md;
 		DbTable tableNameT;
@@ -1584,13 +1744,19 @@ public class EmployeeRepositaryImpl {
 			setServiceTableMap(tableName, apiKey,  dataStoreKey);
 		} catch (SQLException e1) {
 			e1.printStackTrace();
+			
+		}catch(DatabaseAuthException e)
+		{
+			 
+				throw e;
+			 
 		}finally
 		{
 			 
 		}
 	}
 
-	public Map<String, Object> updateData(String service, Map<String, String> params,String apiKey, String dataStoreKey,String passToken) throws Exception {
+	public Map<String, Object> updateData(String service, Map<String, String> params,String apiKey, String dataStoreKey,String passToken) throws Exception , DatabaseAuthException {
 		ObjectMapper mapper = new ObjectMapper();
 		String tableName = null;
 		if(userServiceTableMap.get(dataStoreKey)!=null)
@@ -1608,6 +1774,10 @@ public class EmployeeRepositaryImpl {
 		String primaryKeyAttr="";
 		//Map<String, String> attribParamMap = serviceAttrbMap.get(service);
 		Map<String, String> attribParamMap = userServiceAttrbMap.get(dataStoreKey).get(service);
+		if(attribParamMap==null) {
+			setServiceTableMap(tableName, apiKey, "system");
+			attribParamMap = userServiceAttrbMap.get(dataStoreKey).get(service);
+		}
 		for (Map.Entry<DbTable, List<DbColumn>> entry : userTableColumnMap.get(dataStoreKey).entrySet()) {
 			DbTable table = entry.getKey();
 			if (table.getName().equalsIgnoreCase(tableName)) {
@@ -1734,7 +1904,7 @@ public class EmployeeRepositaryImpl {
 
 }
 
-	public Map<String, Object> getData(String serviceName, String primaryKeyValue,String apiKey, String dataStoreKey,String passToken) throws Exception {
+	public Map<String, Object> getData(String serviceName, String primaryKeyValue,String apiKey, String dataStoreKey,String passToken) throws Exception , DatabaseAuthException {
 
 		SelectQuery selectQuery = new SelectQuery();
 		String tableName = null;
@@ -1749,6 +1919,10 @@ public class EmployeeRepositaryImpl {
 		}
 		 
 		Map<String, String> attribParamMap = userServiceAttrbMap.get(dataStoreKey).get(serviceName);
+		if(attribParamMap==null) {
+			setServiceTableMap(tableName, apiKey, "system");
+			attribParamMap = userServiceAttrbMap.get(dataStoreKey).get(serviceName);
+		}
 		for (Map.Entry<DbTable, List<DbColumn>> entry :  userTableColumnMap.get(dataStoreKey).entrySet()) {
 			DbTable table = entry.getKey();
 			if (table.getName().equalsIgnoreCase(tableName)) {
@@ -1791,7 +1965,7 @@ public class EmployeeRepositaryImpl {
 		return result;
 	}
 
-	public Map<String, Object> deleteData(String serviceName, String primaryKeyValue,String apiKey, String dataStoreKey,String passToken) throws Exception {
+	public Map<String, Object> deleteData(String serviceName, String primaryKeyValue,String apiKey, String dataStoreKey,String passToken) throws Exception , DatabaseAuthException{
 
 		DeleteQuery deleteQuery = null;
 		String tableName = null;
@@ -1846,7 +2020,7 @@ public class EmployeeRepositaryImpl {
 
 	}
 
-	public List<Map<String, Object>> getDataForParams(String serviceName, Map<String, String> params,String apiKey, String dataStoreKey,String passToken)     {
+	public List<Map<String, Object>> getDataForParams(String serviceName, Map<String, String> params,String apiKey, String dataStoreKey,String passToken)   throws Exception ,DatabaseAuthException {
 		for (int i = 0; i < nonscaling.length; i++) {
 			invalidElement.add(nonscaling[i]);
 		}
@@ -1873,6 +2047,10 @@ public class EmployeeRepositaryImpl {
 			throw new ConstraintViolationException(constraintViolation);
 		}
 		Map<String, String> attribParamMap = userServiceAttrbMap.get(dataStoreKey).get(serviceName);
+		if(attribParamMap==null) {
+			setServiceTableMap(tableName, apiKey, "system");
+			attribParamMap = userServiceAttrbMap.get(dataStoreKey).get(serviceName);
+		}
 		for (Map.Entry<DbTable, List<DbColumn>> entry :  userTableColumnMap.get(dataStoreKey).entrySet()) {
 			DbTable table = entry.getKey();
 			if (table.getName().equalsIgnoreCase(tableName)) {
@@ -1892,11 +2070,38 @@ public class EmployeeRepositaryImpl {
 					 selectQuery.addAliasedColumn(dbColumn, "\"" + attribParamMap.get(dbColumn.getName()) + "\"");
 					 }	 
 				 } 
+				 
+				 if (attribParamMap.containsKey(dbColumn.getName())
+							&& params.get(Constant.IN_CONDITION+attribParamMap.get(dbColumn.getName())) != null) {
+					 selectQuery.addCondition(new InCondition(dbColumn,params.get(Constant.IN_CONDITION+attribParamMap.get(dbColumn.getName())).split(":")));
+					}
+				 if (attribParamMap.containsKey(dbColumn.getName())
+							&& params.get(Constant.BETWEEN+attribParamMap.get(dbColumn.getName())) != null) {
+					 selectQuery.addCondition(new BetweenCondition(dbColumn,params.get(Constant.IN_CONDITION+attribParamMap.get(dbColumn.getName())).split(":")[0],params.get(Constant.IN_CONDITION+attribParamMap.get(dbColumn.getName())).split(":")[1]));
+					}
+				 if (attribParamMap.containsKey(dbColumn.getName())
+							&& params.get(Constant.ORDER_BY + attribParamMap.get(dbColumn.getName())) != null) {
+						OrderObject.Dir order;
+						if (params.get(Constant.ORDER_BY + attribParamMap.get(dbColumn.getName()))
+								.equalsIgnoreCase("asc")) {
+							order = OrderObject.Dir.ASCENDING;
+							selectQuery.addOrdering(dbColumn, order);
+						}
+
+						if (params.get(Constant.ORDER_BY + attribParamMap.get(dbColumn.getName()))
+								.equalsIgnoreCase("desc")) {
+							order = OrderObject.Dir.DESCENDING;
+
+							selectQuery.addOrdering(dbColumn, order);
+						}
+					}
+				 
 				}
 				log.info(selectQuery.validate().toString());
 				break;
 			}
 		}
+		
 		List<Map<String, Object>> result = new ArrayList<Map<String, Object>>();
 		try {
 			if(dataStoreKey.equalsIgnoreCase("SYSTEM"))
@@ -1910,12 +2115,16 @@ public class EmployeeRepositaryImpl {
 		} catch (Exception e) {
 
 			log.info(e.getMessage());
+			if(e instanceof DatabaseAuthException)
+			{
+				throw e;
+			}
 		}
 
 		return result;
 	}
 
-	private void setGDValues(String serviceName, String tableName,String apiKey, String dataStoreKey,String passToken)  {
+	private void setGDValues(String serviceName, String tableName,String apiKey, String dataStoreKey,String passToken)  throws Exception{
 		if (tableName == null) {
 			arrangeGoldenData(serviceName, apiKey,  dataStoreKey,passToken);
 
@@ -1938,7 +2147,7 @@ public class EmployeeRepositaryImpl {
 		}
 	}
 
-	public void getServiceTableMap(String apiKey, String dataStoreKey) {
+	public void getServiceTableMap(String apiKey, String dataStoreKey) throws DatabaseAuthException{
 
 		 
 		List<Map<String, Object>> serviceDatum = setUserDataStore(apiKey, "system","none")
@@ -1970,7 +2179,7 @@ public class EmployeeRepositaryImpl {
 		}
 		 
 	}
-	public void setServiceTableMap(String tableName,String apiKey, String dataStoreKey) {
+	public void setServiceTableMap(String tableName,String apiKey, String dataStoreKey) throws DatabaseAuthException {
 
 		
 		List<Map<String, Object>> serviceDatum = setUserDataStore(apiKey, "system","none")
@@ -2003,8 +2212,13 @@ public class EmployeeRepositaryImpl {
 			{
 				  try {
 					insertServiceTables(tableName, apiKey,  dataStoreKey);
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
+				}  catch (DatabaseAuthException e) {
+					 
+						throw e;
+					 
+				}
+				  catch (Exception e) {
+					 
 					e.printStackTrace();
 				}
 			}
@@ -2040,7 +2254,7 @@ public class EmployeeRepositaryImpl {
 		 }
 	}
 
-	public boolean serviceAttrbMap(String id, String serviceName,String apiKey, String dataStoreKey) {
+	public boolean serviceAttrbMap(String id, String serviceName,String apiKey, String dataStoreKey) throws DatabaseAuthException{
 		boolean setService=false;
 		Map<String, String> studentAttrbMap = new TreeMap<String, String>(String.CASE_INSENSITIVE_ORDER);
 		List<Map<String, Object>> serviceDatum = setUserDataStore(apiKey, "system","none")
@@ -2068,13 +2282,13 @@ public class EmployeeRepositaryImpl {
 		}
 		return  setService;
 	}
-	private String getUidForSerId(String id,String apiKey)
+	private String getUidForSerId(String id,String apiKey) throws DatabaseAuthException
 	{
 		List<Map<String, Object>> serviceDatum = setUserDataStore(apiKey, "system","none")
 				.queryForList("select usr.id as id ,usr.apikey as apikey from User usr , Service ser  where     usr.id=ser.uid and ser.id = ?" , new Object[] {id});
 		return	(String) serviceDatum.get(0).get("id");
 	}
-	private String getUidForapiKey(String apiKey) 
+	private String getUidForapiKey(String apiKey) throws DatabaseAuthException
 	{
 		if(UserApiMap.get(apiKey)!=null) {
 			return UserApiMap.get(apiKey);
@@ -2087,7 +2301,7 @@ public class EmployeeRepositaryImpl {
 		}
 		
 	}
-	public String getdsidFordsName(String dataStoreKey)  
+	public String getdsidFordsName(String dataStoreKey)  throws DatabaseAuthException
 	{
 		List<Map<String, Object>> serviceDatum =null;
 		try {
@@ -2103,7 +2317,7 @@ public class EmployeeRepositaryImpl {
 		return	uid;
 	}
 	
-	private void insertServiceTables(String tableName,String apiKey, String dataStoreKey) throws Exception {
+	private void insertServiceTables(String tableName,String apiKey, String dataStoreKey) throws Exception ,DatabaseAuthException {
 		String userId=getUidForapiKey( apiKey);
 		String dsId =null;
 		if (dsidMap.get(dataStoreKey + ":" + apiKey) == null) {
@@ -2166,7 +2380,7 @@ public class EmployeeRepositaryImpl {
 		
 
 	}
-	private void insertServiceTables(String apiKey, String dataStoreKey) throws Exception {
+	private void insertServiceTables(String apiKey, String dataStoreKey) throws  DatabaseAuthException{
 		String userId=getUidForapiKey( apiKey);
 		String dsId =null;
 		if (dsidMap.get(dataStoreKey + ":" + apiKey) == null) {
@@ -2237,6 +2451,10 @@ public class EmployeeRepositaryImpl {
 		try {
 			data = setUserDataStore(apiKey, "system","none").queryForList(selectQuery);
 		} catch (Exception e) {
+			if(e  instanceof DatabaseAuthException)
+			{
+				throw e;
+			}
 			log.info(e.getMessage());
 			createSysTable() ;
 		}
@@ -2263,6 +2481,10 @@ public class EmployeeRepositaryImpl {
 		try {
 			data = setUserDataStore(apiKey, "system","none").queryForList(selectQuery);
 		} catch (Exception e) {
+			if(e  instanceof DatabaseAuthException)
+			{
+				throw e;
+			}
 			log.info(e.getMessage());
 		}
 
@@ -2290,7 +2512,7 @@ public class EmployeeRepositaryImpl {
 		return attrID;
 	}
 	
-	private String getServiceAttrID(String serviceId, String attributeName,String apiKey, String dataStoreKey) {
+	private String getServiceAttrID(String serviceId, String attributeName,String apiKey, String dataStoreKey) throws DatabaseAuthException{
 
 		String selectQuery = " select id  from Service_Attr where service_id  = '" + serviceId + "' and colName ='"
 				+ attributeName + "'";
@@ -2318,7 +2540,7 @@ public class EmployeeRepositaryImpl {
 		return attrID;
 	}
 
-	private String findMax(String table,String apiKey, String dataStoreKey,String passToken) {
+	private String findMax(String table,String apiKey, String dataStoreKey,String passToken) throws  DatabaseAuthException {
 		String query = "SELECT MAX( id )+1 as id FROM " + table;
 		Map<String, Object> data = new HashMap<String, Object>();
 		try {
@@ -2860,6 +3082,10 @@ public class EmployeeRepositaryImpl {
 				return true;
 			}
 		} catch (Exception e) {
+			if(e  instanceof DatabaseAuthException)
+			{
+				throw e;
+			}
 			log.info(e.getMessage());
 		}
 

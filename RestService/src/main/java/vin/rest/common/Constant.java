@@ -20,4 +20,15 @@ public static String VALIDDATA ="validdata";
 public static String INVALIDDATA ="invaliddata";
 public static String ERRORDATA ="errordata";
 public static String UNIQUEKEY="uniquekey";
+
+public static String REST_METHOD="METHOD";
+public static String ALL_METHOD="ALL";
+public static String GET_METHOD="GET";
+public static String GET_ALL_METHOD="GET_MANY";
+public static String PUT_METHOD="PUT";
+public static String DELETE_METHOD="DELETE";
+public static String POST_METHOD="POST";
+public static String IN_CONDITION="inCondition";
+public static String ORDER_BY="orderBy";
+public static String BETWEEN="between";
 }

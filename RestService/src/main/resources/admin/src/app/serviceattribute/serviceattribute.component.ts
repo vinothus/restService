@@ -7,7 +7,7 @@ import { AuthService } from "../auth/auth-service.service";
 import { FormBuilder, FormGroup,Validators  } from "@angular/forms";
 import {MatDialog} from '@angular/material/dialog';
 import { DialogBoxComponent } from '../dialog-box/dialog-box.component';
-
+import { AppConstants } from "../app-constants";
 @Component({
   selector: 'app-serviceattribute',
   templateUrl: './serviceattribute.component.html',
@@ -23,6 +23,9 @@ export class ServiceattributeComponent implements OnInit , AfterViewInit {
 	primaryKey: string='id';
 	isLoading = true;
 	serviceName: string ='service attr';
+	nullColumns: string[];
+	multidata: any;
+	props: any;
 	@ViewChild(MatPaginator) paginator: MatPaginator;
 	@ViewChild(MatSort) sort: MatSort;
 	// @ViewChild(MatTableDataSource,{static:true}) table: MatTableDataSource<any>;
@@ -37,6 +40,7 @@ export class ServiceattributeComponent implements OnInit , AfterViewInit {
 	constructor( public dialog: MatDialog, public formBuilder: FormBuilder,  public authService: AuthService) {
 		
 		this.reinit();
+		this.props = this.authService.getPropertyMap();
 	}
 	
 	openDialog(action,obj) {
@@ -144,17 +148,32 @@ reinit()
 		let uid=localStorage.getItem('uid');
 		map.set('uid',uid);
 		this.authService.getdata(this.serviceName,map).subscribe((res) => {
-			this.data =res;
+			this.data =res[this.serviceName];
 		 
 		console.log(this.displayedColumns);
         this.displayedColumns = [];
-
+		let keys=[];
 		for (var key in this.data[0]) {
 
 			this.displayedColumns.push(key);
+			keys.push(key);
 		}
 		this.displayedColumns.push('action');
 		this.dataSource = new MatTableDataSource<any>(this.data );
+		 
+		
+		for (var x of this.data) {
+		 for (var key in x) {
+         if(x[key]!=null){
+			var index = keys.indexOf(key);
+	 		delete keys[index];
+           }
+			 
+		} 
+		}
+			for (var y of keys) {
+			this.columnClick(y);
+				}	
 		//this.columnClick('uid');
 		//this.columnClick('serviceid');
 		//this.columnClick('attrid');
@@ -175,6 +194,47 @@ isequalsAction(colName: string)
 	else
 		{return true;}
 }
+
+	addRec() {
+		let validation = {};
+		validation["action"] = 'AddRec';
+		validation["service"] = this.componentName;
+		validation["componentName"] = this.componentName;
+		validation["serviceName"] = this.serviceName;
+		validation["method"] = AppConstants.POST_METHOD;
+		let width = '700px';
+		this.isLoading = true;
+		let map = new Map<string, string>();
+		map.set('servicename',this.serviceName);
+		this.authService.getAllMultidata(this.props.get(AppConstants.systemUser), this.props.get(AppConstants.systemDatasource),  this.props.get(AppConstants.multiService), this.props.get(AppConstants.multiservicename), this.props.get(AppConstants.getMultipleAllData), map).subscribe((res) => {
+			this.multidata = res;
+			validation["multidata"] = this.multidata;
+			const dialogRef = this.dialog.open(DialogBoxComponent, {
+				width: width,
+				data: validation
+			});
+
+			dialogRef.afterClosed().subscribe(result => {
+				if (result != undefined) {
+					if (result.event == 'AddRec') {
+						let map = {};
+						var data=result.data;
+						console.log(result.data);
+						for (var key in data) {
+         if(data[key]!=null&&data[key]!=''){
+			 map[key]=data[key];
+				}}
+		
+						 this.addRowData(map);
+					}
+				}
+			});
+		this.isLoading = false;
+		});
+
+
+	}
+	
 }
 
 

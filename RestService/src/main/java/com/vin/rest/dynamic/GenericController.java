@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.logging.Logger;
 
@@ -30,11 +31,17 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.google.errorprone.annotations.concurrent.LazyInit;
 import com.vin.processor.VinRestProcessor;
 import com.vin.rest.exception.GlobalExceptionHandler;
@@ -97,6 +104,7 @@ public class GenericController {
 		Map<String, String> jsonMap = new HashMap<>();
 		jsonMap = mapper.readValue(params, new TypeReference<Map<String, String>>() {
 		}); // converts JSON to Map
+		jsonMap.put(Constant.REST_METHOD, Constant.POST_METHOD);
 		doValidation(service, apiKey, dataStoreKey, jsonMap);
 		jsonMap=doPreProcess(service, apiKey, dataStoreKey, jsonMap);
 		Map<String, Object> returnData=employeeRepositaryImpl.insertData(service, jsonMap, apiKey, dataStoreKey,passToken);
@@ -188,6 +196,7 @@ public class GenericController {
 		
 		jsonMap = mapper.readValue(params, new TypeReference<Map<String, String>>() {
 		}); // converts JSON to Map
+		jsonMap.put(Constant.REST_METHOD, Constant.PUT_METHOD);
 		doValidation(service, apiKey, dataStoreKey, jsonMap);
 		jsonMap=doPreProcess(service, apiKey, dataStoreKey, jsonMap);
 		Map<String, Object> returnData=employeeRepositaryImpl.updateData(service, jsonMap, apiKey, dataStoreKey,passToken);
@@ -198,9 +207,10 @@ public class GenericController {
 	
 	@MethodName(MethodName="getDatum")
 	@CrossOrigin
-	public ResponseEntity<List<Map<String, Object>>> getDatum(@PathVariable("service") String service,
-			@RequestParam   Map<String, String> params,@PathVariable("apiKey") String apiKey,@PathVariable("dataStoreKey") String dataStoreKey,@RequestHeader(value="passToken", defaultValue = "none") String passToken)    {
-		 
+	public ResponseEntity<Object> getDatum(@PathVariable("service") String service,
+			@RequestParam   Map<String, String> params,@PathVariable("apiKey") String apiKey,@PathVariable("dataStoreKey") String dataStoreKey,@RequestHeader(value="passToken", defaultValue = "none") String passToken,@RequestHeader Map<String,String> headers) throws Exception    {
+		params.put(Constant.REST_METHOD, Constant.GET_ALL_METHOD);
+		System.out.println(headers);
 		doValidation(service, apiKey, dataStoreKey, params);
 		params=doPreProcess(service, apiKey, dataStoreKey, params);
 		List<Map<String, Object>> returnObj=employeeRepositaryImpl.getDataForParams(service, params, apiKey, dataStoreKey,passToken);
@@ -208,8 +218,43 @@ public class GenericController {
 			Map<String, Object> map = (Map<String, Object>) iterator.next();
 			doPostProcess(service, apiKey, dataStoreKey, map);
 		}
-		return new ResponseEntity<List<Map<String, Object>>>(returnObj,
-				new HttpHeaders(), HttpStatus.OK);
+		ObjectMapper mapper = new ObjectMapper();
+		mapper.setSerializationInclusion(Include.NON_NULL);
+		ObjectNode  rootNode=mapper.createObjectNode();
+		ArrayNode childListNodes = mapper.createArrayNode();
+	for (Iterator<Map<String, Object>> iterator = returnObj.iterator(); iterator.hasNext();) {
+		Map<String, Object> map = (Map<String, Object>) iterator.next();
+		ObjectNode childNodes = mapper.createObjectNode();
+		
+		   for (Entry<String, Object> entry : map.entrySet())  
+		   {
+			   String value = null;
+			   if( entry.getValue()!=null)
+			   {
+				   value=  String.valueOf( entry.getValue());
+			   }
+			   childNodes.put(entry.getKey(),value);  
+		   }
+		   childListNodes.add(childNodes);
+	}
+	
+	
+
+	String requestAccept = headers.get("accept");
+	if (requestAccept.contains("json")) {
+		rootNode.putArray(service).addAll( childListNodes);
+		return new ResponseEntity<Object>(rootNode, new HttpHeaders(), HttpStatus.OK);
+	} else if (requestAccept.contains("xml")) {
+		XmlMapper xmlMapper = new XmlMapper();
+		rootNode.putArray(service.replace(" ","_")).addAll( childListNodes);
+		String jsonStr = xmlMapper.enable(SerializationFeature.WRAP_ROOT_VALUE).writer().withRootName(service.replace(" ","_") + "s")
+				.writeValueAsString(rootNode);
+		return new ResponseEntity<Object>(jsonStr, new HttpHeaders(), HttpStatus.OK);
+	}
+	rootNode.putArray(service).addAll( childListNodes);
+ return new ResponseEntity<Object>(rootNode,
+			new HttpHeaders(), HttpStatus.OK); 
+		
 	}
 	@MethodName(MethodName="getData")
 	@CrossOrigin
@@ -217,6 +262,7 @@ public class GenericController {
 			@PathVariable("uniquekey") @Valid @NotNull String uniquekey,@PathVariable("apiKey") String apiKey,@PathVariable("dataStoreKey") String dataStoreKey,@RequestHeader(value="passToken", defaultValue = "none") String passToken) throws Exception {
 		Map<String, String> params = new HashMap<>();
 		params.put(Constant.UNIQUEKEY, uniquekey);
+		params.put(Constant.REST_METHOD, Constant.GET_METHOD);
 		doValidation(service, apiKey, dataStoreKey, params);
 		params=doPreProcess(service, apiKey, dataStoreKey, params);	 
 		Map<String, Object> returnData=employeeRepositaryImpl.getData(service, uniquekey, apiKey, dataStoreKey,passToken);
@@ -230,6 +276,7 @@ public class GenericController {
 			@PathVariable("uniquekey") @Valid @NotNull String uniquekey,@PathVariable("apiKey") String apiKey,@PathVariable("dataStoreKey") String dataStoreKey,@RequestHeader(value="passToken", defaultValue = "none") String passToken) throws Exception {
 	Map<String, String> params = new HashMap<>();	
 	params.put(Constant.UNIQUEKEY, uniquekey);
+	params.put(Constant.REST_METHOD, Constant.DELETE_METHOD);
 	doValidation(service, apiKey, dataStoreKey, params);
 	Map<String, Object> returnData=employeeRepositaryImpl.deleteData(service, uniquekey, apiKey, dataStoreKey,passToken);
 	returnData=doPostProcess(service, apiKey, dataStoreKey, returnData);

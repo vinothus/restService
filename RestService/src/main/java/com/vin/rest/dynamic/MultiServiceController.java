@@ -22,6 +22,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -31,6 +32,7 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.vin.rest.exception.DatabaseAuthException;
 import com.vin.validation.ServiceConstraintViolation;
 import com.vin.validation.VinMap;
 
@@ -45,6 +47,7 @@ public class MultiServiceController {
 	@Autowired
 	Validator validator;
 	@MethodName(MethodName="addData")
+	@CrossOrigin
 	public ResponseEntity<List<Map<String,Map<String, Object>>>> addData(@PathVariable("service") String service,
 			@RequestBody String params,@PathVariable("apiKey") String apiKey,@PathVariable("dataStoreKey") String dataStoreKey,@RequestHeader(value="passToken", defaultValue = "none") String passToken) throws Exception   {
 		ObjectMapper mapper = new ObjectMapper();
@@ -68,6 +71,7 @@ public class MultiServiceController {
 				 
 				Map<String, String> serviceMap=entry.getValue();
 				serviceMap.put("ServiceKey", service);
+				serviceMap.put(Constant.REST_METHOD, Constant.POST_METHOD);
 			Set<ConstraintViolation<HashMap>> constraintViolation = validator
 					.validate(new VinMap<String, String>(serviceMap));
 			if (!constraintViolation.isEmpty()) {
@@ -81,6 +85,7 @@ public class MultiServiceController {
 				new HttpHeaders(), HttpStatus.OK);
 	}
 	@MethodName(MethodName="updateData")
+	@CrossOrigin
 	public ResponseEntity<List<Map<String,Map<String, Object>>>> updateData(@PathVariable("service") String service,
 			@RequestBody String params,@PathVariable("apiKey") String apiKey,@PathVariable("dataStoreKey") String dataStoreKey,@RequestHeader(value="passToken", defaultValue = "none") String passToken) throws Exception   {
 		ObjectMapper mapper = new ObjectMapper();
@@ -104,6 +109,7 @@ public class MultiServiceController {
 				 
 				Map<String, String> serviceMap=entry.getValue();
 				serviceMap.put("ServiceKey", service);
+				serviceMap.put(Constant.REST_METHOD, Constant.PUT_METHOD);
 			Set<ConstraintViolation<HashMap>> constraintViolation = validator
 					.validate(new VinMap<String, String>(serviceMap));
 			if (!constraintViolation.isEmpty()) {
@@ -117,22 +123,28 @@ public class MultiServiceController {
 				new HttpHeaders(), HttpStatus.OK);
 	}
 	@MethodName(MethodName="getDatum")
+	@CrossOrigin
 	public ResponseEntity<List<Map<String,List<Map<String, Object>>>>> getDatum(@PathVariable("service") String service,
-			@RequestParam   Map<String, String> params,@PathVariable("apiKey") String apiKey,@PathVariable("dataStoreKey") String dataStoreKey,@RequestHeader(value="passToken", defaultValue = "none") String passToken) throws JsonParseException, JsonMappingException, IOException    {
+			@RequestParam   Map<String, String> params,@PathVariable("apiKey") String apiKey,@PathVariable("dataStoreKey") String dataStoreKey,@RequestHeader(value="passToken", defaultValue = "none") String passToken) throws DatabaseAuthException, Exception    {
 		ObjectMapper mapper = new ObjectMapper();
 		//List<Map<String,Map<String, String>>> jsonMap = new ArrayList<>();
-		//params.put("ServiceKey", service);
-		//	Set<ConstraintViolation<HashMap>> constraintViolation = validator
-		//			.validate(new VinMap<String, String>(params));
-		//	if (!constraintViolation.isEmpty()) {
-		//		throw new ConstraintViolationException(constraintViolation);
-		//	}
+		params.put("ServiceKey", service);
+		params.put(Constant.REST_METHOD, Constant.GET_ALL_METHOD);
+		params.put(Constant.VIN_SERVICE, service);
+		params.put(Constant.VIN_SERVICE_DS, dataStoreKey);
+		params.put(Constant.VIN_SERVICE_APIKEY, apiKey);
+			Set<ConstraintViolation<HashMap>> constraintViolation = validator
+					.validate(new VinMap<String, String>(params));
+			if (!constraintViolation.isEmpty()) {
+				throw new ConstraintViolationException(constraintViolation);
+			}
 			
 			 
 		return new ResponseEntity<List<Map<String,List<Map<String, Object>>>>>(multiserviceImpl.getMultiDataForParams(service, params, apiKey,  dataStoreKey,passToken),
 				new HttpHeaders(), HttpStatus.OK);
 	}
 	@MethodName(MethodName="getData")
+	@CrossOrigin
 	public ResponseEntity<List<Map<String,Map<String, Object>>>> getData(@PathVariable("service") String service,
 			@PathVariable("uniquekey") @Valid @NotNull String uniquekey,@PathVariable("apiKey") String apiKey,@PathVariable("dataStoreKey") String dataStoreKey,@RequestHeader(value="passToken", defaultValue = "none") String passToken) throws Exception {
 
@@ -140,6 +152,7 @@ public class MultiServiceController {
 				new HttpHeaders(), HttpStatus.OK);
 	}
 	@MethodName(MethodName="delData")
+	@CrossOrigin
 	public ResponseEntity<List<Map<String,Map<String, Object>>>> delData(@PathVariable("service") String service,
 			@PathVariable("uniquekey") @Valid @NotNull String uniquekey,@PathVariable("apiKey") String apiKey,@PathVariable("dataStoreKey") String dataStoreKey,@RequestHeader(value="passToken", defaultValue = "none") String passToken) throws Exception {
 		return new ResponseEntity<List<Map<String,Map<String, Object>>>>(multiserviceImpl.deleteMultiData(service, uniquekey, apiKey,  dataStoreKey,passToken),

@@ -24,6 +24,7 @@ export class ServiceComponent implements OnInit, AfterViewInit {
 	isLoading = true;
 	serviceName: string = 'service';
 	props: any;
+	multidata: any;
 	@ViewChild(MatPaginator) paginator: MatPaginator;
 	@ViewChild(MatSort) sort: MatSort;
 	// @ViewChild(MatTableDataSource,{static:true}) table: MatTableDataSource<any>;
@@ -40,10 +41,10 @@ export class ServiceComponent implements OnInit, AfterViewInit {
 		this.reinit();
 		let map = new Map<string, string>();
 		map.set('processorClassName', 'yekeulav');
-		this.authService.getproperties(this.serviceName, map).subscribe((res) => {
-			this.props = res;
-
-		});
+		console.log("AppConstants.propertyMap.size:"+AppConstants.propertyMap.size);
+		this.props=this.authService.getPropertyMap();
+		
+		console.log("AppConstants.propertyMap.size:"+AppConstants.propertyMap.size);
 	}
 
 	openDialog(action, obj) {
@@ -150,7 +151,7 @@ export class ServiceComponent implements OnInit, AfterViewInit {
 		let uid = localStorage.getItem('uid');
 		//map.set('uid',uid);
 		this.authService.getdata(this.serviceName, map).subscribe((res) => {
-			this.data = res;
+			this.data = res[this.serviceName];
 
 			console.log(this.displayedColumns);
 			this.displayedColumns = [];
@@ -192,69 +193,99 @@ export class ServiceComponent implements OnInit, AfterViewInit {
 		validation["props"] = this.props;
 		validation["service"] = obj.servicename;
 		validation["dsid"] = obj.dsid;
-		let width = '750px';
+		let width = '850px';
 
 		let map = new Map<string, string>();
-		
+
 		map.set('serviceid', obj.id);
-			this.authService.getdata('service attr', map).subscribe((attributeData) => {
-		var dskeyName=AppConstants.dsipMap.get( obj.dsid);
-		validation["attribMap"] = attributeData;
-		if(dskeyName==null)
-		{
-			map.set('id', obj.dsid);
-		this.authService.getdata('datastore', map).subscribe((dsidres) => {
-				validation["dsname"] = dsidres[0].name;
-				console.log(dsidres[0].name);
-				AppConstants.dsipMap.set(obj.dsid,dsidres[0].name);
+		this.authService.getdata('service attr', map).subscribe((attributeData) => {
+			var dskeyName = AppConstants.dsipMap.get(obj.dsid);
+			validation["attribMap"] = attributeData['service attr'];
+			if (dskeyName == null) {
+				map.set('id', obj.dsid);
+				this.authService.getdata('datastore', map).subscribe((dsidres) => {
+					validation["dsname"] = dsidres['datastore'][0].name;
+					console.log(dsidres['datastore'][0].name);
+					AppConstants.dsipMap.set(obj.dsid, dsidres['datastore'][0].name);
+					this.isLoading = false;
+					const dialogRef = this.dialog.open(DialogBoxComponent, {
+						width: width,
+						data: validation
+					});
+
+					dialogRef.afterClosed().subscribe(result => {
+						if (result != undefined) {
+							if (result.event == 'Validate') {
+
+							}
+						}
+					});
+
+				}, err => {
+					this.isLoading = false;
+				});
+			} else {
+				validation["dsname"] = dskeyName;
 				this.isLoading = false;
 				const dialogRef = this.dialog.open(DialogBoxComponent, {
-			width: width,
-			data: validation
-		});
+					width: width,
+					data: validation
+				});
 
-		dialogRef.afterClosed().subscribe(result => {
-			if (result != undefined) {
-				if (result.event == 'Validate') {
+				dialogRef.afterClosed().subscribe(result => {
+					if (result != undefined) {
+						if (result.event == 'Validate') {
 
-				}
+						}
+					}
+				});
+
 			}
+
+		}, err => {
+			this.isLoading = false;
 		});
-		
-			},err=>{
-			this.isLoading = false;
-		});	
-		}else
-		{
-			validation["dsname"] = dskeyName;
-			this.isLoading = false;
+
+	}
+	addRec() {
+		let validation = {};
+		validation["action"] = 'AddRec';
+		validation["service"] = this.componentName;
+		validation["componentName"] = this.componentName;
+		validation["serviceName"] = this.serviceName;
+		validation["method"] = AppConstants.POST_METHOD;
+		let width = '700px';
+		this.isLoading = true;
+		let map = new Map<string, string>();
+		map.set('servicename',this.serviceName);
+		this.authService.getAllMultidata(this.props.get(AppConstants.systemUser), this.props.get(AppConstants.systemDatasource),  this.props.get(AppConstants.multiService), this.props.get(AppConstants.multiservicename), this.props.get(AppConstants.getMultipleAllData), map).subscribe((res) => {
+			this.multidata = res;
+			validation["multidata"] = this.multidata;
 			const dialogRef = this.dialog.open(DialogBoxComponent, {
-			width: width,
-			data: validation
-		});
+				width: width,
+				data: validation
+			});
 
-		dialogRef.afterClosed().subscribe(result => {
-			if (result != undefined) {
-				if (result.event == 'Validate') {
-
-				}
-			}
-		});
-			
-		}
+			dialogRef.afterClosed().subscribe(result => {
+				if (result != undefined) {
+					if (result.event == 'AddRec') {
+						let map = {};
+						var data=result.data;
+						console.log(result.data);
+						for (var key in data) {
+         if(data[key]!=null&&data[key]!=''){
+			 map[key]=data[key];
+				}}
 		
-		},err=>{
-			this.isLoading = false;
+						 this.addRowData(map);
+					}
+				}
+			});
+		this.isLoading = false;
 		});
-
-
-
-
-
 
 
 	}
-
 
 
 }

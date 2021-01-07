@@ -7,3 +7,33 @@ table {
   width: 100%;
 }
 
+
+.addNew-label {
+  display: table-cell;
+  font-size: 14px;
+  margin-left: 8px;
+  min-width: 120px;
+}
+
+.addNew-button-row {
+  display: table-cell;
+  width: 490px;
+}
+
+.addNew-button-row .mat-button-base {
+  margin: 8px 8px 8px 0;
+}
+
+.addNew-flex-container {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.addNew-button-container {
+  display: flex;
+  justify-content: center;
+  width: 120px;
+}
+
+

@@ -100,7 +100,7 @@ emailValidation(controlName: string)
       ) {
         return;
       }
-	if(!res[0].id)
+	if(!res['user'][0].id)
 	{
 	 control.setErrors({ emailValidation: true });	
 	}else {
@@ -140,8 +140,8 @@ addValidator(){
 let map = new Map<string,string>();
 	map.set('email',this.registerForm.controls['email'].value);
 this.authService.getdata('user',map).subscribe((res) => {
-	   if(res[0]!=undefined)
-	{	if(res[0].id!=undefined)
+	   if(res['user'][0]!=undefined)
+	{	if(res['user'][0].id!=undefined)
 	{
 		 let control = this.registerForm.controls['email'];
 	 control.setErrors({ emailValidation: true });	

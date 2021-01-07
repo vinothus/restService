@@ -63,6 +63,7 @@ public class ParamsValidator implements ConstraintValidator<ParamMapValidator,Ma
 		String serviceName = value.get(Constant.VIN_SERVICE);
 		String dataStoreKey = value.get(Constant.VIN_SERVICE_DS);
 		String apiKey = value.get(Constant.VIN_SERVICE_APIKEY);
+		String method = value.get(Constant.REST_METHOD);
 		value.remove(Constant.VIN_SERVICE);
 		value.remove(Constant.VIN_SERVICE_DS);
 		value.remove(Constant.VIN_SERVICE_APIKEY);
@@ -205,30 +206,42 @@ if(service_id!=null) {
 			attrismandatory = String.valueOf(map.get("attrIsMandatory"));
 			attrname= String.valueOf(map.get("attrName"));
 			attrid=String.valueOf(map.get("id"));
+			String attrValMethods =String.valueOf(map.get("attrValMethods"));
+			if(attrValMethods.toUpperCase().contains(method.toUpperCase())||attrValMethods.equalsIgnoreCase("ALL")) {
 			valid=mandatoryValidation(attrname, value,attrismandatory);
+			}
 			paramAttrbvalue=value.get(attrname);
 			if(!valid) {
 				staticbool=false;
+				valid=true;
 				 context.disableDefaultConstraintViolation();
 				 context.buildConstraintViolationWithTemplate( attrname + " is a Mandatory Attribute "  ).addConstraintViolation();
 		        }
 			for (Map.Entry<String, String> entry : value.entrySet()) {
 				if(entry.getKey().equalsIgnoreCase(attrname))
-				{valid = doValidation(context, valid, validationClass, attrminlength, attrmaxlength, attrregxvalidation,
-						map, entry);
+				{
+					
+					if(attrValMethods.toUpperCase().contains(method.toUpperCase())||attrValMethods.equalsIgnoreCase("ALL"))
+					{
+						valid = doValidation(context, valid, validationClass, attrminlength, attrmaxlength, attrregxvalidation,
+						map, entry);}
 				if(!valid) {
 					staticbool=false;
+					valid=true;
 				}
 				}
 
 			}
+			if(attrValMethods.toUpperCase().contains(method.toUpperCase())||attrValMethods.equalsIgnoreCase("ALL")) {
 			if(!minLength(paramAttrbvalue, attrminlength))
 			{
 				 context.disableDefaultConstraintViolation();
 				 context.buildConstraintViolationWithTemplate( paramAttrbvalue+ " Should Contain Atleast "+attrminlength+" Characters "  ).addConstraintViolation();
 				 valid=false;	
 				 staticbool=false;
-			}
+				 valid=true;
+			}}
+			if(attrValMethods.toUpperCase().contains(method.toUpperCase())||attrValMethods.equalsIgnoreCase("ALL")) {
 			if(validationClass!=null&&(validationClass.equalsIgnoreCase("yes")||validationClass.equalsIgnoreCase("true")||validationClass.equalsIgnoreCase("1"))) {
 				if(userVinValidationAttrMap.get(attrid)==null) {
 					List<Map<String, Object>> obj=employeeRepositaryImpl.setUserDataStore(apiKey, "system", "none").queryForList("select * from VinValidation where attr_id = ? ", new Object[] {attrid});
@@ -249,12 +262,13 @@ if(service_id!=null) {
 							}
 							if (!valid) {
 								staticbool = false;
+								valid=true;
 							}
 						}
 						
 					
 				}
-				 
+			} 
 			}
 		}
 		 if(!staticbool) {
@@ -272,7 +286,7 @@ if(service_id!=null) {
 	private void fillServiceAttrbMap(String apiKey) {
      try {
 		JdbcTemplate jdbcTem = employeeRepositaryImpl.setUserDataStore(apiKey, "system", "none");
-		String Query="select ser.serviceName as name, ser.dsid as dsid , sa.attrName as attrName , sa.id as id , sa.colName as colName ,sa.attrEnable as attrEnable ,sa.attrBuName as attrBuName ,sa.attrBuIcon as attrBuIcon ,sa.attrCusValidation as attrCusValidation,sa.attrminLength as attrminLength,sa.attrMaxLength as attrMaxLength,sa.attrRegXvalidation as attrRegXvalidation,sa.attrIsMandatory as attrIsMandatory , sa.attrIsProcessor as attrIsProcessor from Service ser , Service_Attr sa where ser.id=sa.service_id ";
+		String Query="select ser.serviceName as name, ser.dsid as dsid , sa.attrName as attrName , sa.id as id , sa.colName as colName ,sa.attrEnable as attrEnable ,sa.attrBuName as attrBuName ,sa.attrBuIcon as attrBuIcon ,sa.attrCusValidation as attrCusValidation,sa.attrminLength as attrminLength,sa.attrMaxLength as attrMaxLength,sa.attrRegXvalidation as attrRegXvalidation,sa.attrIsMandatory as attrIsMandatory , sa.attrIsProcessor as attrIsProcessor ,sa.attrValMethods as attrValMethods ,sa.attrValidatorName as attrValidatorName ,sa.attrValidatorMsg as attrValidatorMsg , sa.attrRegXvalidationMsg as attrRegXvalidationMsg from Service ser , Service_Attr sa where ser.id=sa.service_id ";
 		List<Map<String,Object>> cachedObject=jdbcTem.queryForList(Query);
 		for (Iterator iterator = cachedObject.iterator(); iterator.hasNext();) {
 			Map<String, Object> map = (Map<String, Object>) iterator.next();
@@ -436,6 +450,7 @@ if(service_id!=null) {
 	{
 		userServiceTableMap= new ConcurrentHashMap<>();
 		 userServiceAttrTableMap= new ConcurrentHashMap<>();
+		 userVinValidationAttrMap= new ConcurrentHashMap<>();
 		dsidMap=new ConcurrentHashMap<>();
 	}
 	

@@ -115,10 +115,13 @@
 </div>
 
 <div  class="header text-center"  *ngIf="action == 'Service'; ">
-   <h1 class="title" mat-dialog-title> <strong> Api calls Avalible for service {{this.local_data.service}} </strong></h1>
-   <mat-tab-group>
-  <mat-tab label="Create"> 
-   <div class="container" style="height:650px;">
+   <h1 class="title" mat-dialog-title> <strong> Api Calls Avalible for Service {{this.local_data.service}} </strong></h1>
+   
+ <ngb-tabset>
+  <ngb-tab title="Create">
+    <ng-template ngbTabContent  >
+    
+   <div class="container" style="    height: 650px;    overflow-y: scroll;">
     <div class="row" style="background-color: #18ce0f;text-align: start;border-radius: 8px;padding-bottom: 8px;padding-top: 10px;">
   <div class="col-1" >POST</div>
     <div style="    overflow: hidden;
@@ -131,6 +134,35 @@
     <span style="display:flex; justify-content:flex-end; width:100%; padding:0;" > <mat-icon aria-hidden="false" aria-label="Example home icon">https</mat-icon></span>
     </div>
    
+  </div>
+   
+   <div class="row"  style="background-color: #caffbb;">
+ 
+    <div class="col-3">
+   <span style="display:flex; justify-content:flex-end; width:100%; padding:10px;" ><strong> Headers</strong></span> 
+    </div>
+    <div class="col-9"  style="padding-top: 4px;">
+     
+    </div>
+    <hr style="width:100%;text-align:left;margin-left:0">
+    <div class="col-3">
+   <span style="display:flex; justify-content:flex-end; width:100%; "> passToken</span> 
+    </div>
+    <div class="col-2"  style="padding-top: 4px;">
+     <label for="username">UserName</label></div><div  class="col-7" ><input  [(ngModel)] ="postDbuserName" type="text" class="form-control" id="username"  placeholder="Enter User Name">
+    </div>
+    <div class="col-3">
+ 
+    </div>
+    <div class="col-2"  style="padding-top: 4px;">
+     <label for="username">Password</label>
+     </div><div  class="col-7" ><input  [(ngModel)] ="postDbpassword"  type="password" class="form-control" id="password"  placeholder="Enter Password">
+    </div>
+      <div class="col-12"  style="padding-top: 4px;">
+     <span class="invalid-feedback">
+                   * Your Database Username and Password never Stored .
+                     
+                </span> </div>
   </div>
    
    
@@ -334,9 +366,13 @@ Response content type : application/json</span>
   
   </div>
    
-  </mat-tab>
-  <mat-tab label="Update"> 
-   <div class="container" style="height:650px;">
+ 
+    </ng-template>
+  </ngb-tab>
+  <ngb-tab title="Update">
+    <ng-template ngbTabContent>
+    
+   <div class="container"style="    height: 650px;    overflow-y: scroll;">
     <div class="row" style="background-color: #ffbc50;text-align: start;border-radius: 8px;padding-bottom: 8px;padding-top: 10px;">
   <div class="col-1" >PUT</div>
     <div style="    overflow: hidden;
@@ -351,6 +387,34 @@ Response content type : application/json</span>
    
   </div>
    
+      <div class="row"  style="background-color: #ffe0ad;;">
+ 
+    <div class="col-3">
+   <span style="display:flex; justify-content:flex-end; width:100%; padding:10px;" ><strong> Headers</strong></span> 
+    </div>
+    <div class="col-9"  style="padding-top: 4px;">
+     
+    </div>
+    <hr style="width:100%;text-align:left;margin-left:0">
+    <div class="col-3">
+   <span style="display:flex; justify-content:flex-end; width:100%; "> passToken</span> 
+    </div>
+    <div class="col-2"  style="padding-top: 4px;">
+     <label for="username">UserName</label></div><div  class="col-7" ><input  [(ngModel)] ="putDbuserName" type="text" class="form-control" id="username"  placeholder="Enter User Name">
+    </div>
+    <div class="col-3">
+ 
+    </div>
+    <div class="col-2"  style="padding-top: 4px;">
+     <label for="username">Password</label>
+     </div><div  class="col-7" ><input  [(ngModel)] ="putDbpassword"  type="password" class="form-control" id="password"  placeholder="Enter Password">
+    </div>
+      <div class="col-12"  style="padding-top: 4px;">
+     <span class="invalid-feedback">
+                   * Your Database Username and Password never Stored .
+                     
+                </span> </div>
+  </div>
    
    
   <div class="row"  style="background-color: #ffe0ad;">
@@ -555,9 +619,13 @@ Response content type : application/json</span>
    
    </div>
   
-  </mat-tab>
-   <mat-tab label="Retrive"> 
-   <div class="container" style="height:650px; background-color: #b5dffd;">
+  
+    </ng-template>
+  </ngb-tab>
+  <ngb-tab title="Retrive">
+    <ng-template ngbTabContent>
+     
+   <div class="container" style=" background-color: #b5dffd;  height: 650px;    overflow-y: scroll;">
     <div class="row" style="background-color: #46b3ff;text-align: start;border-radius: 8px;padding-bottom: 8px;padding-top: 10px;">
   <div class="col-1" >GET</div>
     <div style="    overflow: hidden;
@@ -570,6 +638,36 @@ Response content type : application/json</span>
     <span style="display:flex; justify-content:flex-end; width:100%; padding:0;" > <mat-icon aria-hidden="false" aria-label="Example home icon">https</mat-icon></span>
     </div>
    </div>
+    
+      <div class="row"  style="background-color: #b5dffd;">
+ 
+    <div class="col-3">
+   <span style="display:flex; justify-content:flex-end; width:100%; padding:10px;" ><strong> Headers</strong></span> 
+    </div>
+    <div class="col-9"  style="padding-top: 4px;">
+     
+    </div>
+    <hr style="width:100%;text-align:left;margin-left:0">
+    <div class="col-3">
+   <span style="display:flex; justify-content:flex-end; width:100%; "> passToken</span> 
+    </div>
+    <div class="col-2"  style="padding-top: 4px;">
+     <label for="username">UserName</label></div><div  class="col-7" ><input  [(ngModel)] ="getDbuserName" type="text" class="form-control" id="username"  placeholder="Enter User Name">
+    </div>
+    <div class="col-3">
+ 
+    </div>
+    <div class="col-2"  style="padding-top: 4px;">
+     <label for="username">Password</label>
+     </div><div  class="col-7" ><input  [(ngModel)] ="getDbpassword"  type="password" class="form-control" id="password"  placeholder="Enter Password">
+    </div>
+      <div class="col-12"  style="padding-top: 4px;">
+     <span class="invalid-feedback">
+                   * Your Database Username and Password never Stored .
+                     
+                </span> </div>
+  </div>
+    
     
   <div class="row"  style="background-color:  #b5dffd">
     <div class="col-3">
@@ -764,9 +862,13 @@ Response content type : application/json</span>
   </div>
   </div>
    
-  </mat-tab>
-  <mat-tab label="RetriveAll"> 
-   <div class="container"  style="height:650px; background-color: #b5dffd;" >
+  
+    </ng-template>
+  </ngb-tab>
+   <ngb-tab title="Retrive All">
+    <ng-template ngbTabContent>
+    
+   <div class="container"  style="height:650px; background-color: #b5dffd;  overflow-y: scroll;" >
     <div class="row" style="background-color: #46b3ff;text-align: start;border-radius: 8px;padding-bottom: 8px;padding-top: 10px;">
   <div class="col-2" >GET ALL</div>
     <div style="    overflow: hidden;
@@ -780,7 +882,34 @@ Response content type : application/json</span>
     </div>
    </div>
    
-   
+     <div class="row"  style="background-color: #b5dffd;">
+ 
+    <div class="col-3">
+   <span style="display:flex; justify-content:flex-end; width:100%; padding:10px;" ><strong> Headers</strong></span> 
+    </div>
+    <div class="col-9"  style="padding-top: 4px;">
+     
+    </div>
+    <hr style="width:100%;text-align:left;margin-left:0">
+    <div class="col-3">
+   <span style="display:flex; justify-content:flex-end; width:100%; "> passToken</span> 
+    </div>
+    <div class="col-2"  style="padding-top: 4px;">
+     <label for="username">UserName</label></div><div  class="col-7" ><input  [(ngModel)] ="getAllDbuserName" type="text" class="form-control" id="username"  placeholder="Enter User Name">
+    </div>
+    <div class="col-3">
+ 
+    </div>
+    <div class="col-2"  style="padding-top: 4px;">
+     <label for="username">Password</label>
+     </div><div  class="col-7" ><input  [(ngModel)] ="getAllDbpassword"  type="password" class="form-control" id="password"  placeholder="Enter Password">
+    </div>
+      <div class="col-12"  style="padding-top: 4px;">
+     <span class="invalid-feedback">
+                   * Your Database Username and Password never Stored .
+                     
+                </span> </div>
+  </div>
    
   <div class="row"  style="background-color:  #b5dffd">
     <div class="col-3">
@@ -990,11 +1119,12 @@ Response content type : application/json</span>
    
   </div>
   
-  
-  </mat-tab>
-   <mat-tab label="Delete"> 
-   
-    <div class="container" Style="height:650px; background-color: #f7b2b2">
+
+    </ng-template>
+  </ngb-tab>
+   <ngb-tab title="Delete">
+    <ng-template ngbTabContent>
+    <div class="container" Style="height:650px; background-color: #f7b2b2;  overflow-y: scroll;">
     <div class="row" style="background-color: #ff5050;text-align: start;border-radius: 8px;padding-bottom: 8px;padding-top: 10px;">
   <div class="col-2" >DELETE</div>
     <div style="    overflow: hidden;
@@ -1008,6 +1138,35 @@ Response content type : application/json</span>
     </div>
    </div>
    
+     <div class="row"  style="background-color: #f7b2b2;">
+ 
+    <div class="col-3">
+   <span style="display:flex; justify-content:flex-end; width:100%; padding:10px;" ><strong> Headers</strong></span> 
+    </div>
+    <div class="col-9"  style="padding-top: 4px;">
+     
+    </div>
+    <hr style="width:100%;text-align:left;margin-left:0">
+    <div class="col-3">
+   <span style="display:flex; justify-content:flex-end; width:100%; "> passToken</span> 
+    </div>
+    <div class="col-2"  style="padding-top: 4px;">
+     <label for="username">UserName</label></div><div  class="col-7" ><input  [(ngModel)] ="delAllDbuserName" type="text" class="form-control" id="username"  placeholder="Enter User Name">
+    </div>
+    <div class="col-3">
+ 
+    </div>
+    <div class="col-2"  style="padding-top: 4px;">
+     <label for="username">Password</label>
+     </div><div  class="col-7" ><input  [(ngModel)] ="delAllDbpassword"  type="password" class="form-control" id="password"  placeholder="Enter Password">
+    </div>
+    <div class="col-12"  style="padding-top: 4px;">
+     <span class="invalid-feedback">
+                   * Your Database Username and Password never Stored .
+                     
+                </span> </div>
+  </div>
+  
    
    <div class="row"  style="background-color:  #f7b2b2">
     <div class="col-3">
@@ -1202,9 +1361,11 @@ Response content type : application/json</span>
   </div>
    
   </div>
-  
-  </mat-tab>
-  </mat-tab-group>
+   
+    </ng-template>
+  </ngb-tab>
+</ngb-tabset>
+
 <!-- <mat-accordion>
 
  <mat-expansion-panel  style="background-color: #caffbb;">
@@ -2112,6 +2273,1380 @@ Response content type : application/json</span>
   </div>
 </mat-expansion-panel>
   </mat-accordion>  -->
+   <div  class="header text-center"  >
+  <button mat-button (click)="doAction()">Ok</button>&nbsp;
+  <button mat-button (click)="closeDialog()" mat-flat-button color="warn">Cancel</button>
+</div>
+</div>
+
+<div  class="header text-center"  *ngIf="action == 'AddRec'; ">
+   <h1 class="title" mat-dialog-title> <strong> Add a New Record {{this.local_data.service}} </strong></h1>
+   <div mat-dialog-content  style="width: 100%; margin: 0px;">
+<div class="container" >
+ 
+  <form  [formGroup]="AddRecUIForm">
+    <div class="row form-group"  *ngFor="let data of local_data.multidata[0].service[0]['service attr']| keyvalue">
+    <div class="col-sm-4"> <label class="control-label" for="{{data.value['attrname'] | titlecase}}">{{data.value['attrname'] | titlecase}}&nbsp;</label></div> 
+      <div class="col-sm-7"  *ngIf="data.value['attrname']=='yes'||data.value['attrname']=='true'||data.value['attrname']=='1'||data.value['attrname']=='YES'||data.value['attrname']=='TRUE'||data.value['attrname']">
+      
+        <input type="text" class="form-control"  formControlName="{{data.value['attrname'] }}"  id="{{data.value['attrname'] | titlecase}}" minlength="{{data.value['attrminlength'] }}"  maxlength="{{data.value['attrmaxlength'] }}" pattern="{{data.value['attrregxvalidation'] }}" placeholder="{{data.value['attrname'] | titlecase}}" name="{{data.value['attrname'] | titlecase}}">
+         <div *ngIf="submitted && a[data.value['attrname']].errors" class="invalid-feedback">
+   <div *ngIf="a[data.value['attrname']].errors['minlength']">{{data.value['attrname']}} must have Minumlength of {{data.value['attrminlength'] }}</div>
+   <div *ngIf="a[data.value['attrname']].errors['pattern']">{{data.value['attrname']}} must in Necessary Format of {{data.value['attrregxvalidationmsg'] }}</div>
+                    <div *ngIf="a[data.value['attrname']].errors['required']">{{data.value['attrname']}} is required</div>
+                      <div *ngIf="a[data.value['attrname']].errors['customvalidation']"> {{data.value['attrvalidatormsg'] }} .. </div>
+      </div>
+      </div>
+      <div class="col-sm-1"> <mat-icon    aria-hidden="false" aria-label="Example home icon">add_box</mat-icon> 
+  <!--   <small id="{{data.key}}Help" class="form-text text-muted">please enter {{data.key}}</small> -->
+
+    </div>
+    
+    </div>
+    
+  </form>
+</div></div>
+ <div  class="header text-center"  >
+  <button mat-button (click)="doAction()">Ok</button>&nbsp;
+  <button mat-button (click)="closeDialog()" mat-flat-button color="warn">Cancel</button>
+</div>
+   
+   </div>
+   
+   
+<div  class="header text-center"  *ngIf="action == 'Multi Service'; ">
+   <h1 class="title" mat-dialog-title> <strong> Api Calls Avalible for Service {{this.local_data.service}} </strong></h1>
+   
+ <ngb-tabset>
+  <ngb-tab title="Create">
+    <ng-template ngbTabContent  >
+    
+   <div class="container" style="    height: 650px;    overflow-y: scroll;">
+    <div class="row" style="background-color: #18ce0f;text-align: start;border-radius: 8px;padding-bottom: 8px;padding-top: 10px;">
+  <div class="col-1" >POST</div>
+    <div style="    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+     " class="col-10" title="{{multiposturl}}">
+     {{multiposturl}}
+    </div>
+    <div  class="col-1">
+    <span style="display:flex; justify-content:flex-end; width:100%; padding:0;" > <mat-icon aria-hidden="false" aria-label="Example home icon">https</mat-icon></span>
+    </div>
+   
+  </div>
+   
+   <div class="row"  style="background-color: #caffbb;">
+ 
+    <div class="col-3">
+   <span style="display:flex; justify-content:flex-end; width:100%; padding:10px;" ><strong> Headers</strong></span> 
+    </div>
+    <div class="col-9"  style="padding-top: 4px;">
+     
+    </div>
+    <hr style="width:100%;text-align:left;margin-left:0">
+    <div class="col-3">
+   <span style="display:flex; justify-content:flex-end; width:100%; "><strong>passToken</strong> </span> 
+    </div>
+    <div class="col-2"  style="padding-top: 4px;">
+    </div><div  class="col-7" >
+    </div>
+
+  </div>
+   <div class="row" [formGroup]="multiPostForm"  *ngFor="let data of multidatasource| keyvalue"  style="background-color: #caffbb;">
+   <div class="col-3">
+   <span style="display:flex; justify-content:flex-end; width:100%; padding:10px;" > {{data.value}}</span> 
+    </div>
+    <div class="col-2"  style="padding-top: 4px;">
+     <label for="username">UserName</label></div><div  class="col-7" ><input  formControlName="user:{{data.value}}" type="text" class="form-control"   placeholder="Enter {{data.value}} User Name">
+    </div>
+    <div class="col-3">
+     
+    </div>
+       <div class="col-2"  style="padding-top: 4px;">
+     <label for="password">Password</label>
+     </div><div  class="col-7" ><input formControlName ="pass:{{data.value}}" type="password" class="form-control"    placeholder="Enter {{data.value}} Password">
+    </div>
+      
+   
+   </div><div class="row"  style="background-color: #caffbb;">
+   <div class="col-12"  style="padding-top: 4px;">
+     <span class="invalid-feedback">
+                   * Your Database Username and Password never Stored .
+                     
+                </span> </div>
+   </div>
+   
+   
+  <div class="row"  style="background-color: #caffbb;">
+ 
+    <div class="col-3">
+   <span style="display:flex; justify-content:flex-end; width:100%; padding:10px;" ><strong> Parameters</strong></span> 
+    </div>
+    <div class="col-9"  style="padding-top: 4px;">
+    <span style="display:flex; justify-content:flex-end; width:100%; padding:0;" >   <button   id="multipostry" mat-raised-button color="accent" (click)="tryClick('multipostry')" >try it out</button></span>
+    
+    </div>
+    <hr style="width:100%;text-align:left;margin-left:0">
+  </div>
+ 
+   <div class="row" style="background-color: #caffbb;">
+    <div class="col-3">
+   <span ><strong>  Name</strong></span> 
+    </div>
+    <div class="col-9">
+    <span > <strong> Description</strong>
+    </span>
+    
+    </div>
+   
+  </div>
+  
+    <div class="row" style="background-color: #caffbb;">
+    <div class="col-3">
+   <span >   body </span>
+   <span class="invalid-feedback">
+                   * required 
+                     
+                </span> 
+    </div>
+    <div class="col-9">
+    <p style="text-align: start;"> Json object as  Post request to Create {{this.local_data.service}}</p>
+  
+    
+    </div>
+   
+  </div>
+  
+   <div class="row" style="background-color: #caffbb;">
+    <div class="col-3">
+    </div>
+  <div class="col-9">
+  <mat-tab-group>
+  <mat-tab label="Example Value"> 
+
+  <div class="mb-3">
+   <textarea     id="multiputText" style="height: 250px; width: 400px; display: block;"  [(ngModel)] = "multivalueJsonStr">
+{{multivalueJsonStr}} 
+</textarea>
+   
+     </div>
+     
+ </mat-tab>
+  <mat-tab label="Model"> 
+<div class="mb-3">
+   <textarea  disabled=true   id="multipostTextmodel" style="height: 250px; width: 400px; display: block;">
+
+{{multisampleJson}}
+</textarea>
+</div>
+ </mat-tab>
+  
+</mat-tab-group>
+</div>
+  
+  </div>
+  <div class="row" style="background-color: #caffbb;">
+   <div class="col-12">
+    <button style="width: 100%; display:{{multipostexecutebuttondis}};" (click) ="calApi('MULTI_POST',this.local_data.service,'create',this.local_data.dsname)" id="multipostsingleBut" class="btn btn-primary mb-3">Execute {{this.local_data.service}} POST Api Call</button>
+  </div>
+    <div class="col-12" *ngIf="multipostisLoading" 
+   style="display: flex; justify-content: center; align-items: center; ">
+  <mat-progress-spinner 
+    color="primary" 
+    mode="indeterminate">
+  </mat-progress-spinner>
+</div> </div>
+   
+   <div *ngIf="multipostResLoading"  class="row" style="
+    background-color: #333;
+    color: white;
+    /* vertical-align: middle; */
+    text-align: start;
+    border-radius: 8px;
+    /* padding: 10px; */
+">
+  
+   <div class="col-3" style="
+    padding-top: 8px;
+"> <label>Request  URL:</label></div><div style="
+    padding-top: 8px;
+" class="col-9">   {{multipostdisurl}}</div>
+      <div class="col-12" style="
+    padding-top: 8px;
+"> <label>Server Response</label></div>
+
+  <div class="col-3" style="
+    padding-top: 8px;
+"> <label>Code</label></div>
+
+  
+  <div class="col-9" style="
+    padding-top: 8px;
+"> <label>Response Body</label></div>
+<div  class="col-3" style="
+    padding-top: 8px;
+">
+{{multipostcode}}
+</div>
+<div  class="col-9" style="padding-top: 8px;overflow: hidden;white-space: break-spaces;text-overflow: ellipsis;display: inline-block;">
+{{multipostbody}}
+</div>
+  </div>
+  
+  
+  <div class="row" style="background-color: #caffbb;">
+    <div class="col-3">
+   <span style="display:flex; justify-content:flex-end; width:100%; padding:10px;" ><strong> Responses</strong></span> 
+    </div>
+    <div class="col-9">
+    <span style="display:flex; justify-content:flex-end; width:100%; padding:10px;" >   
+Response content type : application/json</span>
+    
+    </div>
+    <hr style="width:100%;text-align:left;margin-left:0">
+  </div>
+  <div class="row" style="background-color: #caffbb;">
+    <div class="col-3">
+   <span ><strong>  Code</strong></span> 
+    </div>
+    <div class="col-9">
+    <span > <strong> Description</strong>
+    </span>
+    
+    </div>
+   <hr style="width:100%;text-align:left;margin-left:0">
+  </div>
+  
+   <div class="row" style="background-color: #caffbb;">
+    <div class="col-3">
+   200/201
+    </div>
+    <div class="col-9">
+      <div class="mb-3">
+   
+  <p style="text-align: start;"> The Requested call for  {{this.local_data.service}} was successfully updated  </p>
+     </div>
+     
+    
+    </div>
+   
+  </div>
+  
+  <div class="row" style="background-color: #caffbb;">
+    <div class="col-3">
+   404
+    </div>
+    <div class="col-9">
+      <div class="mb-3">
+   
+   <p style="text-align: start;">  The Requested call for  {{this.local_data.service}} was not found  </p>
+     </div>
+     
+    
+    </div>
+   
+  </div>
+  <div class="row" style="background-color: #caffbb;">
+    <div class="col-3">
+   500
+    </div>
+    <div class="col-9">
+      <div class="mb-3">
+   
+   <p style="text-align: start;">  Internal server error  </p>
+     </div>
+     
+    
+    </div>
+   
+  </div>
+   <div class="row" style="background-color: #caffbb;">
+    <div class="col-3">
+   400
+    </div>
+    <div class="col-9">
+      <div class="mb-3">
+   
+   <p style="text-align: start;">  Bad Request contains validation Error  </p>
+     </div>
+     
+    
+    </div>
+   
+  </div>
+  
+  </div>
+   
+ 
+    </ng-template>
+  </ngb-tab>
+  <ngb-tab title="Update">
+    <ng-template ngbTabContent>
+    
+   <div class="container"style="    height: 650px;    overflow-y: scroll;">
+    <div class="row" style="background-color: #ffbc50;text-align: start;border-radius: 8px;padding-bottom: 8px;padding-top: 10px;">
+  <div class="col-1" >PUT</div>
+    <div style="    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+     " class="col-10" title="{{posturl}}">
+     {{multiputurl}}
+    </div>
+    <div  class="col-1">
+    <span style="display:flex; justify-content:flex-end; width:100%; padding:0;" > <mat-icon aria-hidden="false" aria-label="Example home icon">https</mat-icon></span>
+    </div>
+   
+  </div>
+   
+      <div class="row"  style="background-color: #ffe0ad;;">
+ 
+    <div class="col-3">
+   <span style="display:flex; justify-content:flex-end; width:100%; padding:10px;" ><strong> Headers</strong></span> 
+    </div>
+    <div class="col-9"  style="padding-top: 4px;">
+     
+    </div>
+    <hr style="width:100%;text-align:left;margin-left:0">
+    <div class="col-3">
+   <span style="display:flex; justify-content:flex-end; width:100%; "> <strong>passToken</strong></span> 
+    </div>
+    <div class="col-2"  style="padding-top: 4px;">
+    </div><div  class="col-7" >
+    </div>
+    <div class="col-3">
+ 
+    </div>
+   
+      
+  </div>
+  
+   <div class="row" [formGroup]="multiPutForm"  *ngFor="let data of multidatasource| keyvalue"  style="background-color: #ffe0ad;">
+   <div class="col-3">
+   <span style="display:flex; justify-content:flex-end; width:100%; padding:10px;" > {{data.value}}</span> 
+    </div>
+    <div class="col-2"  style="padding-top: 4px;">
+     <label for="username">UserName</label></div><div  class="col-7" ><input  formControlName="user:{{data.value}}" type="text" class="form-control"    placeholder="Enter {{data.value}} User Name">
+    </div>
+    <div class="col-3">
+     
+    </div>
+       <div class="col-2"  style="padding-top: 4px;">
+     <label for="password">Password</label>
+     </div><div  class="col-7" ><input formControlName ="pass:{{data.value}}" type="password" class="form-control"    placeholder="Enter {{data.value}} Password">
+    </div>
+   </div>
+   <div class="row"  style="background-color: #ffe0ad;">
+   <div class="col-12"  style="padding-top: 4px;">
+     <span class="invalid-feedback">
+                   * Your Database Username and Password never Stored .
+                     
+                </span> </div>
+   </div>
+   
+   
+  <div class="row"  style="background-color: #ffe0ad;">
+ 
+    <div class="col-3">
+   <span style="display:flex; justify-content:flex-end; width:100%; padding:10px;" ><strong> Parameters</strong></span> 
+    </div>
+    <div class="col-9"  style="padding-top: 4px;">
+    <span style="display:flex; justify-content:flex-end; width:100%; padding:0;" >   <button   id="multiputry" mat-raised-button color="accent" (click)="tryClick('multiputry')" >try it out</button></span>
+    
+    </div>
+    <hr style="width:100%;text-align:left;margin-left:0">
+  </div>
+ 
+   <div class="row" style="background-color: #ffe0ad;">
+    <div class="col-3">
+   <span ><strong>  Name</strong></span> 
+    </div>
+    <div class="col-9">
+    <span > <strong> Description</strong>
+    </span>
+    
+    </div>
+   
+  </div>
+  
+    <div class="row" style="background-color:#ffe0ad;">
+    <div class="col-3">
+   <span >   body </span>
+   <span class="invalid-feedback">
+                   * required 
+                     
+                </span> 
+    </div>
+    <div class="col-9">
+    <p style="text-align: start;"> Json object as  Put request to Update {{this.local_data.service}}</p>
+  
+    
+    </div>
+   
+  </div>
+  
+   <div class="row" style="background-color: #ffe0ad;">
+    <div class="col-3">
+    </div>
+  <div class="col-9">
+  <mat-tab-group>
+  <mat-tab label="Example Value"> 
+
+  <div class="mb-3">
+   <textarea     id="multiputText" style="height: 250px; width: 400px; display: block;"  [(ngModel)] = "multivalueJsonStr">
+{{multivalueJsonStr}}
+</textarea>
+   
+     </div>
+     
+ </mat-tab>
+  <mat-tab label="Model"> 
+<div class="mb-3">
+   <textarea  disabled=true   id="multiputTextmodel" style="height: 250px; width: 400px; display: block;">
+
+{{multisampleJson}}
+</textarea>
+</div>
+ </mat-tab>
+  
+</mat-tab-group>
+</div>
+  
+  </div>
+  <div class="row" style="background-color: #ffe0ad;">
+   <div class="col-12">
+    <button style="width: 100%; display:{{multiputeexecutebuttondis}};" (click) ="calApi('MULTI_PUT',this.local_data.service,'create',this.local_data.dsname)" id="multiputsingleBut" class="btn btn-primary mb-3">Execute {{this.local_data.service}} PUT Api Call</button>
+  </div>
+    <div class="col-12" *ngIf="multiputisLoading" 
+   style="display: flex; justify-content: center; align-items: center; ">
+  <mat-progress-spinner 
+    color="primary" 
+    mode="indeterminate">
+  </mat-progress-spinner>
+</div> </div>
+   
+   <div *ngIf="multiputResLoading"  class="row" style="
+    background-color: #333;
+    color: white;
+    /* vertical-align: middle; */
+    text-align: start;
+    border-radius: 8px;
+    /* padding: 10px; */
+">
+  
+   <div class="col-3" style="
+    padding-top: 8px;
+"> <label>Request  URL:</label></div><div style="
+    padding-top: 8px;
+" class="col-9">   {{multiputdisurl}}</div>
+      <div class="col-12" style="
+    padding-top: 8px;
+"> <label>Server Response</label></div>
+
+  <div class="col-3" style="
+    padding-top: 8px;
+"> <label>Code</label></div>
+
+  
+  <div class="col-9" style="
+    padding-top: 8px;
+"> <label>Response Body</label></div>
+<div  class="col-3" style="
+    padding-top: 8px;
+">
+{{multiputcode}}
+</div>
+<div  class="col-9" style="padding-top: 8px;overflow: hidden;white-space: break-spaces;text-overflow: ellipsis;display: inline-block;">
+{{multiputbody}}
+</div>
+  </div>
+  
+  
+  <div class="row" style="background-color: #ffe0ad;">
+    <div class="col-3">
+   <span style="display:flex; justify-content:flex-end; width:100%; padding:10px;" ><strong> Responses</strong></span> 
+    </div>
+    <div class="col-9">
+    <span style="display:flex; justify-content:flex-end; width:100%; padding:10px;" >   
+Response content type : application/json</span>
+    
+    </div>
+    <hr style="width:100%;text-align:left;margin-left:0">
+  </div>
+  <div class="row" style="background-color: #ffe0ad;">
+    <div class="col-3">
+   <span ><strong>  Code</strong></span> 
+    </div>
+    <div class="col-9">
+    <span > <strong> Description</strong>
+    </span>
+    
+    </div>
+   <hr style="width:100%;text-align:left;margin-left:0">
+  </div>
+  
+   <div class="row" style="background-color: #ffe0ad;">
+    <div class="col-3">
+   200/201
+    </div>
+    <div class="col-9">
+      <div class="mb-3">
+   
+  <p style="text-align: start;"> The Requested call for  {{this.local_data.service}} was successfully updated  </p>
+     </div>
+     
+    
+    </div>
+   
+  </div>
+  
+  <div class="row" style="background-color: #ffe0ad;">
+    <div class="col-3">
+   404
+    </div>
+    <div class="col-9">
+      <div class="mb-3">
+   
+   <p style="text-align: start;">  The Requested call for  {{this.local_data.service}} was not found  </p>
+     </div>
+     
+    
+    </div>
+   
+  </div>
+  <div class="row" style="background-color: #ffe0ad;">
+    <div class="col-3">
+   500
+    </div>
+    <div class="col-9">
+      <div class="mb-3">
+   
+   <p style="text-align: start;">  Internal server error  </p>
+     </div>
+     
+    
+    </div>
+   
+  </div>
+   <div class="row" style="background-color: #ffe0ad;">
+    <div class="col-3">
+   400
+    </div>
+    <div class="col-9">
+      <div class="mb-3">
+   
+   <p style="text-align: start;">  Bad Request contains validation Error  </p>
+     </div>
+     
+    
+    </div>
+   
+  </div>
+   
+   
+   
+   </div>
+  
+  
+    </ng-template>
+  </ngb-tab>
+  <ngb-tab title="Retrive">
+    <ng-template ngbTabContent>
+     
+   <div class="container" style=" background-color: #b5dffd;  height: 650px;    overflow-y: scroll;">
+    <div class="row" style="background-color: #46b3ff;text-align: start;border-radius: 8px;padding-bottom: 8px;padding-top: 10px;">
+  <div class="col-1" >GET</div>
+    <div style="    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+     " class="col-10" title="{{geturl}}">
+     {{multigeturl}}
+    </div>
+    <div  class="col-1">
+    <span style="display:flex; justify-content:flex-end; width:100%; padding:0;" > <mat-icon aria-hidden="false" aria-label="Example home icon">https</mat-icon></span>
+    </div>
+   </div>
+    
+      <div class="row"  style="background-color: #b5dffd;">
+ 
+    <div class="col-3">
+   <span style="display:flex; justify-content:flex-end; width:100%; padding:10px;" ><strong> Headers</strong></span> 
+    </div>
+    <div class="col-9"  style="padding-top: 4px;">
+     
+    </div>
+    <hr style="width:100%;text-align:left;margin-left:0">
+    <div class="col-3">
+   <span style="display:flex; justify-content:flex-end; width:100%; "> <strong>passToken</strong></span> 
+    </div>
+    <div class="col-2"  style="padding-top: 4px;">
+     </div><div  class="col-7" >
+    </div>
+    
+   
+
+  </div>
+     <div class="row" [formGroup]="multiGetForm"  *ngFor="let data of multidatasource| keyvalue"  style="background-color: #b5dffd;">
+   <div class="col-3">
+   <span style="display:flex; justify-content:flex-end; width:100%; padding:10px;" > {{data.value}}</span> 
+    </div>
+    <div class="col-2"  style="padding-top: 4px;">
+     <label for="username">UserName</label></div><div  class="col-7" ><input  formControlName="user:{{data.value}}" type="text" class="form-control"    placeholder="Enter {{data.value}} User Name">
+    </div>
+    <div class="col-3">
+     
+    </div>
+       <div class="col-2"  style="padding-top: 4px;">
+     <label for="password">Password</label>
+     </div><div  class="col-7" ><input formControlName ="pass:{{data.value}}" type="password" class="form-control"    placeholder="Enter {{data.value}} Password">
+    </div>
+     
+   
+   </div>
+   <div  class="row" style="background-color: #b5dffd;">
+    <div class="col-12"  style="padding-top: 4px;">
+     <span class="invalid-feedback">
+                   * Your Database Username and Password never Stored .
+                     
+                </span> </div>
+   </div>
+    
+  <div class="row"  style="background-color:  #b5dffd">
+    <div class="col-3">
+   <span style="display:flex; justify-content:flex-end; width:100%; padding:10px;" ><strong> Parameters</strong></span> 
+    </div>
+    <div class="col-9"  style="padding-top: 4px;">
+    <span style="display:flex; justify-content:flex-end; width:100%; padding:0;" >   <button  id="multigetsintry" mat-raised-button color="accent"  (click)="tryClick('multigetsintry')"  >try it out</button></span>
+    
+    </div>
+    <hr style="width:100%;text-align:left;margin-left:0">
+  </div>
+ 
+   <div class="row" style="background-color:  #b5dffd">
+    <div class="col-3">
+   <span ><strong>  Name</strong></span> 
+    </div>
+    <div class="col-9">
+    <span > <strong> Description</strong>
+    </span>
+    
+    </div>
+    <hr style="width:100%;text-align:left;margin-left:0">
+  </div>
+  
+    <div class="row" style="background-color:  #b5dffd">
+    <div class="col-3">
+   <span >   id </span>
+   <span class="invalid-feedback">
+                   * required 
+                     
+                </span> 
+    </div>
+    <div class="col-9">
+    <p style="text-align: start;"> Id to retrive {{this.local_data.service}}, string representation of integer</p>
+  
+    
+    </div>
+   
+  </div>
+  <div class="row" style="background-color:  #b5dffd">
+    <div class="col-3">
+   
+    </div>
+    <div class="col-9">
+      <div [formGroup]="multigetsingleForm" class="mb-3">
+   
+  <input type="number"  class="form-control" formControlName="getsingleid" id="getsingleid"      placeholder="id"  required maxlength="30" minlength="1" number
+     name="getsingleid">
+    <div *ngIf="j['getsingleid'].invalid && (j['getsingleid'].dirty ||j['getsingleid'].touched)"
+    class="invalid-feedback">
+  <div *ngIf="j['getsingleid'].errors">
+    Id  Must Valid One.
+  </div>
+  
+</div>
+     </div>
+     
+    
+    </div>
+   
+  </div>
+  <div class="row" style="background-color:  #b5dffd">
+   <div class="col-12">
+    <button style="width: 100%; display:{{multigetsingleexecutebuttondis}};"  [disabled]="!multigetsingleForm.valid"    (click) ="  calApi('MULTI_GET',this.local_data.service,'getOne',this.local_data.dsname)" id="multigetsingleBut"  class="btn btn-primary mb-3">Execute {{this.local_data.service}} GET Api Call</button>
+  </div>
+   <div class="col-12" *ngIf="multigetisLoading" 
+   style="display: flex; justify-content: center; align-items: center; ">
+  <mat-progress-spinner 
+    color="primary" 
+    mode="indeterminate">
+  </mat-progress-spinner>
+</div>
+  </div>
+  
+  
+   
+   <div *ngIf="multigetResLoading"  class="row" style="
+    background-color: #333;
+    color: white;
+    /* vertical-align: middle; */
+    text-align: start;
+    border-radius: 8px;
+    /* padding: 10px; */
+">
+  
+   <div class="col-3" style="
+    padding-top: 8px;
+"> <label>Request  URL:</label></div><div style="
+    padding-top: 8px;
+" class="col-9">  {{multigetdisurl}}</div>
+      <div class="col-12" style="
+    padding-top: 8px;
+"> <label>Server Response</label></div>
+
+  <div class="col-3" style="
+    padding-top: 8px;
+"> <label>Code</label></div>
+
+  
+  <div class="col-9" style="
+    padding-top: 8px;
+"> <label>Response Body</label></div>
+<div  class="col-3" style="
+    padding-top: 8px;
+">
+{{multigetcode}}
+</div>
+<div  class="col-9" style="padding-top: 8px;overflow: hidden;white-space: break-spaces;text-overflow: ellipsis;display: inline-block;">
+{{multigetbody}}
+</div>
+  </div>
+  
+  <div class="row" style="background-color:  #b5dffd">
+    <div class="col-3">
+   <span style="display:flex; justify-content:flex-end; width:100%; padding:10px;" ><strong> Responses</strong></span> 
+    </div>
+    <div class="col-9">
+    <span style="display:flex; justify-content:flex-end; width:100%; padding:10px;" >   
+Response content type : application/json</span>
+    
+    </div>
+    <hr style="width:100%;text-align:left;margin-left:0">
+  </div>
+  <div class="row" style="background-color:  #b5dffd">
+    <div class="col-3">
+   <span ><strong>  Code</strong></span> 
+    </div>
+    <div class="col-9">
+    <span > <strong> Description</strong>
+    </span>
+    
+    </div>
+   <hr style="width:100%;text-align:left;margin-left:0">
+  </div>
+  
+   <div class="row" style="background-color:  #b5dffd">
+    <div class="col-3">
+   200
+    </div>
+    <div class="col-9">
+      <div class="mb-3">
+   
+  <p style="text-align: start;"> The Requested call for  {{this.local_data.service}} was successfully retrive  </p>
+     </div>
+     
+    
+    </div>
+   
+  </div>
+  
+  <div class="row" style="background-color:  #b5dffd">
+    <div class="col-3">
+   404
+    </div>
+    <div class="col-9">
+      <div class="mb-3">
+   
+   <p style="text-align: start;">  The Requested call for  {{this.local_data.service}} was not found  </p>
+     </div>
+     
+    
+    </div>
+   
+  </div>
+  <div class="row" style="background-color:  #b5dffd">
+    <div class="col-3">
+   500
+    </div>
+    <div class="col-9">
+      <div class="mb-3">
+   
+   <p style="text-align: start;">  Internal server error  </p>
+     </div>
+     
+    
+    </div>
+   
+  </div>
+   <div class="row" style="background-color:  #b5dffd">
+    <div class="col-3">
+   400
+    </div>
+    <div class="col-9">
+      <div class="mb-3">
+   
+   <p style="text-align: start;">  Bad Request contains validation Error  </p>
+     </div>
+     
+    
+    </div>
+   
+  </div>
+  </div>
+   
+  
+    </ng-template>
+  </ngb-tab>
+   <ngb-tab title="Retrive All">
+    <ng-template ngbTabContent>
+    
+   <div class="container"  style="height:650px; background-color: #b5dffd;  overflow-y: scroll;" >
+    <div class="row" style="background-color: #46b3ff;text-align: start;border-radius: 8px;padding-bottom: 8px;padding-top: 10px;">
+  <div class="col-2" >GET ALL</div>
+    <div style="    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+     " class="col-9" title="{{multigetAllurl}}">
+     {{multigetAllurl}}
+    </div>
+    <div  class="col-1">
+    <span style="display:flex; justify-content:flex-end; width:100%; padding:0;" > <mat-icon aria-hidden="false" aria-label="Example home icon">https</mat-icon></span>
+    </div>
+   </div>
+   
+     <div class="row"  style="background-color: #b5dffd;">
+ 
+    <div class="col-3">
+   <span style="display:flex; justify-content:flex-end; width:100%; padding:10px;" ><strong> Headers</strong></span> 
+    </div>
+    <div class="col-9"  style="padding-top: 4px;">
+     
+    </div>
+    <hr style="width:100%;text-align:left;margin-left:0">
+    <div class="col-3">
+   <span style="display:flex; justify-content:flex-end; width:100%; "> <strong>passToken</strong></span> 
+    </div>
+    <div class="col-2"  style="padding-top: 4px;">
+    </div><div  class="col-7" >
+    </div>
+    <div class="col-3">
+ 
+    </div>
+    <div class="col-2"  style="padding-top: 4px;">
+     
+     </div><div  class="col-7" >
+    </div>
+       
+  </div>
+    <div class="row" [formGroup]="multiGetAllForm"  *ngFor="let data of multidatasource| keyvalue"  style="background-color: #b5dffd;">
+   <div class="col-3">
+   <span style="display:flex; justify-content:flex-end; width:100%; padding:10px;" > {{data.value}}</span> 
+    </div>
+    <div class="col-2"  style="padding-top: 4px;">
+     <label for="username">UserName</label></div><div  class="col-7" ><input  formControlName="user:{{data.value}}" type="text" class="form-control"   placeholder="Enter {{data.value}} User Name">
+    </div>
+    <div class="col-3">
+     
+    </div>
+       <div class="col-2"  style="padding-top: 4px;">
+     <label for="password">Password</label>
+     </div><div  class="col-7" ><input formControlName ="pass:{{data.value}}" type="password" class="form-control"   placeholder="Enter {{data.value}} Password">
+    </div>
+     
+   
+   </div>
+   <div  class="row" style="background-color: #b5dffd;">
+    <div class="col-12"  style="padding-top: 4px;">
+     <span class="invalid-feedback">
+                   * Your Database Username and Password never Stored .
+                     
+                </span> </div>
+   </div>
+  <div class="row"  style="background-color:  #b5dffd">
+    <div class="col-3">
+   <span style="display:flex; justify-content:flex-end; width:100%; padding:10px;" ><strong> Parameters</strong></span> 
+    </div>
+    <div class="col-9"  style="padding-top: 4px;">
+    <span style="display:flex; justify-content:flex-end; width:100%; padding:0;" >   <button  id="multigetAltry" mat-raised-button color="accent"  (click)="tryClick('multigetAltry')"  >try it out</button></span>
+    
+    </div>
+    <hr style="width:100%;text-align:left;margin-left:0">
+  </div>
+ 
+   <div class="row" style="background-color:  #b5dffd">
+    <div class="col-3">
+   <span ><strong>  Name</strong></span> 
+    </div>
+    <div class="col-9">
+    <span > <strong> Description</strong>
+    </span>
+    
+    </div>
+    <hr style="width:100%;text-align:left;margin-left:0">
+  </div>
+  
+ <!--    <div class="row" style="background-color:  #b5dffd">
+    <div class="col-3">
+   <span >   id </span>
+   <span class="invalid-feedback">
+                   * required 
+                     
+                </span> 
+    </div>
+    <div class="col-9">
+    <p style="text-align: start;"> Id to retrive {{this.local_data.service}}, string representation of integer</p>
+  
+    
+    </div>
+   
+  </div> -->
+  <div class="row" style="background-color:  #b5dffd">
+    <div class="col-3">
+   
+    </div>
+    <div class="col-9">
+     <!--  <div  class="mb-3">
+    
+  <input type="number"  class="form-control" formControlName="getAllsingleid" id="getAllsingleid"      placeholder="id"  
+     name="getAllsingleid">
+    <div *ngIf="h['getAllsingleid'].invalid && (h['getAllsingleid'].dirty ||h['getAllsingleid'].touched)"
+    class="invalid-feedback">
+  <div *ngIf="h['getAllsingleid'].errors">
+    Id  Must Valid One.
+  </div>
+  
+</div>
+     </div> -->
+     
+    
+    </div >
+       
+    <div class="container" [formGroup]="getAllmultiForm"  *ngFor="let data of inputMap| keyvalue" >
+     <div class="row"    style="background-color:  #b5dffd">
+    <div class="col-3"  style="text-align: start;">
+    <label for="{{data.value}}">{{data.value}}</label>
+    </div>
+    <div class="col-9">
+     <input type="text" class="form-control" id="{{data.value}}"  formControlName="{{data.value}}"   placeholder="Enter {{data.value}}">
+      <div *ngIf=" i[data.value].errors" class="invalid-feedback">
+                    <div *ngIf="i[data.value].errors['required']">{{data.value}} is required</div>
+                     
+                </div>
+    </div>
+    </div></div> 
+   
+  </div>
+  <div class="row" style="background-color:  #b5dffd">
+   <div class="col-12">
+    <button style="width: 100%; display:{{multigetAllsingleexecutebuttondis}};"  [disabled]="!getAllmultiForm.valid"    (click) ="  calApi('MULTI_GETALL',this.local_data.service,'getOne',this.local_data.dsname)" id="multigetsingleBut"  class="btn btn-primary mb-3">Execute {{this.local_data.service}} GET Api Call</button>
+  </div>
+   <div class="col-12" *ngIf="multigetAllisLoading" 
+   style="display: flex; justify-content: center; align-items: center; ">
+  <mat-progress-spinner 
+    color="primary" 
+    mode="indeterminate">
+  </mat-progress-spinner>
+</div>
+  </div>
+  
+  
+   
+   <div *ngIf="multigetAllResLoading"  class="row" style="
+    background-color: #333;
+    color: white;
+    /* vertical-align: middle; */
+    text-align: start;
+    border-radius: 8px;
+    /* padding: 10px; */
+">
+  
+   <div class="col-3" style="
+    padding-top: 8px;
+"> <label>Request  URL:</label></div><div style="
+    padding-top: 8px;
+" class="col-9">  {{multigetAlldisurl}}</div>
+      <div class="col-12" style="
+    padding-top: 8px;
+"> <label>Server Response</label></div>
+
+  <div class="col-3" style="
+    padding-top: 8px;
+"> <label>Code</label></div>
+
+  
+  <div class="col-9" style="
+    padding-top: 8px;
+"> <label>Response Body</label></div>
+<div  class="col-3" style="
+    padding-top: 8px;
+">
+{{multigetAllcode}}
+</div>
+<div  class="col-9" style="padding-top: 8px;overflow: hidden;white-space: break-spaces;text-overflow: ellipsis;display: inline-block;">
+{{multigetAllbody}}
+</div>
+  </div>
+  
+  <div class="row" style="background-color:  #b5dffd">
+    <div class="col-3">
+   <span style="display:flex; justify-content:flex-end; width:100%; padding:10px;" ><strong> Responses</strong></span> 
+    </div>
+    <div class="col-9">
+    <span style="display:flex; justify-content:flex-end; width:100%; padding:10px;" >   
+Response content type : application/json</span>
+    
+    </div>
+    <hr style="width:100%;text-align:left;margin-left:0">
+  </div>
+  <div class="row" style="background-color:  #b5dffd">
+    <div class="col-3">
+   <span ><strong>  Code</strong></span> 
+    </div>
+    <div class="col-9">
+    <span > <strong> Description</strong>
+    </span>
+    
+    </div>
+   <hr style="width:100%;text-align:left;margin-left:0">
+  </div>
+  
+   <div class="row" style="background-color:  #b5dffd">
+    <div class="col-3">
+   200
+    </div>
+    <div class="col-9">
+      <div class="mb-3">
+   
+  <p style="text-align: start;"> The Requested call for  {{this.local_data.service}} was successfully retrive  </p>
+     </div>
+     
+    
+    </div>
+   
+  </div>
+  
+  <div class="row" style="background-color:  #b5dffd">
+    <div class="col-3">
+   404
+    </div>
+    <div class="col-9">
+      <div class="mb-3">
+   
+   <p style="text-align: start;">  The Requested call for  {{this.local_data.service}} was not found  </p>
+     </div>
+     
+    
+    </div>
+   
+  </div>
+  <div class="row" style="background-color:  #b5dffd">
+    <div class="col-3">
+   500
+    </div>
+    <div class="col-9">
+      <div class="mb-3">
+   
+   <p style="text-align: start;">  Internal server error  </p>
+     </div>
+     
+    
+    </div>
+   
+  </div>
+   <div class="row" style="background-color:  #b5dffd">
+    <div class="col-3">
+   400
+    </div>
+    <div class="col-9">
+      <div class="mb-3">
+   
+   <p style="text-align: start;">  Bad Request contains validation Error  </p>
+     </div>
+     
+    
+    </div>
+   
+  </div>
+   
+  </div>
+  
+
+    </ng-template>
+  </ngb-tab>
+   <ngb-tab title="Delete">
+    <ng-template ngbTabContent>
+    <div class="container" Style="height:650px; background-color: #f7b2b2;  overflow-y: scroll;">
+    <div class="row" style="background-color: #ff5050;text-align: start;border-radius: 8px;padding-bottom: 8px;padding-top: 10px;">
+  <div class="col-2" >DELETE</div>
+    <div style="    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+     " class="col-9" title="{{multideleteurl}}">
+     {{multideleteurl}}
+    </div>
+    <div  class="col-1">
+    <span style="display:flex; justify-content:flex-end; width:100%; padding:0;" > <mat-icon aria-hidden="false" aria-label="Example home icon">https</mat-icon></span>
+    </div>
+   </div>
+   
+     <div class="row"  style="background-color: #f7b2b2;">
+ 
+    <div class="col-3">
+   <span style="display:flex; justify-content:flex-end; width:100%; padding:10px;" ><strong> Headers</strong></span> 
+    </div>
+    <div class="col-9"  style="padding-top: 4px;">
+     
+    </div>
+    <hr style="width:100%;text-align:left;margin-left:0">
+    <div class="col-3">
+   <span style="display:flex; justify-content:flex-end; width:100%; "> <strong>passToken</strong></span> 
+    </div>
+    <div class="col-2"  style="padding-top: 4px;">
+    </div><div  class="col-7" >
+    </div>
+    <div class="col-3">
+ 
+    </div>
+    <div class="col-2"  style="padding-top: 4px;">
+    
+     </div><div  class="col-7" >
+    </div>
+   
+  </div>
+      <div class="row" [formGroup]="multiDeleteForm"  *ngFor="let data of multidatasource| keyvalue"  style="background-color:  #f7b2b2;">
+   <div class="col-3">
+   <span style="display:flex; justify-content:flex-end; width:100%; padding:10px;" > {{data.value}}</span> 
+    </div>
+    <div class="col-2"  style="padding-top: 4px;">
+     <label for="username">UserName</label></div><div  class="col-7" ><input  formControlName="user:{{data.value}}" type="text" class="form-control"   placeholder="Enter {{data.value}} User Name">
+    </div>
+    <div class="col-3">
+     
+    </div>
+       <div class="col-2"  style="padding-top: 4px;">
+     <label for="password">Password</label>
+     </div><div  class="col-7" ><input formControlName ="pass:{{data.value}}" type="password" class="form-control"    placeholder="Enter {{data.value}} Password">
+    </div>
+     
+   
+   </div>
+   <div  class="row" style="background-color:  #f7b2b2;">
+    <div class="col-12"  style="padding-top: 4px;">
+     <span class="invalid-feedback">
+                   * Your Database Username and Password never Stored .
+                     
+                </span> </div>
+   </div>
+   
+   <div class="row"  style="background-color:  #f7b2b2">
+    <div class="col-3">
+   <span style="display:flex; justify-content:flex-end; width:100%; padding:10px;" ><strong> Parameters</strong></span> 
+    </div>
+    <div class="col-9"  style="padding-top: 4px;">
+    <span style="display:flex; justify-content:flex-end; width:100%; padding:0;" >   <button  id="multideltry" mat-raised-button color="accent"  (click)="tryClick('multideltry')"  >try it out</button></span>
+    
+    </div>
+    <hr style="width:100%;text-align:left;margin-left:0">
+  </div>
+ 
+   <div class="row" style="background-color:  #f7b2b2">
+    <div class="col-3">
+   <span ><strong>  Name</strong></span> 
+    </div>
+    <div class="col-9">
+    <span > <strong> Description</strong>
+    </span>
+    
+    </div>
+    <hr style="width:100%;text-align:left;margin-left:0">
+  </div>
+  
+    <div class="row" style="background-color:  #f7b2b2">
+    <div class="col-3">
+   <span >   id </span>
+   <span class="invalid-feedback">
+                   * required 
+                     
+                </span> 
+    </div>
+    <div class="col-9">
+    <p style="text-align: start;"> Id to delete {{this.local_data.service}}, string representation of integer</p>
+  
+    
+    </div>
+   
+  </div>
+  <div class="row" style="background-color:  #f7b2b2">
+    <div class="col-3">
+   
+    </div>
+    <div class="col-9">
+      <div [formGroup]="delMultisingleForm" class="mb-3">
+   
+  <input type="number"  class="form-control" formControlName="delsingleid" id="delsingleid"      placeholder="id"  required maxlength="30" minlength="1" number
+     name="getsingleid">
+    <div *ngIf="k['delsingleid'].invalid && (k['delsingleid'].dirty ||k['delsingleid'].touched)"
+    class="invalid-feedback">
+  <div *ngIf="k['delsingleid'].errors">
+    Id  Must Valid One.
+  </div>
+  
+</div>
+     </div>
+     
+    
+    </div>
+   
+  </div>
+  <div class="row" style="background-color:  #f7b2b2">
+   <div class="col-12">
+    <button style="width: 100%; display:{{multidelsingleexecutebuttondis}};"  [disabled]="!delMultisingleForm.valid"    (click) ="  calApi('MULTI_DELETE',this.local_data.service,'getOne',this.local_data.dsname)"     class="btn btn-primary mb-3">Execute {{this.local_data.service}} DELETE Api Call</button>
+  </div>
+   <div class="col-12" *ngIf="multideleteisLoading" 
+   style="display: flex; justify-content: center; align-items: center; ">
+  <mat-progress-spinner 
+    color="primary" 
+    mode="indeterminate">
+  </mat-progress-spinner>
+</div>
+  </div>
+  
+  
+   
+   <div *ngIf="multideleteResLoading"  class="row" style="
+    background-color: #333;
+    color: white;
+    /* vertical-align: middle; */
+    text-align: start;
+    border-radius: 8px;
+    /* padding: 10px; */
+">
+  
+   <div class="col-3" style="
+    padding-top: 8px;
+"> <label>Request  URL:</label></div><div style="
+    padding-top: 8px;
+" class="col-9">  {{multideldisurl}}</div>
+      <div class="col-12" style="
+    padding-top: 8px;
+"> <label>Server Response</label></div>
+
+  <div class="col-3" style="
+    padding-top: 8px;
+"> <label>Code</label></div>
+
+  
+  <div class="col-9" style="
+    padding-top: 8px;
+"> <label>Response Body</label></div>
+<div  class="col-3" style="
+    padding-top: 8px;
+">
+{{multideletecode}}
+</div>
+<div  class="col-9" style="padding-top: 8px;overflow: hidden;white-space: break-spaces;text-overflow: ellipsis;display: inline-block;">
+{{multideletebody}}
+</div>
+  </div>
+  
+  <div class="row" style="background-color:  #f7b2b2">
+    <div class="col-3">
+   <span style="display:flex; justify-content:flex-end; width:100%; padding:10px;" ><strong> Responses</strong></span> 
+    </div>
+    <div class="col-9">
+    <span style="display:flex; justify-content:flex-end; width:100%; padding:10px;" >   
+Response content type : application/json</span>
+    
+    </div>
+    <hr style="width:100%;text-align:left;margin-left:0">
+  </div>
+  <div class="row" style="background-color:  #f7b2b2">
+    <div class="col-3">
+   <span ><strong>  Code</strong></span> 
+    </div>
+    <div class="col-9">
+    <span > <strong> Description</strong>
+    </span>
+    
+    </div>
+   <hr style="width:100%;text-align:left;margin-left:0">
+  </div>
+  
+   <div class="row" style="background-color:  #f7b2b2">
+    <div class="col-3">
+   200
+    </div>
+    <div class="col-9">
+      <div class="mb-3">
+   
+  <p style="text-align: start;"> The Requested call for  {{this.local_data.service}} was successfully retrive  </p>
+     </div>
+     
+    
+    </div>
+   
+  </div>
+  
+  <div class="row" style="background-color:  #f7b2b2">
+    <div class="col-3">
+   404
+    </div>
+    <div class="col-9">
+      <div class="mb-3">
+   
+   <p style="text-align: start;">  The Requested call for  {{this.local_data.service}} was not found  </p>
+     </div>
+     
+    
+    </div>
+   
+  </div>
+  <div class="row" style="background-color: #f7b2b2">
+    <div class="col-3">
+   500
+    </div>
+    <div class="col-9">
+      <div class="mb-3">
+   
+   <p style="text-align: start;">  Internal server error  </p>
+     </div>
+     
+    
+    </div>
+   
+  </div>
+   <div class="row" style="background-color:  #f7b2b2">
+    <div class="col-3">
+   400
+    </div>
+    <div class="col-9">
+      <div class="mb-3">
+   
+   <p style="text-align: start;">  Bad Request contains validation Error  </p>
+     </div>
+     
+    
+    </div>
+   
+  </div>
+   
+  </div>
+   
+    </ng-template>
+  </ngb-tab>
+</ngb-tabset>
+
+
    <div  class="header text-center"  >
   <button mat-button (click)="doAction()">Ok</button>&nbsp;
   <button mat-button (click)="closeDialog()" mat-flat-button color="warn">Cancel</button>

@@ -6,6 +6,7 @@ public class MultiService implements Comparator<MultiService> {
 
 	int id;
 	String serviceName;
+	String dataSourceKey;
 	ServiceType serviceType;
 	int priproty;
 	String relationwithParam;
@@ -42,6 +43,12 @@ public class MultiService implements Comparator<MultiService> {
 	@Override
 	public int compare(MultiService o1, MultiService o2) {
 		return o1.getPriproty()-o2.getPriproty();
+	}
+	public String getDataSourceKey() {
+		return dataSourceKey;
+	}
+	public void setDataSourceKey(String dataSourceKey) {
+		this.dataSourceKey = dataSourceKey;
 	}
 	 
 	

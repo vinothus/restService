@@ -34,6 +34,7 @@ import com.vin.processor.UpperLowerParamProcessor;
 import com.vin.processor.VinRestProcessor;
 import com.vin.rest.dynamic.MultiService;
 import com.vin.rest.dynamic.ServiceType;
+import com.vin.rest.exception.DatabaseAuthException;
 import com.vin.rest.repository.EmployeeRepositaryImpl;
 import com.vin.validatior.ClassValidator;
 import com.vin.validatior.EmailMustContainFirst;
@@ -168,7 +169,7 @@ public class BasicUnitTest {
 	}
 	
 	@Test
-	public void testTotalPreProcess() throws JsonParseException, JsonMappingException, IOException
+	public void testTotalPreProcess() throws DatabaseAuthException, Exception
 	{
 		Map<String, Object>  data = null;
 		initStudent();
@@ -213,7 +214,7 @@ public class BasicUnitTest {
 
 	}
 	@Test
-	public void testTotalPostProcess() throws JsonParseException, JsonMappingException, IOException
+	public void testTotalPostProcess() throws DatabaseAuthException, Exception
 	{
 		Map<String, Object>  data = null;
 		initStudent();
@@ -258,12 +259,14 @@ public class BasicUnitTest {
 		teardown();
 
 	}
-	public void initStudent()
+	public void initStudent() throws DatabaseAuthException, Exception
 	{
 		env=new MockEnvironment().withProperty("sys.spring.datasource.driver-class-name", "com.mysql.jdbc.Driver")
 				.withProperty("sys.spring.datasource.url", "jdbc:mysql://152.67.161.222/cameldb")
 				.withProperty("sys.spring.datasource.username", "root")
-				.withProperty("sys.spring.datasource.password", "vinaug@2020");
+				.withProperty("sys.spring.datasource.password", "vinaug@2020")
+				.withProperty("multiservicename", "multiserviceTest")
+				.withProperty("multiserviceBussinessName", "multiserviceTest");
 		 
 		 ReflectionTestUtils.setField(empRep, "env",env);
 		//when(env.getProperty("sys.spring.datasource.driver-class-name") ).thenReturn("");

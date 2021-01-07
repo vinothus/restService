@@ -13,6 +13,11 @@
           <h4 class="card-title">Rest Service Attribute Configuration Grid</h4>
         </div>
         <div class="card-body">
+         <div class="addNew-button-container" style="display:flex; justify-content:flex-end; width:100%; padding:0;">
+        <button mat-mini-fab color="accent" (click)="addRec()" aria-label="Example icon button with a plus one icon">
+          <mat-icon>add</mat-icon>
+        </button>
+      </div>
            <mat-form-field>
   <mat-label>Filter</mat-label>
   <input matInput (keyup)="applyFilter($event)" placeholder="Ex. ium" #input>

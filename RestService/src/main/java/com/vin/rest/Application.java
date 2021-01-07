@@ -83,8 +83,8 @@ public class Application {
 
 			handlerMapping.registerMapping(
 					RequestMappingInfo.paths("/" + appName + "/{"+apiKey+"}/{"+dataStoreKey+"}/{service}/"+getAllData).methods(RequestMethod.GET)
-							.produces(MediaType.APPLICATION_JSON_VALUE).build(),
-					userController, userController.getClass().getMethod(GenericController.getMethodName("getDatum"), String.class, Map.class, String.class, String.class, String.class));
+							.produces(MediaType.APPLICATION_JSON_VALUE,MediaType.APPLICATION_XML_VALUE).build(),
+					userController, userController.getClass().getMethod(GenericController.getMethodName("getDatum"), String.class, Map.class, String.class, String.class, String.class,Map.class));
 			handlerMapping.registerMapping(
 					RequestMappingInfo.paths("/" + appName + "/{"+apiKey+"}/{"+dataStoreKey+"}/{service}/"+getOnedata+"/{uniquekey}")
 							.methods(RequestMethod.GET).produces(MediaType.APPLICATION_JSON_VALUE).build(),
