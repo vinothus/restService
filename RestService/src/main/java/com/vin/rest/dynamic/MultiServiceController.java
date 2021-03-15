@@ -49,12 +49,12 @@ public class MultiServiceController {
 	@MethodName(MethodName="addData")
 	@CrossOrigin
 	public ResponseEntity<List<Map<String,Map<String, Object>>>> addData(@PathVariable("service") String service,
-			@RequestBody String params,@PathVariable("apiKey") String apiKey,@PathVariable("dataStoreKey") String dataStoreKey,@RequestHeader(value="passToken", defaultValue = "none") String passToken) throws Exception   {
+			@RequestBody String params,@PathVariable("apiKey") String apiKey,@PathVariable("dataStoreKey") String dataStoreKey,@RequestHeader(value="passToken", defaultValue = "none") String passToken,@RequestHeader Map<String,String> headers) throws Exception   {
 		ObjectMapper mapper = new ObjectMapper();
-
-		List<Map<String,Map<String, String>>> jsonMap = new ArrayList<>();
+		List<Map<String,Map<String, String>>> inputList=new ArrayList<>();
+		Map<String,Map<String, Object>> jsonMap = new HashMap<>();
 		try {
-			jsonMap = mapper.readValue(params, new TypeReference<List<Map<String,Map<String, Object>>>>() {
+			jsonMap = mapper.readValue(params, new TypeReference<Map<String,Map<String, Object>>>() {
 			});
 		} catch (IOException e) {
 			Set<ConstraintViolation<HashMap>> constraintViolation =new HashSet<ConstraintViolation<HashMap>>();
@@ -63,15 +63,47 @@ public class MultiServiceController {
 			constraintViolation.add(cv);
 			throw new ConstraintViolationException(constraintViolation);
 		} // converts JSON to Map
-		for (Iterator<Map<String, Map<String, String>>> iterator = jsonMap.iterator(); iterator.hasNext();) {
-			Map<String, Map<String, String>> map = iterator.next();
+		
+		
+		Map<String,Map<String, String>> map=new HashMap<>();
+		
+		for (Entry<String, Map<String, Object>> entry : jsonMap.entrySet()) {
+		String serviceName=	entry.getKey();
+		Map<String, Object> mapofData=entry.getValue();
+		Map<String, String> mapofStrData=new HashMap<>();
+		for (Entry<String,Object> entryofData : mapofData.entrySet()) {
+		String attrbName=	entryofData.getKey();
+		Object value=	entryofData.getValue();
+			try {
+				Map<String, String> innerMap=(Map<String, String>) value; 
+				map.put(attrbName, innerMap);
+			}catch(Exception e) {
+				try {
+					List<Map<String, String>> tmpList = (List<Map<String, String>>) value;
+					for (Iterator iterator = tmpList.iterator(); iterator.hasNext();) {
+						Map<String, String> maps = (Map<String, String>) iterator.next();
+						Map<String, Map<String, String>> tmpMaps=new HashMap<>();
+						tmpMaps.put(attrbName, maps);
+						inputList.add(tmpMaps);
+					}
+				}catch(Exception ex) {
+					mapofStrData.put(attrbName, String.valueOf(value))	;
+				}
+				
+			}
+		}
+		map.put(serviceName, mapofStrData);
+		}
 			
-			for (Entry<String, Map<String, String>>entry : map.entrySet()) {
+			for (Entry<String, Map<String, String>> entry : map.entrySet()) {
 				String serviceName=entry.getKey();
 				 
 				Map<String, String> serviceMap=entry.getValue();
 				serviceMap.put("ServiceKey", service);
 				serviceMap.put(Constant.REST_METHOD, Constant.POST_METHOD);
+				serviceMap.put(Constant.VIN_SERVICE, serviceName);
+				serviceMap.put(Constant.VIN_SERVICE_DS, dataStoreKey);
+				serviceMap.put(Constant.VIN_SERVICE_APIKEY, apiKey);
 			Set<ConstraintViolation<HashMap>> constraintViolation = validator
 					.validate(new VinMap<String, String>(serviceMap));
 			if (!constraintViolation.isEmpty()) {
@@ -79,20 +111,20 @@ public class MultiServiceController {
 			}
 			
 			}
-		}
-		
-		return new ResponseEntity<List<Map<String,Map<String, Object>>>>(multiserviceImpl.insertMultiData(service, jsonMap, apiKey,  dataStoreKey,passToken),
+			
+			inputList.add(map);	
+		return new ResponseEntity<List<Map<String,Map<String, Object>>>>(multiserviceImpl.insertMultiData(service, inputList, apiKey,  dataStoreKey,passToken),
 				new HttpHeaders(), HttpStatus.OK);
 	}
 	@MethodName(MethodName="updateData")
 	@CrossOrigin
 	public ResponseEntity<List<Map<String,Map<String, Object>>>> updateData(@PathVariable("service") String service,
-			@RequestBody String params,@PathVariable("apiKey") String apiKey,@PathVariable("dataStoreKey") String dataStoreKey,@RequestHeader(value="passToken", defaultValue = "none") String passToken) throws Exception   {
+			@RequestBody String params,@PathVariable("apiKey") String apiKey,@PathVariable("dataStoreKey") String dataStoreKey,@RequestHeader(value="passToken", defaultValue = "none") String passToken,@RequestHeader Map<String,String> headers) throws Exception   {
 		ObjectMapper mapper = new ObjectMapper();
-
-		List<Map<String,Map<String, String>>> jsonMap = new ArrayList<>();
+		List<Map<String,Map<String, String>>> inputList=new ArrayList<>();
+		Map<String,Map<String, Object>> jsonMap = new HashMap<>();
 		try {
-			jsonMap = mapper.readValue(params, new TypeReference<List<Map<String,Map<String, Object>>>>() {
+			jsonMap = mapper.readValue(params, new TypeReference<Map<String,Map<String, Object>>>() {
 			});
 		} catch (IOException e) {
 			Set<ConstraintViolation<HashMap>> constraintViolation =new HashSet<ConstraintViolation<HashMap>>();
@@ -100,16 +132,48 @@ public class MultiServiceController {
 			ConstraintViolation<HashMap> cv=new ServiceConstraintViolation<String,String>("Not a Valid JSON "," / "+service); 
 			constraintViolation.add(cv);
 			throw new ConstraintViolationException(constraintViolation);
-		}// converts JSON to Map
-		for (Iterator<Map<String, Map<String, String>>> iterator = jsonMap.iterator(); iterator.hasNext();) {
-			Map<String, Map<String, String>> map = iterator.next();
+		} // converts JSON to Map
+		
+		
+		Map<String,Map<String, String>> map=new HashMap<>();
+		
+		for (Entry<String, Map<String, Object>> entry : jsonMap.entrySet()) {
+		String serviceName=	entry.getKey();
+		Map<String, Object> mapofData=entry.getValue();
+		Map<String, String> mapofStrData=new HashMap<>();
+		for (Entry<String,Object> entryofData : mapofData.entrySet()) {
+		String attrbName=	entryofData.getKey();
+		Object value=	entryofData.getValue();
+			try {
+				Map<String, String> innerMap=(Map<String, String>) value; 
+				map.put(attrbName, innerMap);
+			}catch(Exception e) {
+				try {
+					List<Map<String, String>> tmpList = (List<Map<String, String>>) value;
+					for (Iterator iterator = tmpList.iterator(); iterator.hasNext();) {
+						Map<String, String> maps = (Map<String, String>) iterator.next();
+						Map<String, Map<String, String>> tmpMaps=new HashMap<>();
+						tmpMaps.put(attrbName, maps);
+						inputList.add(tmpMaps);
+					}
+				}catch(Exception ex) {
+					mapofStrData.put(attrbName, String.valueOf(value))	;
+				}
+				
+			}
+		}
+		map.put(serviceName, mapofStrData);
+		}
 			
-			for (Entry<String, Map<String, String>>entry : map.entrySet()) {
+			for (Entry<String, Map<String, String>> entry : map.entrySet()) {
 				String serviceName=entry.getKey();
 				 
 				Map<String, String> serviceMap=entry.getValue();
 				serviceMap.put("ServiceKey", service);
 				serviceMap.put(Constant.REST_METHOD, Constant.PUT_METHOD);
+				serviceMap.put(Constant.VIN_SERVICE, serviceName);
+				serviceMap.put(Constant.VIN_SERVICE_DS, dataStoreKey);
+				serviceMap.put(Constant.VIN_SERVICE_APIKEY, apiKey);
 			Set<ConstraintViolation<HashMap>> constraintViolation = validator
 					.validate(new VinMap<String, String>(serviceMap));
 			if (!constraintViolation.isEmpty()) {
@@ -117,15 +181,16 @@ public class MultiServiceController {
 			}
 			
 			}
-		}
+		
+			inputList.add(map);	
 		 
-		return new ResponseEntity<List<Map<String,Map<String, Object>>>>(multiserviceImpl.updateMultiData(service, jsonMap, apiKey,  dataStoreKey,passToken),
+		return new ResponseEntity<List<Map<String,Map<String, Object>>>>(multiserviceImpl.updateMultiData(service, inputList, apiKey,  dataStoreKey,passToken),
 				new HttpHeaders(), HttpStatus.OK);
 	}
 	@MethodName(MethodName="getDatum")
 	@CrossOrigin
 	public ResponseEntity<List<Map<String,List<Map<String, Object>>>>> getDatum(@PathVariable("service") String service,
-			@RequestParam   Map<String, String> params,@PathVariable("apiKey") String apiKey,@PathVariable("dataStoreKey") String dataStoreKey,@RequestHeader(value="passToken", defaultValue = "none") String passToken) throws DatabaseAuthException, Exception    {
+			@RequestParam   Map<String, String> params,@PathVariable("apiKey") String apiKey,@PathVariable("dataStoreKey") String dataStoreKey,@RequestHeader(value="passToken", defaultValue = "none") String passToken,@RequestHeader Map<String,String> headers) throws DatabaseAuthException, Exception    {
 		ObjectMapper mapper = new ObjectMapper();
 		//List<Map<String,Map<String, String>>> jsonMap = new ArrayList<>();
 		params.put("ServiceKey", service);
@@ -145,16 +210,16 @@ public class MultiServiceController {
 	}
 	@MethodName(MethodName="getData")
 	@CrossOrigin
-	public ResponseEntity<List<Map<String,Map<String, Object>>>> getData(@PathVariable("service") String service,
-			@PathVariable("uniquekey") @Valid @NotNull String uniquekey,@PathVariable("apiKey") String apiKey,@PathVariable("dataStoreKey") String dataStoreKey,@RequestHeader(value="passToken", defaultValue = "none") String passToken) throws Exception {
+	public ResponseEntity<List<Object>> getData(@PathVariable("service") String service,
+			@PathVariable("uniquekey") @Valid @NotNull String uniquekey,@PathVariable("apiKey") String apiKey,@PathVariable("dataStoreKey") String dataStoreKey,@RequestHeader(value="passToken", defaultValue = "none") String passToken,@RequestHeader Map<String,String> headers) throws Exception {
 
-		return new ResponseEntity<List<Map<String,Map<String, Object>>>>(multiserviceImpl.getMultiData(service, uniquekey, apiKey,  dataStoreKey,passToken),
+		return new ResponseEntity<List<Object>>(multiserviceImpl.getMultiData(service, uniquekey, apiKey,  dataStoreKey,passToken),
 				new HttpHeaders(), HttpStatus.OK);
 	}
 	@MethodName(MethodName="delData")
 	@CrossOrigin
 	public ResponseEntity<List<Map<String,Map<String, Object>>>> delData(@PathVariable("service") String service,
-			@PathVariable("uniquekey") @Valid @NotNull String uniquekey,@PathVariable("apiKey") String apiKey,@PathVariable("dataStoreKey") String dataStoreKey,@RequestHeader(value="passToken", defaultValue = "none") String passToken) throws Exception {
+			@PathVariable("uniquekey") @Valid @NotNull String uniquekey,@PathVariable("apiKey") String apiKey,@PathVariable("dataStoreKey") String dataStoreKey,@RequestHeader(value="passToken", defaultValue = "none") String passToken,@RequestHeader Map<String,String> headers) throws Exception {
 		return new ResponseEntity<List<Map<String,Map<String, Object>>>>(multiserviceImpl.deleteMultiData(service, uniquekey, apiKey,  dataStoreKey,passToken),
 				new HttpHeaders(), HttpStatus.OK);
 	}	

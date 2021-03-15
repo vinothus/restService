@@ -297,7 +297,7 @@ export class MultiserviceComponent implements OnInit, AfterViewInit {
 		let dsmap = new Map<string, string>();
 		
 		this.authService.getAllMultidata(this.props.get(AppConstants.systemUser), this.props.get(AppConstants.systemDatasource), this.props.get(AppConstants.multiService), this.props.get(AppConstants.multiservicename), this.props.get(AppConstants.getMultipleAllData), map).subscribe((res) => {
-			 dsidInCondition='1:';
+			 dsidInCondition='';
 		  for (var j = 0; j <res[0]['service'].length; j++) {
 			dsidInCondition=dsidInCondition+res[0]['service'][j]['dsid']+':';
 		}

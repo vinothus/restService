@@ -123,11 +123,12 @@ public class MultiServiceImpl {
 		
 		for (Iterator<Map<String, Map<String, String>>> iterator1 = jsonMap.iterator(); iterator1.hasNext();) {
 			Map<String, Map<String, String>> multiServiceData = (Map<String, Map<String, String>>) iterator1.next();
-			Map<String, Map<String, Object>> returnMap=new HashMap<>();
+			
 		
 		for (Iterator<MultiService> iterator = serviceComponent.iterator(); iterator.hasNext();) {
 			MultiService multiService = (MultiService) iterator.next();
 			if(multiService.getServiceType().equals(ServiceType.SINGLE)) {
+				String parentService=null;
 				String singleService=multiService.getServiceName();
 				Map<String, String> data=multiServiceData.get(singleService);
 				String relation=multiService.getRelationwithParam();
@@ -159,6 +160,9 @@ public class MultiServiceImpl {
 										if(strMap.get(serviceParam[0])!=null&&strMap.get(serviceParam[0]).get(serviceParam[1])!=null)
 										{
 											data.put(serviceParam[2], strMap.get(serviceParam[0]).get(serviceParam[1]));
+											if (parentService == null) {
+												parentService = serviceParam[0];
+											}
 										}
 									}
 							
@@ -186,6 +190,9 @@ public class MultiServiceImpl {
 								if(strMap.get(serviceParam[0])!=null&&strMap.get(serviceParam[0]).get(serviceParam[1])!=null)
 								{
 									data.put(serviceParam[2], strMap.get(serviceParam[0]).get(serviceParam[1]));
+									if (parentService == null) {
+										parentService = serviceParam[0];
+									}
 								}
 							}
 					
@@ -201,9 +208,31 @@ public class MultiServiceImpl {
 						String params = mapper.writeValueAsString(dataReturn);
 						datareturn = mapper.readValue(params, new TypeReference<Map<String, String>>() {
 						});
+						
+						Map<String, Map<String, Object>> returnMap=new HashMap<>();
 						//data.putAll(datareturn);
+						Map<String, Map<String, Object>> parentMap=null;
+						for (Iterator iterator2 = returnData.iterator(); iterator2.hasNext();) {
+							Map<String, Map<String, Object>> map = (Map<String, Map<String, Object>>) iterator2.next();
+							for (Entry<String, Map<String, Object>> entry : map.entrySet())  
+							 {
+								if(entry.getKey().equals(parentService)) {
+									// parent serviec already in 
+									parentMap=map;
+								}
+							 }
+							
+						}
+						if (parentMap != null && parentService != null) {
+
+							returnData.remove(parentMap);
+							//parentMap.put(singleService, dataReturn);
+							parentMap.get(parentService).put(singleService, dataReturn);
+							returnData.add(parentMap);
+						}else {
 						returnMap.put(singleService, dataReturn);
 						returnData.add(returnMap);
+						}
 					}
 				
 			} else if(multiService.getServiceType().equals(ServiceType.MULTIPLE))
@@ -233,11 +262,12 @@ public class MultiServiceImpl {
 		
 		for (Iterator<Map<String, Map<String, String>>> iterator1 = jsonMap.iterator(); iterator1.hasNext();) {
 			Map<String, Map<String, String>> multiServiceData = (Map<String, Map<String, String>>) iterator1.next();
-			Map<String, Map<String, Object>> returnMap=new HashMap<>();
+		
 		
 		for (Iterator<MultiService> iterator = serviceComponent.iterator(); iterator.hasNext();) {
 			MultiService multiService = (MultiService) iterator.next();
 			if(multiService.getServiceType().equals(ServiceType.SINGLE)) {
+				String parentService=null;
 				String singleService=multiService.getServiceName();
 				Map<String, String> data=multiServiceData.get(singleService);
 				String relation=multiService.getRelationwithParam();
@@ -268,6 +298,9 @@ public class MultiServiceImpl {
 										if(strMap.get(serviceParam[0])!=null&&strMap.get(serviceParam[0]).get(serviceParam[1])!=null)
 										{
 											data.put(serviceParam[2], strMap.get(serviceParam[0]).get(serviceParam[1]));
+											if (parentService == null) {
+												parentService = serviceParam[0];
+											}
 										}
 									}
 							
@@ -296,6 +329,9 @@ public class MultiServiceImpl {
 								if(strMap.get(serviceParam[0])!=null&&strMap.get(serviceParam[0]).get(serviceParam[1])!=null)
 								{
 									data.put(serviceParam[2], strMap.get(serviceParam[0]).get(serviceParam[1]));
+									if (parentService == null) {
+										parentService = serviceParam[0];
+									}
 								}
 							}
 					
@@ -309,9 +345,30 @@ public class MultiServiceImpl {
 				String params = mapper.writeValueAsString(dataReturn);
 				datareturn = mapper.readValue(params, new TypeReference<Map<String, String>>() {
 				});
+				Map<String, Map<String, Object>> returnMap=new HashMap<>();
 				//data.putAll(datareturn);
+				Map<String, Map<String, Object>> parentMap=null;
+				for (Iterator iterator2 = returnData.iterator(); iterator2.hasNext();) {
+					Map<String, Map<String, Object>> map = (Map<String, Map<String, Object>>) iterator2.next();
+					for (Entry<String, Map<String, Object>> entry : map.entrySet())  
+					 {
+						if(entry.getKey().equals(parentService)) {
+							// parent serviec already in 
+							parentMap=map;
+						}
+					 }
+					
+				}
+				if (parentMap != null && parentService != null) {
+
+					returnData.remove(parentMap);
+					parentMap.get(parentService).put(singleService, dataReturn);
+					//parentMap.put(singleService, dataReturn);
+					returnData.add(parentMap);
+				}else {
 				returnMap.put(singleService, dataReturn);
 				returnData.add(returnMap);
+				}
 				}
 				
 			} else if(multiService.getServiceType().equals(ServiceType.MULTIPLE))
@@ -693,10 +750,10 @@ public class MultiServiceImpl {
 		return returnData;
 	}
 
-	public List<Map<String, Map<String, Object>>> getMultiData(String service, @Valid @NotNull String uniquekey,String apiKey, String dataStoreKey,String passToken) throws Exception  {
+	public List<Object> getMultiData(String service, @Valid @NotNull String uniquekey,String apiKey, String dataStoreKey,String passToken) throws Exception  {
 		List<MultiService> serviceComponent= MultiServiceMap.get(service);
 		ObjectMapper mapper = new ObjectMapper();
-		List<Map<String, Map<String, Object>>> returnData=new ArrayList<>();
+		List<Object> returnData=new ArrayList<>();
 		if(serviceComponent==null)
 		{
 			arrangeMultServiceGD(service,apiKey,dataStoreKey,passToken);
@@ -706,7 +763,7 @@ public class MultiServiceImpl {
 			 }
 		}else {serviceComponent.sort(new MultiService());}
 		for (Iterator<MultiService> iterator = serviceComponent.iterator(); iterator.hasNext();) {
-			Map<String, Map<String, Object>> retObj=new HashMap<>();
+			Map<String, Object> retObj=new HashMap<>();
 			MultiService multiService = (MultiService) iterator.next();
 			if(multiService.getServiceType().equals(ServiceType.SINGLE)) {
 				String singleService=multiService.getServiceName();
@@ -825,9 +882,14 @@ public class MultiServiceImpl {
 								String key = (String) datareturn.get(serviceParam[0]).get(serviceParam[1]);
 								if (key != null) {
 									uniquekey = key;
-									Map<String, Object> dataReturnTmp = singleServiceImpl.getData(singleService,
-											uniquekey, apiKey,  multiService.getDataSourceKey(),passToken);
-									retObj.put(singleService, dataReturnTmp);
+									//Map<String, Object> dataReturnTmp = singleServiceImpl.getData(singleService,
+									//		uniquekey, apiKey,  multiService.getDataSourceKey(),passToken);
+									Map<String,String> params=new HashMap<>();
+									params.put(serviceParam[2], uniquekey);
+								List<Map<String,Object>> dataChild=	singleServiceImpl.getDataForParams(singleService,
+											params, apiKey,  multiService.getDataSourceKey(),passToken);
+									
+									retObj.put(singleService,dataChild );
 									//returnData.add(retObj);
 									Map<String, Map<String, Object>> parentObj = null;
 									for (Iterator iterator2 = returnData.iterator(); iterator2.hasNext();) {

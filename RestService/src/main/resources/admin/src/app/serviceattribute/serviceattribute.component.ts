@@ -11,7 +11,7 @@ import { AppConstants } from "../app-constants";
 @Component({
   selector: 'app-serviceattribute',
   templateUrl: './serviceattribute.component.html',
-  styleUrls: ['./serviceattribute.component.css']
+  styleUrls: ['./serviceattribute.component.css'] 
 })
 export class ServiceattributeComponent implements OnInit , AfterViewInit {
 	//displayedColumns: string[];// = ['position', 'name', 'weight', 'symbol'];
@@ -153,12 +153,14 @@ reinit()
 		console.log(this.displayedColumns);
         this.displayedColumns = [];
 		let keys=[];
+		
+		this.displayedColumns.push('action');
 		for (var key in this.data[0]) {
 
 			this.displayedColumns.push(key);
 			keys.push(key);
 		}
-		this.displayedColumns.push('action');
+		
 		this.dataSource = new MatTableDataSource<any>(this.data );
 		 
 		

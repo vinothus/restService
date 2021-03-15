@@ -97,8 +97,8 @@ public class GenericController {
 	}
 	@MethodName(MethodName="addData")
 	@CrossOrigin
-	public ResponseEntity<Map<String, Object>> addData(@PathVariable("service") String service,
-			@RequestBody String params,@PathVariable("apiKey") String apiKey,@PathVariable("dataStoreKey") String dataStoreKey,@RequestHeader(value="passToken", defaultValue = "none") String passToken) throws Exception {
+	public ResponseEntity<Object> addData(@PathVariable("service") String service,
+			@RequestBody String params,@PathVariable("apiKey") String apiKey,@PathVariable("dataStoreKey") String dataStoreKey,@RequestHeader(value="passToken", defaultValue = "none") String passToken,@RequestHeader Map<String,String> headers) throws Exception {
 		ObjectMapper mapper = new ObjectMapper();
 
 		Map<String, String> jsonMap = new HashMap<>();
@@ -109,8 +109,31 @@ public class GenericController {
 		jsonMap=doPreProcess(service, apiKey, dataStoreKey, jsonMap);
 		Map<String, Object> returnData=employeeRepositaryImpl.insertData(service, jsonMap, apiKey, dataStoreKey,passToken);
 		returnData=doPostProcess(service, apiKey, dataStoreKey, returnData);
-		return new ResponseEntity<Map<String, Object>>(returnData,
-				new HttpHeaders(), HttpStatus.OK);
+		String requestAccept = headers.get("accept");
+		ObjectNode  rootNode=mapper.createObjectNode();
+		ObjectNode childListNodes = mapper.createObjectNode();
+		for (Entry<String, Object> entry : returnData.entrySet())  
+		   {
+			   String value = null;
+			   if( entry.getValue()!=null)
+			   {
+				   value=  String.valueOf( entry.getValue());
+			   }
+			   childListNodes.put(entry.getKey(),value);  
+		   }
+		if (requestAccept.contains("json")) {
+			rootNode.set(service, childListNodes);
+			return new ResponseEntity<Object>(rootNode, new HttpHeaders(), HttpStatus.OK);
+		} else if (requestAccept.contains("xml")) {
+			XmlMapper xmlMapper = new XmlMapper();
+			rootNode.set(service.replace(" ","_"), childListNodes);
+			String jsonStr = xmlMapper.enable(SerializationFeature.WRAP_ROOT_VALUE).writer().withRootName(service.replace(" ","_") + "s")
+					.writeValueAsString(rootNode);
+			return new ResponseEntity<Object>(jsonStr, new HttpHeaders(), HttpStatus.OK);
+		}
+		rootNode.set(service, childListNodes);
+	 return new ResponseEntity<Object>(rootNode,
+				new HttpHeaders(), HttpStatus.OK); 
 	}
 
 	private void doValidation(String service, String apiKey, String dataStoreKey, Map<String, String> jsonMap) {
@@ -188,8 +211,8 @@ public class GenericController {
 	
 	@MethodName(MethodName="updateData")
 	@CrossOrigin
-	public ResponseEntity<Map<String, Object>> updateData(@PathVariable("service") String service,
-			@RequestBody String params,@PathVariable("apiKey") String apiKey,@PathVariable("dataStoreKey") String dataStoreKey,@RequestHeader(value="passToken", defaultValue = "none") String passToken) throws Exception {
+	public ResponseEntity<Object> updateData(@PathVariable("service") String service,
+			@RequestBody String params,@PathVariable("apiKey") String apiKey,@PathVariable("dataStoreKey") String dataStoreKey,@RequestHeader(value="passToken", defaultValue = "none") String passToken,@RequestHeader Map<String,String> headers) throws Exception {
 		ObjectMapper mapper = new ObjectMapper();
 
 		Map<String, String> jsonMap = new HashMap<>();
@@ -201,7 +224,30 @@ public class GenericController {
 		jsonMap=doPreProcess(service, apiKey, dataStoreKey, jsonMap);
 		Map<String, Object> returnData=employeeRepositaryImpl.updateData(service, jsonMap, apiKey, dataStoreKey,passToken);
 		returnData=doPostProcess(service, apiKey, dataStoreKey, returnData);
-		return new ResponseEntity<Map<String, Object>>(returnData,
+		String requestAccept = headers.get("accept");
+		ObjectNode  rootNode=mapper.createObjectNode();
+		ObjectNode childListNodes = mapper.createObjectNode();
+		for (Entry<String, Object> entry : returnData.entrySet())  
+		   {
+			   String value = null;
+			   if( entry.getValue()!=null)
+			   {
+				   value=  String.valueOf( entry.getValue());
+			   }
+			   childListNodes.put(entry.getKey(),value);  
+		   }
+		if (requestAccept.contains("json")) {
+			rootNode.set(service, childListNodes);
+			return new ResponseEntity<Object>(rootNode, new HttpHeaders(), HttpStatus.OK);
+		} else if (requestAccept.contains("xml")) {
+			XmlMapper xmlMapper = new XmlMapper();
+			rootNode.set(service.replace(" ","_"), childListNodes);
+			String jsonStr = xmlMapper.enable(SerializationFeature.WRAP_ROOT_VALUE).writer().withRootName(service.replace(" ","_") + "s")
+					.writeValueAsString(rootNode);
+			return new ResponseEntity<Object>(jsonStr, new HttpHeaders(), HttpStatus.OK);
+		}
+		rootNode.set(service, childListNodes);
+	 return new ResponseEntity<Object>(rootNode,
 				new HttpHeaders(), HttpStatus.OK);
 	}
 	
@@ -258,8 +304,8 @@ public class GenericController {
 	}
 	@MethodName(MethodName="getData")
 	@CrossOrigin
-	public ResponseEntity<Map<String, Object>> getData(@PathVariable("service") String service,
-			@PathVariable("uniquekey") @Valid @NotNull String uniquekey,@PathVariable("apiKey") String apiKey,@PathVariable("dataStoreKey") String dataStoreKey,@RequestHeader(value="passToken", defaultValue = "none") String passToken) throws Exception {
+	public ResponseEntity< Object> getData(@PathVariable("service") String service,
+			@PathVariable("uniquekey") @Valid @NotNull String uniquekey,@PathVariable("apiKey") String apiKey,@PathVariable("dataStoreKey") String dataStoreKey,@RequestHeader(value="passToken", defaultValue = "none") String passToken,@RequestHeader Map<String,String> headers) throws Exception {
 		Map<String, String> params = new HashMap<>();
 		params.put(Constant.UNIQUEKEY, uniquekey);
 		params.put(Constant.REST_METHOD, Constant.GET_METHOD);
@@ -267,21 +313,69 @@ public class GenericController {
 		params=doPreProcess(service, apiKey, dataStoreKey, params);	 
 		Map<String, Object> returnData=employeeRepositaryImpl.getData(service, uniquekey, apiKey, dataStoreKey,passToken);
 		returnData=doPostProcess(service, apiKey, dataStoreKey, returnData);
-		return new ResponseEntity<Map<String, Object>>(returnData,
+		ObjectMapper mapper = new ObjectMapper();
+		String requestAccept = headers.get("accept");
+		ObjectNode  rootNode=mapper.createObjectNode();
+		ObjectNode childListNodes = mapper.createObjectNode();
+		for (Entry<String, Object> entry : returnData.entrySet())  
+		   {
+			   String value = null;
+			   if( entry.getValue()!=null)
+			   {
+				   value=  String.valueOf( entry.getValue());
+			   }
+			   childListNodes.put(entry.getKey(),value);  
+		   }
+		if (requestAccept.contains("json")) {
+			rootNode.set(service, childListNodes);
+			return new ResponseEntity<Object>(rootNode, new HttpHeaders(), HttpStatus.OK);
+		} else if (requestAccept.contains("xml")) {
+			XmlMapper xmlMapper = new XmlMapper();
+			rootNode.set(service.replace(" ","_"), childListNodes);
+			String jsonStr = xmlMapper.enable(SerializationFeature.WRAP_ROOT_VALUE).writer().withRootName(service.replace(" ","_") + "s")
+					.writeValueAsString(rootNode);
+			return new ResponseEntity<Object>(jsonStr, new HttpHeaders(), HttpStatus.OK);
+		}
+		rootNode.set(service, childListNodes);
+	 return new ResponseEntity<Object>(rootNode,
 				new HttpHeaders(), HttpStatus.OK);
 	}
 @MethodName(MethodName="delData")
 @CrossOrigin
-	public ResponseEntity<Map<String, Object>> delData(@PathVariable("service") String service,
-			@PathVariable("uniquekey") @Valid @NotNull String uniquekey,@PathVariable("apiKey") String apiKey,@PathVariable("dataStoreKey") String dataStoreKey,@RequestHeader(value="passToken", defaultValue = "none") String passToken) throws Exception {
+	public ResponseEntity< Object> delData(@PathVariable("service") String service,
+			@PathVariable("uniquekey") @Valid @NotNull String uniquekey,@PathVariable("apiKey") String apiKey,@PathVariable("dataStoreKey") String dataStoreKey,@RequestHeader(value="passToken", defaultValue = "none") String passToken,@RequestHeader Map<String,String> headers) throws Exception {
 	Map<String, String> params = new HashMap<>();	
 	params.put(Constant.UNIQUEKEY, uniquekey);
 	params.put(Constant.REST_METHOD, Constant.DELETE_METHOD);
 	doValidation(service, apiKey, dataStoreKey, params);
 	Map<String, Object> returnData=employeeRepositaryImpl.deleteData(service, uniquekey, apiKey, dataStoreKey,passToken);
 	returnData=doPostProcess(service, apiKey, dataStoreKey, returnData);
-	return new ResponseEntity<Map<String, Object>>(returnData,
-				new HttpHeaders(), HttpStatus.OK);
+	ObjectMapper mapper = new ObjectMapper();
+	String requestAccept = headers.get("accept");
+	ObjectNode  rootNode=mapper.createObjectNode();
+	ObjectNode childListNodes = mapper.createObjectNode();
+	for (Entry<String, Object> entry : returnData.entrySet())  
+	   {
+		   String value = null;
+		   if( entry.getValue()!=null)
+		   {
+			   value=  String.valueOf( entry.getValue());
+		   }
+		   childListNodes.put(entry.getKey(),value);  
+	   }
+	if (requestAccept.contains("json")) {
+		rootNode.set(service, childListNodes);
+		return new ResponseEntity<Object>(rootNode, new HttpHeaders(), HttpStatus.OK);
+	} else if (requestAccept.contains("xml")) {
+		XmlMapper xmlMapper = new XmlMapper();
+		rootNode.set(service.replace(" ","_"), childListNodes);
+		String jsonStr = xmlMapper.enable(SerializationFeature.WRAP_ROOT_VALUE).writer().withRootName(service.replace(" ","_") + "s")
+				.writeValueAsString(rootNode);
+		return new ResponseEntity<Object>(jsonStr, new HttpHeaders(), HttpStatus.OK);
+	}
+	rootNode.set(service, childListNodes);
+ return new ResponseEntity<Object>(rootNode,
+			new HttpHeaders(), HttpStatus.OK);
 	}
 
 	public ResponseEntity<String>	refreshMataData(@PathVariable("service") String service,@PathVariable("apiKey") String apiKey,@PathVariable("dataStoreKey") String dataStoreKey) throws RecordNotFoundException
@@ -320,7 +414,7 @@ public class GenericController {
 		}
 		@MethodName(MethodName="initGC")
 		@CrossOrigin
-		public ResponseEntity<String>	initGC(@PathVariable("apiKey") String apiKey,@PathVariable("dataStoreKey") String dataStoreKey)
+		public ResponseEntity<String>	initGC(@PathVariable("apiKey") String apiKey,@PathVariable("dataStoreKey") String dataStoreKey,@RequestHeader Map<String,String> headers)
 		{
 			employeeRepositaryImpl.init();
 			return new ResponseEntity<String>("initilized",new HttpHeaders(), HttpStatus.OK)	;

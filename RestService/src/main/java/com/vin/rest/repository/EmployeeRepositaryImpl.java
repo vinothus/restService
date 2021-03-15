@@ -845,6 +845,7 @@ public class EmployeeRepositaryImpl {
 		DbColumn userPhoneNo;
 		DbColumn userEmail;
 		DbColumn userAddress;
+		DbColumn activatedFlag;
 
 		// DataStore
 
@@ -937,6 +938,7 @@ public class EmployeeRepositaryImpl {
 		userPhoneNo = tableUser.addColumn("phoneno", Types.VARCHAR, 100);
 		userEmail = tableUser.addColumn("email", Types.VARCHAR, 100);
 		userAddress = tableUser.addColumn("address", Types.VARCHAR, 100);
+		activatedFlag = tableUser.addColumn("activatedflag", Types.VARCHAR, 100);
 
 		// DataStore
 		dataStoreId = tableDataStore.addColumn("id", Types.INTEGER, 10);
@@ -954,6 +956,7 @@ public class EmployeeRepositaryImpl {
 		subscriptionUserId = tableSubscription.addColumn("uid", Types.INTEGER, 10);
 		subscriptionApiKey = tableSubscription.addColumn("apikey", Types.VARCHAR, 100);
 		subscriptionExpireDate = tableSubscription.addColumn("date", Types.DATE, 10);
+		
 		subscriptionType = tableSubscription.addColumn("type", Types.VARCHAR, 100);
 
 		// ServiceConsumption
@@ -1827,9 +1830,9 @@ public class EmployeeRepositaryImpl {
 		if(tableName.equalsIgnoreCase("SERVICE_ATTR"))
 		{
 			ParamsValidator.clearCache();
-			System.out.println("select S.id as id, S.tableName as tableName, S.serviceName as serviceName, SA.colName as colName, SA.attrName as attrName  from Service S Service_Attr SA, jdbcTemplate where S.id=  '"+params.get("serviceid")+"'  and S.id=SA.service_id ");
+			System.out.println("select S.id as id, S.tableName as tableName, S.serviceName as serviceName, SA.colName as colName, SA.attrName as attrName  from Service S Service_Attr SA, jdbcTemplate where S.id=  '"+String.valueOf(params.get("serviceid"))+"'  and S.id=SA.service_id ");
 			List<Map<String, Object>> serviceDatum = setUserDataStore(apiKey, "system","none")
-					.queryForList("select S.id as id, S.tableName as tableName, S.serviceName as serviceName, SA.colName as colName, SA.attrName as attrName  from Service S, Service_Attr SA  where S.id=  '"+params.get("serviceid")+"'  and S.id=SA.service_id ");
+					.queryForList("select S.id as id, S.tableName as tableName, S.serviceName as serviceName, SA.colName as colName, SA.attrName as attrName  from Service S, Service_Attr SA  where S.id=  '"+String.valueOf(params.get("serviceid"))+"'  and S.id=SA.service_id ");
 			
 			String serviceName=(String)serviceDatum.get(0).get("serviceName");
 			Map<String, String> AttrbMap = null; 

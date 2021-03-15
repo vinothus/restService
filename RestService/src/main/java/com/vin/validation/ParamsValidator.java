@@ -210,7 +210,7 @@ if(service_id!=null) {
 			if(attrValMethods.toUpperCase().contains(method.toUpperCase())||attrValMethods.equalsIgnoreCase("ALL")) {
 			valid=mandatoryValidation(attrname, value,attrismandatory);
 			}
-			paramAttrbvalue=value.get(attrname);
+			paramAttrbvalue=String.valueOf(value.get(attrname));
 			if(!valid) {
 				staticbool=false;
 				valid=true;

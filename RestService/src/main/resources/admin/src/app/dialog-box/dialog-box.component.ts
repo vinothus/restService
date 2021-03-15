@@ -322,7 +322,7 @@ var getAllmultiFormInput={};
 			getAllmultiFormInput[this.inputMap[key]]=['', Validators.nullValidator];
 		}
      this.getAllmultiForm=this.formBuilder.group(getAllmultiFormInput);
-    this.getAllmultiForm = this.formBuilder.group(this.inputMap);
+    //this.getAllmultiForm = this.formBuilder.group(this.inputMap);
 		}
 		
 	}

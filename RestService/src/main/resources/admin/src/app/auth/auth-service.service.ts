@@ -94,7 +94,7 @@ export class AuthService {
 	getUserProfile(id): Observable<any> {
 		return this.httpClient.get(this.API_URL + `/${this.APP_NAME}/system/system/user/getdataForKey/${id}`, { headers: this.headers }).pipe(
 			map((res: Response) => {
-				return res || {}
+				return res['user'] || {}
 			}),
 			catchError(this.handleError)
 		)

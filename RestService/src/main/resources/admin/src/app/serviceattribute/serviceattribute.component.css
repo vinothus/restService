@@ -35,5 +35,31 @@ table {
   width: 120px;
 }
 
-
-
+table {
+  table-layout: fixed; 
+  width: 100%;
+  *margin-left: -100px; /*ie7*/
+}
+td, th {
+  vertical-align: middle;
+   
+  padding: 9px ! important;
+  width: 100px;
+}
+/* .action {
+  position: absolute;
+  *position: relative; ie7
+  margin-left: -100px;
+   vertical-align: middle;
+   
+ 
+} */
+.mat-elevation-z8 {
+  position: relative;
+}
+.table-responsive {
+  overflow-x: scroll;
+  overflow-y: visible;
+  width: 100%; 
+  margin-left: 0px;
+}
