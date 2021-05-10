@@ -23,7 +23,7 @@
   <input matInput (keyup)="applyFilter($event)" placeholder="Ex. ium" #input>
 </mat-form-field>
 <div class="mat-elevation-z8">
-  <table mat-table [dataSource]="dataSource" matSort>
+  <table  class="table-responsive"  mat-table [dataSource]="dataSource" matSort>
 
     <!-- Position Column -->
     <ng-container matColumnDef="id">
@@ -64,7 +64,8 @@
     <ng-container matColumnDef="action">
       <th mat-header-cell *matHeaderCellDef> Action </th>
       <td mat-cell *matCellDef="let element" class="action-link"> 
-        <mat-icon  (click)="openDialog('Add',element)" aria-hidden="false" aria-label="Example home icon">add_box</mat-icon>   <mat-icon  (click)="openDialog('Update',element)" aria-hidden="false" aria-label="Example home icon">edit</mat-icon>    <mat-icon  (click)="openDialog('Delete',element)" aria-hidden="false" aria-label="Example home icon">close</mat-icon>  
+      <div style="width: 100px;">   <mat-icon  (click)="openDialog('Add',element)" aria-hidden="false" aria-label="Example home icon">add_box</mat-icon>   <mat-icon  (click)="openDialog('Update',element)" aria-hidden="false" aria-label="Example home icon">edit</mat-icon>    <mat-icon  (click)="openDialog('Delete',element)" aria-hidden="false" aria-label="Example home icon">close</mat-icon>
+      </div>  
       </td>
     </ng-container>
 

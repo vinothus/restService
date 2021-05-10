@@ -24,7 +24,7 @@
 </mat-form-field>
 <div class="mat-elevation-z8 m-12">
 <div class="table-responsive">
-   <table mat-table [dataSource]="dataSource" matSort>
+   <table  class="table-responsive" mat-table [dataSource]="dataSource" matSort>
   <ng-container matColumnDef="{{column}}" *ngFor="let column of displayedColumns">
   <ng-container  *ngIf="column!='action'; else elseHTemplate ">
     <th   mat-header-cell *matHeaderCellDef mat-sort-header> {{column | titlecase }} </th>
@@ -38,9 +38,9 @@
     {{element[column]}} 
     </ng-container>
     <ng-template #elseTemplate>
-  
+   <div style="width: 100px;">
         <mat-icon  (click)="openDialog('Add',element)" aria-hidden="false" aria-label="Example home icon">add_box</mat-icon>   <mat-icon  (click)="openDialog('Update',element)" aria-hidden="false" aria-label="Example home icon">edit</mat-icon>    <mat-icon  (click)="openDialog('Delete',element)" aria-hidden="false" aria-label="Example home icon">close</mat-icon>  
-      
+      </div>
     </ng-template>
  
     </td>
