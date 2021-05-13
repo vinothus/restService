@@ -16,7 +16,7 @@ import { AppConstants } from "../app-constants";
 export class ServiceattributeComponent implements OnInit , AfterViewInit {
 	//displayedColumns: string[];// = ['position', 'name', 'weight', 'symbol'];
 	displayedColumns: string[];//=["id","uid","serviceid","attrid","name","classname","paramclassname"];
-	componentName: string='Multi Service Configuration';
+	componentName: string='Attribute Configuration';
 	model = {};
 	dataSource: any;
 	data: any;
@@ -154,13 +154,13 @@ reinit()
         this.displayedColumns = [];
 		let keys=[];
 		
-		this.displayedColumns.push('action');
+		
 		for (var key in this.data[0]) {
 
 			this.displayedColumns.push(key);
 			keys.push(key);
 		}
-		
+		this.displayedColumns.push('action');
 		this.dataSource = new MatTableDataSource<any>(this.data );
 		 
 		

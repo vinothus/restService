@@ -23,10 +23,10 @@
   <input matInput (keyup)="applyFilter($event)" placeholder="Ex. ium" #input>
 </mat-form-field>
 <div class="mat-elevation-z8">
-  <table  class="table-responsive" mat-table [dataSource]="dataSource" matSort>
+  <table style="overflow: auto;" class="table-responsive" mat-table [dataSource]="dataSource" matSort>
 
     <!-- Position Column -->
-    <ng-container matColumnDef="id">
+    <ng-container matColumnDef="id" sticky>
       <th mat-header-cell *matHeaderCellDef mat-sort-header> ID </th>
       <td mat-cell *matCellDef="let element"> {{element.id}} </td>
     </ng-container>
@@ -54,7 +54,7 @@
       <td mat-cell *matCellDef="let element"> {{element.driver}} </td>
     </ng-container>
     
-  <ng-container matColumnDef="action">
+  <ng-container matColumnDef="action" stickyEnd>
       <th mat-header-cell *matHeaderCellDef> Action </th>
       <td mat-cell *matCellDef="let element" class="action-link"> 
     <div style="width: 100px;">     <mat-icon  (click)="openDialog('Add',element)" aria-hidden="false" aria-label="Example home icon">add_box</mat-icon>   <mat-icon  (click)="openDialog('Update',element)" aria-hidden="false" aria-label="Example home icon">edit</mat-icon>    <mat-icon  (click)="openDialog('Delete',element)" aria-hidden="false" aria-label="Example home icon">close</mat-icon> <mat-icon  (click)="openValidateDialog('Validate',element)" aria-hidden="false" aria-label="Example home icon">check_circle</mat-icon>

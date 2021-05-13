@@ -25,27 +25,38 @@
   <input matInput (keyup)="applyFilter($event)" placeholder="Ex. ium" #input>
 </mat-form-field>
 <div class="mat-elevation-z8">
-  <table  class="table-responsive"  mat-table [dataSource]="dataSource" matSort>
-  <ng-container matColumnDef="{{column}}" *ngFor="let column of displayedColumns">
+  <table style="overflow: auto;"  class="table-responsive"  mat-table [dataSource]="dataSource" matSort>
+ <ng-container  *ngFor="let column of displayedColumns">
+     <ng-container matColumnDef="{{column}}"  *ngIf="column!='action' && column==primaryKey " sticky>
     <th  mat-header-cell *matHeaderCellDef mat-sort-header> {{column | titlecase }} </th>
     <td mat-cell *matCellDef="let element"> 
-   <ng-container  *ngIf="column!='action'; else elseTemplate ">
+   <ng-container  *ngIf="column!='action';">
     {{element[column]}} 
     </ng-container>
-    <ng-template #elseTemplate>
-  <div style="width: 100px;">
-        <mat-icon  (click)="openDialog('Add',element)" aria-hidden="false" aria-label="Example home icon">add_box</mat-icon>   <mat-icon  (click)="openDialog('Update',element)" aria-hidden="false" aria-label="Example home icon">edit</mat-icon>    <mat-icon  (click)="openDialog('Delete',element)" aria-hidden="false" aria-label="Example home icon">close</mat-icon>    <mat-icon  (click)="openValidateDialog('Validate',element)" aria-hidden="false" aria-label="Example home icon">check_circle</mat-icon> 
-     </div>
-    </ng-template>
- 
+      </td>
+  </ng-container>
+  <ng-container matColumnDef="{{column}}"  *ngIf="column!='action'  && column!=primaryKey ">
+    <th  mat-header-cell *matHeaderCellDef mat-sort-header> {{column | titlecase }} </th>
+    <td mat-cell *matCellDef="let element"> 
+   <ng-container  *ngIf="column!='action';">
+    {{element[column]}} 
+    </ng-container>
+      </td>
+  </ng-container>
+   <ng-container matColumnDef="{{column}}"  *ngIf="column=='action' " stickyEnd>
+    <th  mat-header-cell *matHeaderCellDef mat-sort-header> {{column | titlecase }} </th>
+    <td mat-cell *matCellDef="let element"> 
+     <div style="width: 100px;">
+        <mat-icon  (click)="openDialog('Add',element)" aria-hidden="false" aria-label="Example home icon">add_box</mat-icon>   <mat-icon  (click)="openDialog('Update',element)" aria-hidden="false" aria-label="Example home icon">edit</mat-icon>    <mat-icon  (click)="openDialog('Delete',element)" aria-hidden="false" aria-label="Example home icon">close</mat-icon> <mat-icon  (click)="openValidateDialog('Validate',element)" aria-hidden="false" aria-label="Example home icon">check_circle</mat-icon> 
+   </div>  
     </td>
+   </ng-container>
   </ng-container>
 
 
 
     <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
     <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-     
     
   </table>
 <div *ngIf="isLoading" 

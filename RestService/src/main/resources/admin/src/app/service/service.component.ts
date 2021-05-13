@@ -16,7 +16,7 @@ import { AppConstants } from "../app-constants";
 export class ServiceComponent implements OnInit, AfterViewInit {
 	//displayedColumns: string[];// = ['position', 'name', 'weight', 'symbol'];
 	displayedColumns: string[];//=["id","uid","serviceid","attrid","name","classname","paramclassname"];
-	componentName: string = 'Multi Service Configuration';
+	componentName: string = 'Service Configuration';
 	model = {};
 	dataSource: any;
 	data: any;
