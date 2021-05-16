@@ -745,6 +745,14 @@ public class EmployeeRepositaryImpl {
 				insertServiceTables("Service_Attr", "system", "system");
 				setServiceTableMap("Service_Attr", "system", "system");
 				setTableColumn("Service_Attr", "system", "system", "none");
+				// service consumption
+				insertServiceTables("Service_Consumption", "system", "system");
+				setServiceTableMap("Service_Consumption", "system", "system");
+				setTableColumn("Service_Consumption", "system", "system", "none");
+				// service Error 
+				insertServiceTables("Service_Error", "system", "system");
+				setServiceTableMap("Service_Error", "system", "system");
+				setTableColumn("Service_Error", "system", "system", "none");
 				
 			} catch (DatabaseAuthException e) {
 				// TODO Auto-generated catch block
@@ -766,6 +774,15 @@ public class EmployeeRepositaryImpl {
 				insertServiceTables("Service_Attr", "system", "system");
 				setServiceTableMap("Service_Attr", "system", "system");
 				setTableColumn("Service_Attr", "system", "system", "none");
+				// service consumption
+				insertServiceTables("Service_Consumption", "system", "system");
+				setServiceTableMap("Service_Consumption", "system", "system");
+				setTableColumn("Service_Consumption", "system", "system", "none");
+				// service Error 
+				insertServiceTables("Service_Error", "system", "system");
+				setServiceTableMap("Service_Error", "system", "system");
+				setTableColumn("Service_Error", "system", "system", "none");
+				
 			} catch (DatabaseAuthException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -817,6 +834,10 @@ public class EmployeeRepositaryImpl {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+	 }
+	 else if(tableName.getName().equalsIgnoreCase("Service_Consumption")) {
+	 }
+	 else if(tableName.getName().equalsIgnoreCase("Service_Error")) {
 	 }
 	}
 
@@ -870,6 +891,9 @@ public class EmployeeRepositaryImpl {
 		DbColumn ServiceConsumptionUrl;
 		DbColumn ServiceConsumptionType;
 		DbColumn ServiceConsumptionMethod;
+		DbColumn ServiceConsumptionDate;
+		DbColumn ServiceRemoteHost;
+		DbColumn ServiceExeDuration;
 
 		// ServiceError
 		DbColumn ServiceErrorid;
@@ -878,6 +902,10 @@ public class EmployeeRepositaryImpl {
 		DbColumn ServiceErrorType;
 		DbColumn ServiceErrorMethod;
 		DbColumn ServiceErrorMsg;
+		DbColumn ServiceErrorDate;
+		DbColumn ServiceRmhost;
+		DbColumn ServiceErrorDuration;
+		
         // VinValidation
 		
 		DbColumn VinValidationid;
@@ -966,6 +994,9 @@ public class EmployeeRepositaryImpl {
 		ServiceConsumptionUrl = tableServiceConsumption.addColumn("url", Types.VARCHAR, 100);
 		ServiceConsumptionType = tableServiceConsumption.addColumn("type", Types.VARCHAR, 100);
 		ServiceConsumptionMethod = tableServiceConsumption.addColumn("method", Types.VARCHAR, 100);
+		ServiceConsumptionDate = tableServiceConsumption.addColumn("date", Types.DATE, 10);
+		ServiceRemoteHost= tableServiceConsumption.addColumn("rmhost", Types.VARCHAR, 100);
+		ServiceExeDuration= tableServiceConsumption.addColumn("duration", Types.VARCHAR, 100);
 		// ServiceError
 
 		ServiceErrorid = tableServiceError.addColumn("id", Types.INTEGER, 10);
@@ -975,6 +1006,9 @@ public class EmployeeRepositaryImpl {
 		ServiceErrorType = tableServiceError.addColumn("type", Types.VARCHAR, 100);
 		ServiceErrorMethod = tableServiceError.addColumn("method", Types.VARCHAR, 100);
 		ServiceErrorMsg = tableServiceError.addColumn("errormsg", Types.VARCHAR, 100);
+		ServiceErrorDate = tableServiceError.addColumn("date", Types.VARCHAR, 100);
+		ServiceRmhost= tableServiceError.addColumn("rmhost", Types.VARCHAR, 100);
+		ServiceErrorDuration= tableServiceError.addColumn("duration", Types.VARCHAR, 100);
 
 		// VinValidation
 		
@@ -1187,7 +1221,8 @@ public class EmployeeRepositaryImpl {
 						updatedata=jdbcTemplate.update(insertQuery.toString());
 						}
 					} else {
-						updateData(service, params, apiKey,  dataStoreKey,passToken);
+						throw new org.springframework.dao.DuplicateKeyException("Duplicate Primary key Try Update");
+						//updateData(service, params, apiKey,  dataStoreKey,passToken);
 					}
 
 				} else {
@@ -1732,6 +1767,20 @@ public class EmployeeRepositaryImpl {
 						}
 					}
 
+				}
+				String serviceTablesStr="";
+				for (Iterator<DbTable> iterator = serviceTables.iterator(); iterator.hasNext();) {
+					 
+					serviceTablesStr=serviceTablesStr+":"+iterator.next().getName()+":";
+				}
+				String cacheTablesStr="";
+				for (Map.Entry<DbTable, List<DbColumn>> entry : tableColumnMapusr.entrySet()) {
+					cacheTablesStr=cacheTablesStr+":"+entry.getKey().getName()+":";
+				}
+				if (serviceTablesStr.contains((":" + tableName + ":"))) {
+					if (!cacheTablesStr.contains((":" + tableName + ":"))) {
+						createSysTable();
+					}
 				}
 				if (!serviceTabisPresent) {
 					createSysTable() ;

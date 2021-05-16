@@ -121,7 +121,11 @@ public class GenericController {
 			   }
 			   childListNodes.put(entry.getKey(),value);  
 		   }
-		if (requestAccept.contains("json")) {
+		if(requestAccept==null) {
+			rootNode.set(service, childListNodes);
+			return new ResponseEntity<Object>(rootNode, new HttpHeaders(), HttpStatus.OK);
+		}
+		else if (requestAccept.contains("json")) {
 			rootNode.set(service, childListNodes);
 			return new ResponseEntity<Object>(rootNode, new HttpHeaders(), HttpStatus.OK);
 		} else if (requestAccept.contains("xml")) {
@@ -236,6 +240,10 @@ public class GenericController {
 			   }
 			   childListNodes.put(entry.getKey(),value);  
 		   }
+		if(requestAccept==null) {
+			rootNode.set(service, childListNodes);
+			return new ResponseEntity<Object>(rootNode, new HttpHeaders(), HttpStatus.OK);
+		}
 		if (requestAccept.contains("json")) {
 			rootNode.set(service, childListNodes);
 			return new ResponseEntity<Object>(rootNode, new HttpHeaders(), HttpStatus.OK);
@@ -287,7 +295,12 @@ public class GenericController {
 	
 
 	String requestAccept = headers.get("accept");
-	if (requestAccept.contains("json")) {
+	if (requestAccept==null)
+	{
+		rootNode.putArray(service).addAll( childListNodes);
+	return new ResponseEntity<Object>(rootNode, new HttpHeaders(), HttpStatus.OK);
+	}
+	else if (requestAccept.contains("json")) {
 		rootNode.putArray(service).addAll( childListNodes);
 		return new ResponseEntity<Object>(rootNode, new HttpHeaders(), HttpStatus.OK);
 	} else if (requestAccept.contains("xml")) {
@@ -326,7 +339,11 @@ public class GenericController {
 			   }
 			   childListNodes.put(entry.getKey(),value);  
 		   }
-		if (requestAccept.contains("json")) {
+		if (requestAccept==null) {
+			rootNode.set(service, childListNodes);
+			return new ResponseEntity<Object>(rootNode, new HttpHeaders(), HttpStatus.OK);
+		}
+		else if (requestAccept.contains("json")) {
 			rootNode.set(service, childListNodes);
 			return new ResponseEntity<Object>(rootNode, new HttpHeaders(), HttpStatus.OK);
 		} else if (requestAccept.contains("xml")) {
@@ -363,7 +380,11 @@ public class GenericController {
 		   }
 		   childListNodes.put(entry.getKey(),value);  
 	   }
-	if (requestAccept.contains("json")) {
+	if (requestAccept==null) {
+	rootNode.set(service, childListNodes);
+	return new ResponseEntity<Object>(rootNode, new HttpHeaders(), HttpStatus.OK);
+	}
+	else if (requestAccept.contains("json")) {
 		rootNode.set(service, childListNodes);
 		return new ResponseEntity<Object>(rootNode, new HttpHeaders(), HttpStatus.OK);
 	} else if (requestAccept.contains("xml")) {
