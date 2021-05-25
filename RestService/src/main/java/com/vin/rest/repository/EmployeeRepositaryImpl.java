@@ -836,8 +836,31 @@ public class EmployeeRepositaryImpl {
 			}
 	 }
 	 else if(tableName.getName().equalsIgnoreCase("Service_Consumption")) {
+		 
+		 setUserDataStore(apiKey, "system","none").execute(" INSERT INTO  Service_Consumption (id) values(1) ");
+		 try {
+			insertServiceTables("Service_Consumption", "system", "system");
+			setServiceTableMap("Service_Consumption", "system", "system");
+			setTableColumn("Service_Consumption", "system", "system", "none");
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+			
 	 }
 	 else if(tableName.getName().equalsIgnoreCase("Service_Error")) {
+		 setUserDataStore(apiKey, "system","none").execute(" INSERT INTO   Service_Error (id) values(1) ");
+		 
+		 try {
+				insertServiceTables("Service_Error", "system", "system");
+				setServiceTableMap("Service_Error", "system", "system");
+				setTableColumn("Service_Error", "system", "system", "none");
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+				
+		 
 	 }
 	}
 
@@ -892,6 +915,7 @@ public class EmployeeRepositaryImpl {
 		DbColumn ServiceConsumptionType;
 		DbColumn ServiceConsumptionMethod;
 		DbColumn ServiceConsumptionDate;
+		DbColumn ServiceConsumptionTime;
 		DbColumn ServiceRemoteHost;
 		DbColumn ServiceExeDuration;
 
@@ -903,6 +927,7 @@ public class EmployeeRepositaryImpl {
 		DbColumn ServiceErrorMethod;
 		DbColumn ServiceErrorMsg;
 		DbColumn ServiceErrorDate;
+		DbColumn ServiceErrorTime;
 		DbColumn ServiceRmhost;
 		DbColumn ServiceErrorDuration;
 		
@@ -995,6 +1020,7 @@ public class EmployeeRepositaryImpl {
 		ServiceConsumptionType = tableServiceConsumption.addColumn("type", Types.VARCHAR, 100);
 		ServiceConsumptionMethod = tableServiceConsumption.addColumn("method", Types.VARCHAR, 100);
 		ServiceConsumptionDate = tableServiceConsumption.addColumn("date", Types.DATE, 10);
+		ServiceConsumptionTime = tableServiceConsumption.addColumn("time", Types.TIME, 10);
 		ServiceRemoteHost= tableServiceConsumption.addColumn("rmhost", Types.VARCHAR, 100);
 		ServiceExeDuration= tableServiceConsumption.addColumn("duration", Types.VARCHAR, 100);
 		// ServiceError
@@ -1006,7 +1032,8 @@ public class EmployeeRepositaryImpl {
 		ServiceErrorType = tableServiceError.addColumn("type", Types.VARCHAR, 100);
 		ServiceErrorMethod = tableServiceError.addColumn("method", Types.VARCHAR, 100);
 		ServiceErrorMsg = tableServiceError.addColumn("errormsg", Types.VARCHAR, 100);
-		ServiceErrorDate = tableServiceError.addColumn("date", Types.VARCHAR, 100);
+		ServiceErrorDate = tableServiceError.addColumn("date", Types.DATE, 100);
+		ServiceErrorTime = tableServiceError.addColumn("time", Types.TIME, 100);
 		ServiceRmhost= tableServiceError.addColumn("rmhost", Types.VARCHAR, 100);
 		ServiceErrorDuration= tableServiceError.addColumn("duration", Types.VARCHAR, 100);
 
@@ -2340,7 +2367,7 @@ public class EmployeeRepositaryImpl {
 				.queryForList("select usr.id as id ,usr.apikey as apikey from User usr , Service ser  where     usr.id=ser.uid and ser.id = ?" , new Object[] {id});
 		return	(String) serviceDatum.get(0).get("id");
 	}
-	private String getUidForapiKey(String apiKey) throws DatabaseAuthException
+	public String getUidForapiKey(String apiKey) throws DatabaseAuthException
 	{
 		if(UserApiMap.get(apiKey)!=null) {
 			return UserApiMap.get(apiKey);

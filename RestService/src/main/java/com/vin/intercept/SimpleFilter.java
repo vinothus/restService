@@ -5,6 +5,7 @@ import java.io.PrintWriter;
 import java.io.Writer;
 import java.lang.management.ManagementFactory;
 import java.lang.management.OperatingSystemMXBean;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
@@ -22,6 +23,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletResponseWrapper;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 
@@ -35,80 +37,61 @@ public class SimpleFilter implements Filter {
 	public static BlockingQueue<Map<String,String>> dbLogger= new ArrayBlockingQueue<Map<String,String>>(1024);
 	Runnable dbRunnable=new Runnable() {
 		 public void run() { 
-			 while(!dbLogger.isEmpty()) {
-				 OperatingSystemMXBean osbean=ManagementFactory.getOperatingSystemMXBean();
-				 Double load= osbean.getSystemLoadAverage();
-				 int Avalload= osbean.getAvailableProcessors();
-				 System.out.println("load:"+load);
-				 System.out.println("Avalload:"+Avalload);
-					if (load == -1) {
-						Map<String, String> mapFMQueue = null;
-						try {
-							mapFMQueue = dbLogger.take();
-							Map<String,String> copyMap=new Hashtable<String, String>();
-							copyMap.putAll(mapFMQueue);
-							if (mapFMQueue.get("status").equalsIgnoreCase("200")
-									|| mapFMQueue.get("status").equalsIgnoreCase("201")
-									|| mapFMQueue.get("status").equalsIgnoreCase("203")) {
-								employeeRepositaryImpl.insertData("service consumption", copyMap, "system", "system",
-										"none");
-							} else {
-								employeeRepositaryImpl.insertData("service error", copyMap, "system", "system", "none");
-							}
+			while (!dbLogger.isEmpty()) {
 
-						}catch(org.springframework.dao.DuplicateKeyException ex)
-						{
-							try {
-								if (mapFMQueue != null) {
-									Thread.sleep(1000);
-									dbLogger.put(mapFMQueue);
-								 
-								}
-								} catch (InterruptedException e1) {
-									// TODO Auto-generated catch block
-									e1.printStackTrace();
-								}
-							//ex.printStackTrace();
-						}catch (Exception e) {
-							if(  e.getMessage().equals("Duplicate Primary key Try Update")) {
-								try {
-								if (mapFMQueue != null) {
-									Thread.sleep(1000);
-									dbLogger.put(mapFMQueue);
-								 
-								}
-								} catch (InterruptedException e1) {
-									// TODO Auto-generated catch block
-									e1.printStackTrace();
-								}
-							}
-						//	e.printStackTrace();
-						}
+				Map<String, String> mapFMQueue = null;
+				try {
+					mapFMQueue = dbLogger.take();
+					String urlKey=mapFMQueue.get("urlkey");
+					if(!urlKey.equalsIgnoreCase("none")&&urlKey.length()>0) {
+					try{
+						String uid=	employeeRepositaryImpl.getUidForapiKey(urlKey);
+						mapFMQueue.put("uid", uid);
+					}catch(Exception e) {}
 					
-				 }else {
+					}
+					Map<String, String> copyMap = new Hashtable<String, String>();
+					try{copyMap.putAll(mapFMQueue);}catch(Exception e) {}
+					if (mapFMQueue.get("status").equalsIgnoreCase("200")
+							|| mapFMQueue.get("status").equalsIgnoreCase("201")
+							|| mapFMQueue.get("status").equalsIgnoreCase("203")) {
+						employeeRepositaryImpl.insertData("service consumption", copyMap, "system", "system", "none");
+					} else {
+						employeeRepositaryImpl.insertData("service error", copyMap, "system", "system", "none");
+					}
 
-						Map<String, String> mapFMQueue;
-						try {
-							mapFMQueue = dbLogger.take();
-							if (mapFMQueue.get("status").equalsIgnoreCase("200")
-									|| mapFMQueue.get("status").equalsIgnoreCase("201")
-									|| mapFMQueue.get("status").equalsIgnoreCase("203")) {
-								employeeRepositaryImpl.insertData("service consumption", mapFMQueue, "system", "system",
-										"none");
-							} else {
-								employeeRepositaryImpl.insertData("service error", mapFMQueue, "system", "system", "none");
-							}
+				} catch (org.springframework.dao.DuplicateKeyException ex) {
+					try {
+						if (mapFMQueue != null) {
+							Thread.sleep(1000);
+							dbLogger.put(mapFMQueue);
 
-						} catch (Exception e) {
-						 
-							e.printStackTrace();
 						}
-					
-				
-					 
-				 }
-				
-			 }
+					} catch (InterruptedException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+					// ex.printStackTrace();
+				} catch (Exception e) {
+				 
+					if(e.getMessage()!=null) {
+					if (e.getMessage().equals("Duplicate Primary key Try Update")) {
+						try {
+							if (mapFMQueue != null) {
+								Thread.sleep(1000);
+								dbLogger.put(mapFMQueue);
+
+							}
+						} catch (InterruptedException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}
+					}
+					}
+					 e.printStackTrace();
+				}
+
+			}
 		 
 		 }
 		 
@@ -119,6 +102,9 @@ public class SimpleFilter implements Filter {
 
 	@Autowired
 	EmployeeRepositaryImpl employeeRepositaryImpl;
+	
+	@Autowired
+	private Environment env;
 	
    @Override
    public void doFilter(ServletRequest request, ServletResponse response, FilterChain filterchain) 
@@ -144,18 +130,30 @@ public class SimpleFilter implements Filter {
       String rmAddress=request.getRemoteAddr();
       String takeDuration= Long.toString(duration);
       String reqUrl=  getCurrentUrlFromRequest(request);
+      String uidKey="";
+      URL url=new URL(reqUrl);
+      String path[]=url.getPath().split("/");
+      if(path.length>=3) {
+    	  uidKey=path[2];  
+      }
       String reqMethod= ((HttpServletRequest)request).getMethod();
       String date=new Date(new java.util.Date().getTime()).toString();
+      String time=new java.sql.Time(new java.util.Date().getTime()).toString();
       Map<String,String> successMap=new HashMap<String,String> ();
       Map<String,String> failureMap=new HashMap<String,String> ();
       String type =((HttpServletResponse)response).getContentType();
+		if (type == null || type.equalsIgnoreCase("null")) {
+			type = "un known";
+		}
       successMap.put("rmhost", rmHost);
       if(reqUrl.length()>99)
       {  successMap.put("url",reqUrl.substring(0, 98));}
       else {
     	  successMap.put("url",reqUrl); 
       }
+      successMap.put("urlkey", uidKey);
       successMap.put("date", date);
+      successMap.put("time", time);
       successMap.put("method", reqMethod);
       successMap.put("type", type);
       successMap.put("duration",takeDuration);
@@ -168,7 +166,9 @@ public class SimpleFilter implements Filter {
       else {
     	  failureMap.put("url",reqUrl); 
       }
+      failureMap.put("urlkey", uidKey);
       failureMap.put("date", date);
+      failureMap.put("time", time);
       failureMap.put("method", reqMethod);
       failureMap.put("type", type);
       failureMap.put("duration",takeDuration);
