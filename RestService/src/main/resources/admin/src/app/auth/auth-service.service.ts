@@ -27,8 +27,8 @@ export class AuthService {
 	constructor(@Inject(DOCUMENT) private document: Document, private httpClient: HttpClient, public router: Router) {
 
 
-		let url = document.location.protocol + '//' + document.location.hostname + ':8080'; // for angular development
-		//let url =document.location.protocol +'//'+ document.location.hostname + ':'+document.location.port 
+		//let url = document.location.protocol + '//' + document.location.hostname + ':8080'; // for angular development
+		let url =document.location.protocol +'//'+ document.location.hostname + ':'+document.location.port 
 		console.log(url);
 		console.log(document.location.protocol + '//' + document.location.hostname + ':' + document.location.port);
 		this.API_URL = url;
