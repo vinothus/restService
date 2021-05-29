@@ -1,1 +1,86 @@
-<p>metricschart works!</p>
+
+ <div class="panel-header panel-header-sm" style="background: linear-gradient(90deg,#0c2646 0,#204065 60%,#2a5788);     height: 170px;">
+  
+    <div class="header text-center">
+     <h1 class="title">Service Metrics</h1>
+    
+   </div>
+ </div>
+
+
+<div class="main-content">
+    <div class="row">
+      <div class="col-lg-6">
+        <div class="card card-chart">
+          <div class="card-header">
+            <h5 class="card-category">Get Rest Service </h5>
+            <h4 class="card-title">Get Time  Chart</h4>
+<div class="chart-container" style="">    
+    <canvas id="canvas">{{ Linechart }}</canvas>
+    <div *ngIf="isLoadingget" 
+   style="position: absolute;top:50%;left:50%;  display: flex; justify-content: center; align-items: center; background: white;">
+  <mat-progress-spinner 
+    color="primary" 
+    mode="indeterminate">
+  </mat-progress-spinner>
+</div>    
+  </div> 
+  </div> 
+  </div>
+  </div>
+  <div class="col-lg-6">
+    <div class="card card-chart">
+      <div class="card-header">
+        <h5 class="card-category">Post Rest Service </h5>
+        <h4 class="card-title">POST Time  Chart</h4>
+<div class="chart-container" style="">    
+<canvas id="canvas1">{{ Linechart }}</canvas>  
+<div *ngIf="isLoadingpost" 
+   style="position: absolute;top:50%;left:50%;  display: flex; justify-content: center; align-items: center; background: white;">
+  <mat-progress-spinner 
+    color="primary" 
+    mode="indeterminate">
+  </mat-progress-spinner>
+</div>  
+</div> 
+</div> 
+</div>
+</div>
+<div class="col-lg-6">
+    <div class="card card-chart">
+      <div class="card-header">
+        <h5 class="card-category">PUT Rest Service </h5>
+        <h4 class="card-title">PUT Time  Chart</h4>
+<div class="chart-container" style="">    
+<canvas id="canvas2">{{ Linechart }}</canvas>
+<div *ngIf="isLoadingput" 
+   style=" position: absolute;top:50%;left:50%;  display: flex; justify-content: center; align-items: center; background: white;">
+  <mat-progress-spinner 
+    color="primary" 
+    mode="indeterminate">
+  </mat-progress-spinner>
+</div>    
+</div> 
+</div> 
+</div>
+</div>
+<div class="col-lg-6">
+    <div class="card card-chart">
+      <div class="card-header">
+        <h5 class="card-category">Delete Rest Service </h5>
+        <h4 class="card-title">Delete Time  Chart</h4>
+<div class="chart-container" style="">    
+<canvas id="canvas3">{{ Linechart }}</canvas>   
+<div *ngIf="isLoadingdelete" 
+   style="position: absolute;top:50%;left:50%;  display: flex; justify-content: center; align-items: center; background: white;">
+  <mat-progress-spinner 
+    color="primary" 
+    mode="indeterminate">
+  </mat-progress-spinner>
+</div> 
+</div> 
+</div> 
+</div>
+</div>
+  </div>
+  </div>

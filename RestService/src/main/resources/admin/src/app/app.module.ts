@@ -72,8 +72,10 @@ import {MatTooltipModule} from '@angular/material/tooltip';
 import {MatTreeModule} from '@angular/material/tree';
 import {OverlayModule} from '@angular/cdk/overlay';
 import { DialogBoxComponent } from './dialog-box/dialog-box.component';
+import { DatePipe } from '@angular/common';
 @NgModule({
   imports: [
+   
 	ReactiveFormsModule,
     BrowserAnimationsModule,
     FormsModule,
@@ -148,7 +150,8 @@ import { DialogBoxComponent } from './dialog-box/dialog-box.component';
     DialogBoxComponent
 
   ],
-  providers: [
+  providers: [  
+    DatePipe,
 	{
       provide: HTTP_INTERCEPTORS,
       useClass: AuthInterceptor,
