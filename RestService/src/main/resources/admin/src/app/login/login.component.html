@@ -78,6 +78,7 @@
                 <div *ngIf="submitted && f.email.errors" class="invalid-feedback">
                     <div *ngIf="f.email.errors['required']">Username is required</div>
                       <div *ngIf="f.email.errors['email']">Email must be a valid email address</div>
+                       <div *ngIf="f.email.invalid && f.email.touched">Email must be a valid email address</div>
                       <div *ngIf="f.email.errors['emailValidation']">UserName or Password Error</div>
                 </div>
             </div>
@@ -128,7 +129,7 @@
 				</ul>
 			</nav>
 			<div class="copyright" id="copyright">
-				©2020  Designed by Vin Rest inc.
+				Â©2020  Designed by Vin Rest inc.
 			</div>
 		</div>
 
