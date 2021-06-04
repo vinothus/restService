@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { Chart } from 'chart.js'; 
-import { AuthService } from "../auth/auth-service.service"; 
+import { Chart } from 'chart.js';
+import { AuthService } from "../auth/auth-service.service";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { DatePipe } from '@angular/common'
 @Component({
@@ -9,33 +9,67 @@ import { DatePipe } from '@angular/common'
   styleUrls: ['./metricschart.component.css']
 })
 export class MetricschartComponent implements OnInit {
-  data: any;  
-  Time = [];  
-  ConsumeTime = [];  
-  Timepost = [];  
-  ConsumeTimepost = []; 
-  Timeput = [];  
-  ConsumeTimeput = []; 
-  Timedelete = [];  
-  ConsumeTimedelete = [];    
-  Linechart = []; 
+  data: any;
+  Time = [];
+  ConsumeTime = [];
+  Timepost = [];
+  ConsumeTimepost = [];
+  Timeput = [];
+  ConsumeTimeput = [];
+  Timedelete = [];
+  ConsumeTimedelete = [];
+  Linechart = [];
   isLoadingget = true;
-  LinechartPost = []; 
+  LinechartPost = [];
   isLoadingpost = true;
-  LinechartPUT = []; 
+  LinechartPUT = [];
   isLoadingput = true;
-  LinechartDelete = []; 
+  LinechartDelete = [];
   isLoadingdelete = true;
-  serviceConsumptionName ='service consumption'; 
+  serviceConsumptionName ='service consumption';
+chart1Time:number;
+chart2Time:number;
+chart3Time:number;
+chart4Time:number;
+currentDate:string;
   today: any ;
   constructor(public formBuilder: FormBuilder, public authService: AuthService,public datepipe: DatePipe) {
-    let map = new Map<string, string>();
+
+
+   }
+
+  ngOnInit(): void {
+ let map = new Map<string, string>();
+ let uid = localStorage.getItem('uid');
+ map.set('processorClassName', 'DateProvider');
+ 	this.authService.getproperties('auth', map).subscribe((res) => {
+let sqldate=res['processedValue'];
+this.currentDate=sqldate;
+    this.initGETChart(sqldate);
+   this.initPostChart(sqldate);
+    this.initPutChart(sqldate);
+    this.initDeleteChart(sqldate);
+
+   });
+  }
+refreshChart(chartName:string)
+{
+if(chartName=='GET')        { this.initGETChart(this.currentDate);}
+ else if(chartName=='POST') {  this.initPostChart(this.currentDate);}
+ else if(chartName=='PUT'){    this.initPutChart(this.currentDate);}
+ else if(chartName=='DELETE')   {this.initDeleteChart(this.currentDate);}
+}
+initGETChart(sqldate : string)
+{
+ this.Time = [];
+  this.ConsumeTime = [];
+   let map = new Map<string, string>();
 		let uid = localStorage.getItem('uid');
 		map.set('uid', uid);
     map.set('method', 'GET');
     this.today  =new Date();
-    let latest_date =this.datepipe.transform(this.today, 'yyyy-MM-dd');
-    map.set('date', latest_date);
+
+    map.set('date', sqldate);
    	this.authService.getdata(this.serviceConsumptionName, map).subscribe((res) => {
       this.data = res[this.serviceConsumptionName];
       for (let item of  this.data) {
@@ -52,7 +86,7 @@ export class MetricschartComponent implements OnInit {
           this.ConsumeTime.push(item[key]);
           durationpush=true;
           }
-          
+
         }
         if(!timepush){
           if(durationpush){
@@ -64,29 +98,29 @@ export class MetricschartComponent implements OnInit {
             this.Time.pop()
           }
         }
-       
-    }
-    
-    this.Linechart = new Chart('canvas', {  
-      type: 'line',  
-      data: {  
-        labels: this.Time,  
 
-        datasets: [  
-          {  
+    }
+
+    this.Linechart = new Chart('canvas', {
+      type: 'line',
+      data: {
+        labels: this.Time,
+
+        datasets: [
+          {
             label: 'Time Taken in ms For '+this.datepipe.transform(this.today, 'yyyy-MM-dd'),
-            data: this.ConsumeTime,  
-            borderColor: '#3cb371',  
-            backgroundColor: "#0000FF",  
-          }  
-        ]  
-      },  
-      options: {  
-        legend: {  
-          display: false  
-        },  
-        scales: {  
-          xAxes: [{  
+            data: this.ConsumeTime,
+            borderColor: '#3cb371',
+            backgroundColor: "#0000FF",
+          }
+        ]
+      },
+      options: {
+        legend: {
+          display: false
+        },
+        scales: {
+          xAxes: [{
             display: true,
             title: {
               display: true,
@@ -99,9 +133,9 @@ export class MetricschartComponent implements OnInit {
                 lineHeight: 1.2,
               },
               padding: {top: 20, left: 0, right: 0, bottom: 0}
-            }  
-          }],  
-          yAxes: [{  
+            }
+          }],
+          yAxes: [{
             display: true,
             title: {
               display: true,
@@ -114,32 +148,27 @@ export class MetricschartComponent implements OnInit {
                 lineHeight: 1.2,
               },
               padding: {top: 30, left: 0, right: 0, bottom: 0}
-            }  
-          }],  
-        }  
-      }  
-    });  
-    this.isLoadingget=false;
-
+            }
+          }],
+        }
+      }
     });
-
-   }
- 
-  ngOnInit(): void {
-   this.initPostChart();
-    this.initPutChart();
-    this.initDeleteChart();
-  }
-
-initPostChart()
+    this.isLoadingget=false;
+this.chart1Time= Date.now();
+    });
+}
+initPostChart(sqldate : string)
 {
+
+this.Timepost = [];
+ this. ConsumeTimepost = [];
   let map = new Map<string, string>();
   let uid = localStorage.getItem('uid');
   map.set('uid', uid);
   map.set('method', 'POST');
   this.today  =new Date();
-  let latest_date =this.datepipe.transform(this.today, 'yyyy-MM-dd');
-  map.set('date', latest_date);
+
+  map.set('date', sqldate);
    this.authService.getdata(this.serviceConsumptionName, map).subscribe((res) => {
     this.data = res[this.serviceConsumptionName];
     for (let item of  this.data) {
@@ -156,7 +185,7 @@ initPostChart()
         this.ConsumeTimepost.push(item[key]);
         durationpush=true;
         }
-        
+
       }
       if(!timepush){
         if(durationpush){
@@ -168,29 +197,29 @@ initPostChart()
           this.Timepost.pop()
         }
       }
-     
-  }
-  
-  this.LinechartPost = new Chart('canvas1', {  
-    type: 'line',  
-    data: {  
-      labels: this.Timepost,  
 
-      datasets: [  
-        {  
+  }
+
+  this.LinechartPost = new Chart('canvas1', {
+    type: 'line',
+    data: {
+      labels: this.Timepost,
+
+      datasets: [
+        {
           label: 'Time Taken in ms For Post '+this.datepipe.transform(this.today, 'yyyy-MM-dd'),
-          data: this.ConsumeTimepost,  
-          borderColor: '#3cb371',  
-          backgroundColor: "#0000FF",  
-        }  
-      ]  
-    },  
-    options: {  
-      legend: {  
-        display: false  
-      },  
-      scales: {  
-        xAxes: [{  
+          data: this.ConsumeTimepost,
+          borderColor: '#3cb371',
+          backgroundColor: "#0000FF",
+        }
+      ]
+    },
+    options: {
+      legend: {
+        display: false
+      },
+      scales: {
+        xAxes: [{
           display: true,
           title: {
             display: true,
@@ -203,9 +232,9 @@ initPostChart()
               lineHeight: 1.2,
             },
             padding: {top: 20, left: 0, right: 0, bottom: 0}
-          }  
-        }],  
-        yAxes: [{  
+          }
+        }],
+        yAxes: [{
           display: true,
           title: {
             display: true,
@@ -218,27 +247,29 @@ initPostChart()
               lineHeight: 1.2,
             },
             padding: {top: 30, left: 0, right: 0, bottom: 0}
-          }  
-        }],  
-      }  
-    }  
-  });  
+          }
+        }],
+      }
+    }
+  });
   this.isLoadingpost=false;
-
+this.chart2Time= Date.now();
   });
 
 
 }
- 
-initPutChart()
+
+initPutChart(sqldate : string)
 {
+this.Timeput = [];
+ this.ConsumeTimeput = [];
+
   let map = new Map<string, string>();
   let uid = localStorage.getItem('uid');
   map.set('uid', uid);
   map.set('method', 'PUT');
   this.today  =new Date();
-  let latest_date =this.datepipe.transform(this.today, 'yyyy-MM-dd');
-  map.set('date', latest_date);
+  map.set('date', sqldate);
    this.authService.getdata(this.serviceConsumptionName, map).subscribe((res) => {
     this.data = res[this.serviceConsumptionName];
     for (let item of  this.data) {
@@ -255,7 +286,7 @@ initPutChart()
         this.ConsumeTimeput.push(item[key]);
         durationpush=true;
         }
-        
+
       }
       if(!timepush){
         if(durationpush){
@@ -267,29 +298,29 @@ initPutChart()
           this.Timeput.pop()
         }
       }
-     
-  }
-  
-  this.LinechartPUT = new Chart('canvas2', {  
-    type: 'line',  
-    data: {  
-      labels: this.Timeput,  
 
-      datasets: [  
-        {  
+  }
+
+  this.LinechartPUT = new Chart('canvas2', {
+    type: 'line',
+    data: {
+      labels: this.Timeput,
+
+      datasets: [
+        {
           label: 'Time Taken in ms For PUT '+this.datepipe.transform(this.today, 'yyyy-MM-dd'),
-          data: this.ConsumeTimeput,  
-          borderColor: '#3cb371',  
-          backgroundColor: "#0000FF",  
-        }  
-      ]  
-    },  
-    options: {  
-      legend: {  
-        display: false  
-      },  
-      scales: {  
-        xAxes: [{  
+          data: this.ConsumeTimeput,
+          borderColor: '#3cb371',
+          backgroundColor: "#0000FF",
+        }
+      ]
+    },
+    options: {
+      legend: {
+        display: false
+      },
+      scales: {
+        xAxes: [{
           display: true,
           title: {
             display: true,
@@ -302,9 +333,9 @@ initPutChart()
               lineHeight: 1.2,
             },
             padding: {top: 20, left: 0, right: 0, bottom: 0}
-          }  
-        }],  
-        yAxes: [{  
+          }
+        }],
+        yAxes: [{
           display: true,
           title: {
             display: true,
@@ -317,28 +348,31 @@ initPutChart()
               lineHeight: 1.2,
             },
             padding: {top: 30, left: 0, right: 0, bottom: 0}
-          }  
-        }],  
-      }  
-    }  
-  });  
+          }
+        }],
+      }
+    }
+  });
   this.isLoadingput=false;
-
+this.chart3Time= Date.now();
   });
 
 
-} 
+}
 
 
-initDeleteChart()
+initDeleteChart(sqldate : string)
 {
+this.Timedelete = [];
+  this.ConsumeTimedelete = [];
+
   let map = new Map<string, string>();
   let uid = localStorage.getItem('uid');
   map.set('uid', uid);
   map.set('method', 'DELETE');
   this.today  =new Date();
-  let latest_date =this.datepipe.transform(this.today, 'yyyy-MM-dd');
-  map.set('date', latest_date);
+
+  map.set('date', sqldate);
    this.authService.getdata(this.serviceConsumptionName, map).subscribe((res) => {
     this.data = res[this.serviceConsumptionName];
     for (let item of  this.data) {
@@ -355,7 +389,7 @@ initDeleteChart()
         this.ConsumeTimedelete.push(item[key]);
         durationpush=true;
         }
-        
+
       }
       if(!timepush){
         if(durationpush){
@@ -367,29 +401,29 @@ initDeleteChart()
           this.Timedelete.pop()
         }
       }
-     
-  }
-  
-  this.LinechartPost = new Chart('canvas3', {  
-    type: 'line',  
-    data: {  
-      labels: this.Timedelete,  
 
-      datasets: [  
-        {  
+  }
+
+  this.LinechartPost = new Chart('canvas3', {
+    type: 'line',
+    data: {
+      labels: this.Timedelete,
+
+      datasets: [
+        {
           label: 'Time Taken in ms For Delete '+this.datepipe.transform(this.today, 'yyyy-MM-dd'),
-          data: this.ConsumeTimedelete,  
-          borderColor: '#3cb371',  
-          backgroundColor: "#0000FF",  
-        }  
-      ]  
-    },  
-    options: {  
-      legend: {  
-        display: false  
-      },  
-      scales: {  
-        xAxes: [{  
+          data: this.ConsumeTimedelete,
+          borderColor: '#3cb371',
+          backgroundColor: "#0000FF",
+        }
+      ]
+    },
+    options: {
+      legend: {
+        display: false
+      },
+      scales: {
+        xAxes: [{
           display: true,
           title: {
             display: true,
@@ -402,9 +436,9 @@ initDeleteChart()
               lineHeight: 1.2,
             },
             padding: {top: 20, left: 0, right: 0, bottom: 0}
-          }  
-        }],  
-        yAxes: [{  
+          }
+        }],
+        yAxes: [{
           display: true,
           title: {
             display: true,
@@ -417,13 +451,13 @@ initDeleteChart()
               lineHeight: 1.2,
             },
             padding: {top: 30, left: 0, right: 0, bottom: 0}
-          }  
-        }],  
-      }  
-    }  
-  });  
+          }
+        }],
+      }
+    }
+  });
   this.isLoadingdelete=false;
-
+this.chart4Time= Date.now();
   });
 
 

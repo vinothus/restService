@@ -6,6 +6,7 @@ import { DOCUMENT } from '@angular/common';
 import { HttpClient, HttpHeaders, HttpErrorResponse, HttpParams } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { AuthService } from "../auth/auth-service.service";
+import{ NavbarComponent }from"../components/navbar/navbar.component";
 export interface UsersData {
 	name: string;
 	id: number;
@@ -23,7 +24,7 @@ export class DialogBoxComponent {
 	getAllsingleForm: FormGroup;
 	getsingleForm: FormGroup;
 	delsingleForm: FormGroup;
-	
+
 	multiPostForm : FormGroup;
 	multiPutForm : FormGroup;
 	multiGetAllForm : FormGroup;
@@ -33,7 +34,7 @@ export class DialogBoxComponent {
 	multigetsingleForm:FormGroup;
 	delMultisingleForm:FormGroup;
 	inputMap={};
-	
+
 	submitted = false;
 	action: string;
 	local_data: any;
@@ -172,12 +173,12 @@ export class DialogBoxComponent {
 	multidelAllDbuserName: string;
 	multidelAllDbpassword: string;
 
-	constructor( public authService: AuthService,public formBuilder: FormBuilder,
+	constructor(public navComponent: NavbarComponent, public authService: AuthService,public formBuilder: FormBuilder,
 		public dialogRef: MatDialogRef<DialogBoxComponent>,
 		//@Optional() is used to prevent error if no data is passed
 		@Optional() @Inject(MAT_DIALOG_DATA) public data: Map<String, Object>, @Inject(DOCUMENT) private document: Document, private httpClient: HttpClient) {
 
-
+//this.navComponent.sidebarClose();
 		this.getsingleForm = this.formBuilder.group({
 			getsingleid: ['', Validators.required]
 
@@ -232,7 +233,7 @@ export class DialogBoxComponent {
 		}
 		if (this.local_data.props) {
 			//this.valueJson=this.valueJson+'{\n';
-			
+
 			if(this.local_data.attribMap){
 				this.sampleJson = this.sampleJson + '{\n';
 			for (var val of this.local_data.attribMap) {
@@ -271,14 +272,14 @@ export class DialogBoxComponent {
 			this.posturl = '/' + localStorage.getItem('access_token') + '/' + this.local_data.dsname + '/' + this.local_data.service + '/' + this.local_data.props.get(AppConstants.createData);
 			this.puturl = '/' + localStorage.getItem('access_token') + '/' + this.local_data.dsname + '/' + this.local_data.service + '/' + this.local_data.props.get(AppConstants.updateData);
 			this.deleteurl = '/' + localStorage.getItem('access_token') + '/' + this.local_data.dsname + '/' + this.local_data.service + '/' + this.local_data.props.get(AppConstants.delete) + '/{id}';
-			
+
 			// multi service urls
 			this.multigetAllurl = '/' + localStorage.getItem('access_token') + '/' + this.local_data.dsname + '/' + this.local_data.props.get(AppConstants.multiService)+'/' +this.local_data.service + '/' + this.local_data.props.get(AppConstants.getMultipleAllData);
 			this.multigeturl = '/' + localStorage.getItem('access_token') + '/' + this.local_data.dsname + '/' + this.local_data.props.get(AppConstants.multiService)+'/' +this.local_data.service + '/' + this.local_data.props.get(AppConstants.getMultipleOnedata) + '/{id}';
 			this.multiposturl = '/' + localStorage.getItem('access_token') + '/' + this.local_data.dsname + '/' + this.local_data.props.get(AppConstants.multiService)+'/' +this.local_data.service + '/' + this.local_data.props.get(AppConstants.createMultipleData);
 			this.multiputurl = '/' + localStorage.getItem('access_token') + '/' + this.local_data.dsname + '/' + this.local_data.props.get(AppConstants.multiService)+'/' +this.local_data.service + '/' + this.local_data.props.get(AppConstants.updateMultipleData);
 			this.multideleteurl = '/' + localStorage.getItem('access_token') + '/' + this.local_data.dsname + '/' + this.local_data.props.get(AppConstants.multiService)+'/' +this.local_data.service + '/' + this.local_data.props.get(AppConstants.deleteMultiple) + '/{id}';
-		
+
 		}
 		delete this.local_data.action;
 		delete this.local_data.componentName;
@@ -296,15 +297,15 @@ export class DialogBoxComponent {
 		this.UIForm = this.formBuilder.group(this.formInput);
 		this.UIForm.setValue(this.formData);
 		if (this.primaryKey != null) { this.UIForm.get(this.primaryKey).disable(); }
-		
+
 		if(this.action=='Multi Service')
 		{
 		this.multivalueJsonStr = JSON.stringify(this.local_data['ExampleJsonFormat'], undefined, 4);
-	    this.multisampleJson =  JSON.stringify(this.local_data['sampleJson'], undefined, 4);	
+	    this.multisampleJson =  JSON.stringify(this.local_data['sampleJson'], undefined, 4);
 	    this.multidatasource=this.local_data['datasource'];
     let multiPostFormControls={};
 
-	
+
      for (var key in this.multidatasource) {
       multiPostFormControls['user:'+ this.multidatasource[key]]=['', Validators.nullValidator];
       multiPostFormControls['pass:'+ this.multidatasource[key]]=['', Validators.nullValidator];
@@ -324,7 +325,7 @@ var getAllmultiFormInput={};
      this.getAllmultiForm=this.formBuilder.group(getAllmultiFormInput);
     //this.getAllmultiForm = this.formBuilder.group(this.inputMap);
 		}
-		
+
 	}
 
 	doAction() {
@@ -332,7 +333,8 @@ var getAllmultiFormInput={};
 		if (this.action == 'AddRec') {
 			console.log('this.AddRecUIForm.invalid :' + this.AddRecUIForm.invalid);
 			if (!this.AddRecUIForm.invalid) {
-				this.dialogRef.close({ event: this.action, data: this.AddRecUIForm.value });
+        this.dialogRef.close({ event: this.action, data: this.AddRecUIForm.value });
+        //this.navComponent.sidebarOpen();
 			}
 		}
 		if (this.action == 'Update' || this.action == 'Delete') {
@@ -340,15 +342,17 @@ var getAllmultiFormInput={};
 		}
 		if (this.action != 'AddRec') {
 			if (!this.UIForm.invalid) {
-				this.dialogRef.close({ event: this.action, data: this.UIForm.value });
+        this.dialogRef.close({ event: this.action, data: this.UIForm.value });
+   //this.navComponent.sidebarOpen();
 			}
 		}
 		if (this.action == 'Multi Service') {
 			 console.log(this.multiPostForm.value);
-				this.dialogRef.close({ event: this.action, data: this.UIForm.value });
-		 
+        this.dialogRef.close({ event: this.action, data: this.UIForm.value });
+        //this.navComponent.sidebarOpen();
+
 		}
-		
+
 	}
 
 	closeDialog() {
@@ -417,7 +421,7 @@ get k() { return this.delMultisingleForm.controls;}
 			else if (type.includes('multideltry')) {
 				this.multidelsingleexecutebuttondis = 'inline';
 			}
-			
+
 		} else {
 			spans.getElementsByTagName('span')[0].innerText = 'try it out';
 			if (type.includes('delete')) {
@@ -478,7 +482,7 @@ get k() { return this.delMultisingleForm.controls;}
 				this.multideleteResLoading= false;
 				this.multidelsingleexecutebuttondis = 'none';
 			}
-			
+
 		}
 	}
 
@@ -637,7 +641,7 @@ get k() { return this.delMultisingleForm.controls;}
 		}
 		else if (method == 'MULTI_POST') {
 			this.multipostisLoading = true;
-			
+
 				var poassToken:string='';
 				for (var key in this.multidatasource) {
 				var datasource=	this.multidatasource[key];
@@ -645,9 +649,9 @@ get k() { return this.delMultisingleForm.controls;}
 				var Password=this.multiPostForm.value['pass:'+datasource];
 				poassToken=poassToken+datasource+':'+ btoa(userName + ':' + Password)+',';
 					}
-				
+
 			poassToken = poassToken.substring(0, poassToken.length - 1);
-				 
+
 				const headers = new HttpHeaders()
 				.set("Content-Type", "application/json")
 				.set("Authorization", "Basic YW5ndWxhcjphbmd1bGFy")
@@ -671,11 +675,11 @@ get k() { return this.delMultisingleForm.controls;}
 				this.multipostisLoading = false;
 
 			});
-				 
+
 		}
 		else if (method == 'MULTI_PUT') {
 			this.multiputisLoading = true;
-			 
+
 				var poassToken:string='';
 				for (var key in this.multidatasource) {
 				var datasource=	this.multidatasource[key];
@@ -683,7 +687,7 @@ get k() { return this.delMultisingleForm.controls;}
 				var Password=this.multiPutForm.value['pass:'+datasource];
 				poassToken=poassToken+datasource+':'+ btoa(userName + ':' + Password)+',';
 					}
-				
+
 			poassToken = poassToken.substring(0, poassToken.length - 1);
 			const headers = new HttpHeaders()
 				.set("Content-Type", "application/json")
@@ -691,7 +695,7 @@ get k() { return this.delMultisingleForm.controls;}
 				.set("apikey", localStorage.getItem('access_token'))
 				.set("passToken", poassToken);
 				var url=	document.location.protocol + '//' + document.location.hostname + ':8080/' + this.myAppName +	 '/' + localStorage.getItem('access_token') + '/' + this.local_data.dsname + '/' + this.local_data.props.get(AppConstants.multiService)+'/' +this.local_data.service + '/' + this.local_data.props.get(AppConstants.updateMultipleData);
-		
+
 				this.multiputdisurl=url;
 					const promise = this.httpClient.put(url, this.multivalueJsonStr, { headers: headers }).toPromise();
 
@@ -710,14 +714,14 @@ get k() { return this.delMultisingleForm.controls;}
 				this.multiputisLoading = false;
 
 			});
-				
-				
-				
-				 
+
+
+
+
 		}
 		else if (method == 'MULTI_GET') {
 			this.multigetisLoading =true;
-			
+
 			var poassToken:string='';
 				for (var key in this.multidatasource) {
 				var datasource=	this.multidatasource[key];
@@ -755,8 +759,8 @@ get k() { return this.delMultisingleForm.controls;}
 				this.multigetisLoading = false;
 
 			});
-			
-			 
+
+
 		}
 		else if (method == 'MULTI_GETALL') {
 			this.multigetAllisLoading = true;
@@ -767,14 +771,14 @@ get k() { return this.delMultisingleForm.controls;}
 				var Password=this.multiGetAllForm.value['pass:'+datasource];
 				poassToken=poassToken+datasource+':'+ btoa(userName + ':' + Password)+',';
 					}
-				
+
 			poassToken = poassToken.substring(0, poassToken.length - 1);
 			const headers = new HttpHeaders()
 				.set("Content-Type", "application/json")
 				.set("Authorization", "Basic YW5ndWxhcjphbmd1bGFy")
 				.set("apikey", localStorage.getItem('access_token'))
 				.set("passToken", poassToken);
-				
+
 				let paramStr = "?";
 			for (var key in this.getAllmultiForm.value) {
 				console.log(key + ' - ' + this.getAllmultiForm.value[key]);
@@ -782,7 +786,7 @@ get k() { return this.delMultisingleForm.controls;}
 					paramStr = paramStr + key + '=' + this.getAllmultiForm.value[key] + '&';
 				}
 			}
-				
+
 				var url = document.location.protocol + '//' + document.location.hostname + ':8080/' + this.myAppName +	 '/' + localStorage.getItem('access_token') + '/' + this.local_data.dsname + '/' + this.local_data.props.get(AppConstants.multiService)+'/' +this.local_data.service + '/' + this.local_data.props.get(AppConstants.getMultipleAllData);
 			 this.multigetAlldisurl=url;
 			const promise = this.httpClient.get(url+paramStr, { headers: headers }).toPromise();
@@ -802,8 +806,8 @@ get k() { return this.delMultisingleForm.controls;}
 				this.multigetAllisLoading = false;
 
 			});
-				
-			 
+
+
 		}
 		else if (method == 'MULTI_DELETE') {
 			this.multideleteisLoading = true;
@@ -814,20 +818,20 @@ get k() { return this.delMultisingleForm.controls;}
 				var Password=this.multiDeleteForm.value['pass:'+datasource];
 				poassToken=poassToken+datasource+':'+ btoa(userName + ':' + Password)+',';
 					}
-				
+
 			poassToken = poassToken.substring(0, poassToken.length - 1);
 			const headers = new HttpHeaders()
 				.set("Content-Type", "application/json")
 				.set("Authorization", "Basic YW5ndWxhcjphbmd1bGFy")
 				.set("apikey", localStorage.getItem('access_token'))
 				.set("passToken", poassToken);
-				
+
 			if (!this.delMultisingleForm.valid) {
 				this.validateAllFormFields(this.delsingleForm);
 				return;
 			}
-			
-			
+
+
 			const control = this.delMultisingleForm.get('delsingleid').value;
 			var url = document.location.protocol + '//' + document.location.hostname + ':8080/' + this.myAppName +	 '/' + localStorage.getItem('access_token') + '/' + this.local_data.dsname + '/' + this.local_data.props.get(AppConstants.multiService)+'/' +this.local_data.service + '/' + this.local_data.props.get(AppConstants.deleteMultiple)+'/'+control;
 			this.multideldisurl = url;
@@ -848,10 +852,10 @@ get k() { return this.delMultisingleForm.controls;}
 				this.multideleteisLoading = false;
 
 			});
-			
-			
-			 
-			
+
+
+
+
 		}
 
 	}
@@ -874,32 +878,32 @@ get k() { return this.delMultisingleForm.controls;}
 	}
 	isCustomValidator(controlName: string, validatorName: string): AsyncValidatorFn {
 		return (control: AbstractControl): Observable<ValidationErrors> => {
-			 
+
 			let map = new Map<string, string>();
 		map.set('validatorName', validatorName);
 		map.set('value',control.value);
 		console.log(this.AddRecUIForm.value);
-		
+
 		 for (var key in this.AddRecUIForm.value) {
          if(this.AddRecUIForm.value[key]!=null&&this.AddRecUIForm.value[key]!=''){
 			map.set(key,this.AddRecUIForm.value[key]);
 				}}
-		
+
 		this.authService.validateData(this.serviceName, map).subscribe((res) => {
 			console.log(res);
-			 
-			if ((String(res)) == 'true' || (String(res)) == 'TRUE' || (String(res)) == 'True') { 
+
+			if ((String(res)) == 'true' || (String(res)) == 'TRUE' || (String(res)) == 'True') {
 				control.setErrors(null);
 			    return bReturn ? of(null) : of(err);
              }
-			else { 
-				control.setErrors({ customvalidation: true });	
+			else {
+				control.setErrors({ customvalidation: true });
 		 let err: ValidationErrors = { 'invalid': true };
           return bReturn ? of(null) : of(err);
             }
-			 
+
 		});
-		
+
 			let bReturn: boolean = true;
 			let control1 = this.AddRecUIForm.controls[controlName];
 			let err: ValidationErrors = { 'invalid': true };

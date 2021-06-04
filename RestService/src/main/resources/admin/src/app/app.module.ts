@@ -73,9 +73,10 @@ import {MatTreeModule} from '@angular/material/tree';
 import {OverlayModule} from '@angular/cdk/overlay';
 import { DialogBoxComponent } from './dialog-box/dialog-box.component';
 import { DatePipe } from '@angular/common';
+import{ NavbarComponent }from"./components/navbar/navbar.component";
 @NgModule({
   imports: [
-   
+
 	ReactiveFormsModule,
     BrowserAnimationsModule,
     FormsModule,
@@ -150,7 +151,8 @@ import { DatePipe } from '@angular/common';
     DialogBoxComponent
 
   ],
-  providers: [  
+  providers: [
+    NavbarComponent,
     DatePipe,
 	{
       provide: HTTP_INTERCEPTORS,
