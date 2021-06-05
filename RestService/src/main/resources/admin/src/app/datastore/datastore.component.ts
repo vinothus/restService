@@ -203,13 +203,13 @@ export class DatastoreComponent implements OnInit, AfterViewInit {
 		map.set('uid', localStorage.getItem('access_token'));
         this.authService.getdata('user',map).subscribe((resusr) => {
 		console.log(resusr);
-		this.authService.validateDatabyApikey(resusr[0].apikey,  row_obj["DataStore Name"], this.serviceName, map).subscribe((res) => {
+		this.authService.validateDatabyApikey(resusr['user'][0].apikey,  row_obj["DataStore Name"], this.serviceName, map).subscribe((res) => {
 			console.log(Boolean(res));
 			console.log(res);
 			let validation = {};
 			console.log('res:'+String(res));
-			if ((String(res))=='true'||(String(res))=='TRUE'||(String(res))=='True') { validation["message"] = "Validated success fully and connection test was passed "; }
-			else { validation["message"] = "Validated success fully and connection test was Failed"; }
+			if ((String(res))=='true'||(String(res))=='TRUE'||(String(res))=='True') { validation["message"] = "Connection test was passed "; }
+			else { validation["message"] = "Connection test was Failed"; }
 			validation["action"] = "Message";
 			let width = '500px';
 
@@ -236,14 +236,14 @@ export class DatastoreComponent implements OnInit, AfterViewInit {
 		);
 		},
 		err => {
-			
+
 			}
 		);
 
 
 	}
-	
-	
+
+
 addRec() {
 		let validation = {};
 		validation["action"] = 'AddRec';
@@ -273,7 +273,7 @@ addRec() {
          if(data[key]!=null&&data[key]!=''){
 			 map[key]=data[key];
 				}}
-		
+
 						 this.addRowData(map);
 					}
 				}
@@ -283,7 +283,7 @@ addRec() {
 
 
 	}
-	
+
 }
 
 

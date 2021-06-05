@@ -16,6 +16,23 @@
             <h5 class="card-category">Get Rest Service Error</h5>
             <h4 class="card-title">Get Error Time  Chart</h4>
 
+ <div ngbDropdown>
+            <button type="button" class="btn btn-round btn-default dropdown-toggle btn-simple btn-icon no-caret" ngbDropdownToggle>
+              <i class="now-ui-icons loader_gear"></i>
+            </button>
+            <div ngbDropdownMenu class="dropdown-menu-right">
+             <mat-form-field appearance="fill">
+  <mat-label>Choose a date</mat-label>
+  <input matInput [matDatepicker]="pickerGET"
+    (dateInput)="addEvent('GET', $event)" (dateChange)="addEvent('GET', $event)">
+  <mat-datepicker-toggle matSuffix [for]="pickerGET"></mat-datepicker-toggle>
+  <mat-datepicker #pickerGET></mat-datepicker>
+</mat-form-field>
+
+            </div>
+          </div>
+
+
   </div>
 <div class="card-body">
 <div class="chart-container" style="">
@@ -31,7 +48,9 @@
 </div>
  <div class="card-footer">
           <div class="stats" >
-            <i style="cursor: pointer;" (click)="refreshChart('GET')"  class="now-ui-icons arrows-1_refresh-69"></i>Refreshed on {{chart1Time | date:'fullTime'}}
+            <i *ngIf="!isGetLoading" style="cursor: pointer;" (click)="refreshChart('GET')"  class="now-ui-icons arrows-1_refresh-69"></i>
+              <i *ngIf="isGetLoading" style="cursor: pointer;" (click)="refreshChart('GET')"  class="now-ui-icons loader_refresh spin"></i>
+            Refreshed on {{chart1Time | date:'fullTime'}}
           </div>
         </div>
 
@@ -43,7 +62,21 @@
       <div class="card-header">
         <h5 class="card-category">Post Rest Service Error</h5>
         <h4 class="card-title">POST Error Time  Chart</h4>
+<div ngbDropdown>
+            <button type="button" class="btn btn-round btn-default dropdown-toggle btn-simple btn-icon no-caret" ngbDropdownToggle>
+              <i class="now-ui-icons loader_gear"></i>
+            </button>
+            <div ngbDropdownMenu class="dropdown-menu-right">
+             <mat-form-field appearance="fill">
+  <mat-label>Choose a date</mat-label>
+  <input matInput [matDatepicker]="pickerPOST"
+   (dateInput)="addEvent('POST', $event)" (dateChange)="addEvent('POST', $event)">
+  <mat-datepicker-toggle matSuffix [for]="pickerPOST"></mat-datepicker-toggle>
+  <mat-datepicker #pickerPOST></mat-datepicker>
+</mat-form-field>
 
+            </div>
+          </div>
 </div>
 <div class="card-body">
 <div class="chart-container" style="">
@@ -60,7 +93,9 @@
 </div>
 <div class="card-footer">
           <div class="stats" >
-            <i style="cursor: pointer;" (click)="refreshChart('POST')" class="now-ui-icons arrows-1_refresh-69"></i>Refreshed on {{chart2Time | date:'fullTime'}}
+             <i *ngIf="!isPostLoading" style="cursor: pointer;" (click)="refreshChart('POST')"  class="now-ui-icons arrows-1_refresh-69"></i>
+            <i *ngIf="isPostLoading" style="cursor: pointer;" (click)="refreshChart('POST')"  class="now-ui-icons loader_refresh spin"></i>
+            Refreshed on {{chart2Time | date:'fullTime'}}
           </div>
         </div>
 
@@ -71,7 +106,21 @@
       <div class="card-header">
         <h5 class="card-category">PUT Rest Service Error</h5>
         <h4 class="card-title">PUT Error Time  Chart</h4>
+<div ngbDropdown>
+            <button type="button" class="btn btn-round btn-default dropdown-toggle btn-simple btn-icon no-caret" ngbDropdownToggle>
+              <i class="now-ui-icons loader_gear"></i>
+            </button>
+            <div ngbDropdownMenu class="dropdown-menu-right">
+             <mat-form-field appearance="fill">
+  <mat-label>Choose a date</mat-label>
+  <input matInput [matDatepicker]="pickerPUT"
+   (dateInput)="addEvent('PUT', $event)" (dateChange)="addEvent('PUT', $event)">
+  <mat-datepicker-toggle matSuffix [for]="pickerPUT"></mat-datepicker-toggle>
+  <mat-datepicker #pickerPUT></mat-datepicker>
+</mat-form-field>
 
+            </div>
+          </div>
 </div>
 <div class="card-body">
 <div class="chart-container" style="">
@@ -87,7 +136,9 @@
 </div>
 <div class="card-footer">
           <div class="stats">
-            <i style="cursor: pointer;" (click)="refreshChart('PUT')" class="now-ui-icons arrows-1_refresh-69"></i> Refreshed on {{chart3Time | date:'fullTime'}}
+             <i *ngIf="!isPutLoading" style="cursor: pointer;" (click)="refreshChart('PUT')"  class="now-ui-icons arrows-1_refresh-69"></i>
+            <i *ngIf="isPutLoading" style="cursor: pointer;" (click)="refreshChart('PUT')"  class="now-ui-icons loader_refresh spin"></i>
+              Refreshed on {{chart3Time | date:'fullTime'}}
           </div>
         </div>
 .
@@ -98,7 +149,21 @@
       <div class="card-header">
         <h5 class="card-category">Delete Rest Service Error</h5>
         <h4 class="card-title">Delete Error Time  Chart</h4>
+<div ngbDropdown>
+            <button type="button" class="btn btn-round btn-default dropdown-toggle btn-simple btn-icon no-caret" ngbDropdownToggle>
+              <i class="now-ui-icons loader_gear"></i>
+            </button>
+            <div ngbDropdownMenu class="dropdown-menu-right">
+             <mat-form-field appearance="fill">
+  <mat-label>Choose a date</mat-label>
+  <input matInput [matDatepicker]="pickerDELETE"
+   (dateInput)="addEvent('DELETE', $event)" (dateChange)="addEvent('DELETE', $event)">
+  <mat-datepicker-toggle matSuffix [for]="pickerDELETE"></mat-datepicker-toggle>
+  <mat-datepicker #pickerDELETE></mat-datepicker>
+</mat-form-field>
 
+            </div>
+          </div>
 </div>
 <div class="card-body">
 <div class="chart-container" style="">
@@ -114,7 +179,9 @@
 </div>
 <div class="card-footer">
           <div class="stats">
-            <i style="cursor: pointer;" (click)="refreshChart('DELETE')" class="now-ui-icons arrows-1_refresh-69"></i> Refreshed on  {{chart4Time | date:'fullTime'}}
+            <i *ngIf="!isDeleteLoading" style="cursor: pointer;" (click)="refreshChart('DELETE')"  class="now-ui-icons arrows-1_refresh-69"></i>
+            <i *ngIf="isDeleteLoading" style="cursor: pointer;" (click)="refreshChart('DELETE')"  class="now-ui-icons loader_refresh spin"></i>
+             Refreshed on  {{chart4Time | date:'fullTime'}}
           </div>
         </div>
 

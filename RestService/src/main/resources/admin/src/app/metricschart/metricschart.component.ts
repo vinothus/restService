@@ -3,6 +3,7 @@ import { Chart } from 'chart.js';
 import { AuthService } from "../auth/auth-service.service";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { DatePipe } from '@angular/common'
+import {MatDatepickerInputEvent} from '@angular/material/datepicker';
 @Component({
   selector: 'app-metricschart',
   templateUrl: './metricschart.component.html',
@@ -18,13 +19,13 @@ export class MetricschartComponent implements OnInit {
   ConsumeTimeput = [];
   Timedelete = [];
   ConsumeTimedelete = [];
-  Linechart = [];
+  Linechart : Chart ;
   isLoadingget = true;
-  LinechartPost = [];
+  LinechartPost:Chart ;
   isLoadingpost = true;
-  LinechartPUT = [];
+  LinechartPUT: Chart ;
   isLoadingput = true;
-  LinechartDelete = [];
+  LinechartDelete: Chart ;
   isLoadingdelete = true;
   serviceConsumptionName ='service consumption';
 chart1Time:number;
@@ -32,6 +33,10 @@ chart2Time:number;
 chart3Time:number;
 chart4Time:number;
 currentDate:string;
+isGetLoading:boolean=false;
+isPostLoading:boolean=false;
+isPutLoading:boolean=false;
+isDeleteLoading:boolean=false;
   today: any ;
   constructor(public formBuilder: FormBuilder, public authService: AuthService,public datepipe: DatePipe) {
 
@@ -61,6 +66,7 @@ if(chartName=='GET')        { this.initGETChart(this.currentDate);}
 }
 initGETChart(sqldate : string)
 {
+ this.isGetLoading=true;
  this.Time = [];
   this.ConsumeTime = [];
    let map = new Map<string, string>();
@@ -100,7 +106,9 @@ initGETChart(sqldate : string)
         }
 
     }
-
+    if(this.Linechart){
+this.Linechart.destroy();
+}
     this.Linechart = new Chart('canvas', {
       type: 'line',
       data: {
@@ -155,11 +163,12 @@ initGETChart(sqldate : string)
     });
     this.isLoadingget=false;
 this.chart1Time= Date.now();
+ this.isGetLoading=false;
     });
 }
 initPostChart(sqldate : string)
 {
-
+ this.isPostLoading=true;
 this.Timepost = [];
  this. ConsumeTimepost = [];
   let map = new Map<string, string>();
@@ -199,7 +208,9 @@ this.Timepost = [];
       }
 
   }
-
+  if(this.LinechartPost){
+  this.LinechartPost.destroy();
+  }
   this.LinechartPost = new Chart('canvas1', {
     type: 'line',
     data: {
@@ -254,6 +265,7 @@ this.Timepost = [];
   });
   this.isLoadingpost=false;
 this.chart2Time= Date.now();
+this.isPostLoading=false;
   });
 
 
@@ -263,7 +275,7 @@ initPutChart(sqldate : string)
 {
 this.Timeput = [];
  this.ConsumeTimeput = [];
-
+this.isPutLoading=true;
   let map = new Map<string, string>();
   let uid = localStorage.getItem('uid');
   map.set('uid', uid);
@@ -300,7 +312,9 @@ this.Timeput = [];
       }
 
   }
-
+  if(this.LinechartPUT){
+  this.LinechartPUT.destroy();
+  }
   this.LinechartPUT = new Chart('canvas2', {
     type: 'line',
     data: {
@@ -355,6 +369,7 @@ this.Timeput = [];
   });
   this.isLoadingput=false;
 this.chart3Time= Date.now();
+this.isPutLoading=false;
   });
 
 
@@ -365,7 +380,7 @@ initDeleteChart(sqldate : string)
 {
 this.Timedelete = [];
   this.ConsumeTimedelete = [];
-
+this.isDeleteLoading=true;
   let map = new Map<string, string>();
   let uid = localStorage.getItem('uid');
   map.set('uid', uid);
@@ -403,8 +418,10 @@ this.Timedelete = [];
       }
 
   }
-
-  this.LinechartPost = new Chart('canvas3', {
+if(this.LinechartDelete){
+  this.LinechartDelete.destroy();
+  }
+  this.LinechartDelete = new Chart('canvas3', {
     type: 'line',
     data: {
       labels: this.Timedelete,
@@ -458,9 +475,18 @@ this.Timedelete = [];
   });
   this.isLoadingdelete=false;
 this.chart4Time= Date.now();
+this.isDeleteLoading=false;
   });
 
 
 }
+ addEvent(type: string, event: MatDatepickerInputEvent<Date>) {
+let sqldate: Date=event.value;
+let picker_date =this.datepipe.transform(sqldate, 'yyyy-MM-dd');
+if(type=='GET')        { this.initGETChart(picker_date);}
+ else if(type=='POST') {  this.initPostChart(picker_date);}
+ else if(type=='PUT'){    this.initPutChart(picker_date);}
+ else if(type=='DELETE')   {this.initDeleteChart(picker_date);}
+  }
 
 }

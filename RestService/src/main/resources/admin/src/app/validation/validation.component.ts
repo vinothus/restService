@@ -175,8 +175,8 @@ export class ValidationComponent implements OnInit, AfterViewInit {
 		this.authService.validateData(this.serviceName, map).subscribe((res) => {
 			console.log(res);
 			let validation = {};
-			if ((String(res)) == 'true' || (String(res)) == 'TRUE' || (String(res)) == 'True') { validation["message"] = "Validated success fully and parameter passed was valid"; }
-			else { validation["message"] = "Validated success fully and parameter passed was Failed"; }
+			if ((String(res)) == 'true' || (String(res)) == 'TRUE' || (String(res)) == 'True') { validation["message"] = "Parameter Validated success fully"; }
+			else { validation["message"] = "Parameter Validation Failed"; }
 			validation["action"] = "Message";
 			let width = '500px';
 
@@ -286,7 +286,7 @@ export class ValidationComponent implements OnInit, AfterViewInit {
          if(data[key]!=null&&data[key]!=''){
 			 map[key]=data[key];
 				}}
-		
+
 						 this.addRowData(map);
 					}
 				}
