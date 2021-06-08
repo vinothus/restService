@@ -727,11 +727,15 @@ public class EmployeeRepositaryImpl {
 	 {
 		 setUserDataStore(apiKey, "system","none").execute("INSERT INTO  VinProcessor (id,uid,name,classname)  VALUES " + 
 		 		"(0,0,'yekeulav','com.vin.processor.PropertyProcessor');"); 
+		 setUserDataStore(apiKey, "system","none").execute("INSERT INTO  VinProcessor (id,uid,name,classname)  VALUES " + 
+			 		"(1,0,'DateProvider','com.vin.processor.DateProvider');"); 
 	 }
 	 else if(tableName.getName().equalsIgnoreCase("VinValidation"))
 	 {
 		 setUserDataStore(apiKey, "system","none").execute("INSERT INTO  VinValidation (id,uid,name,classname,attr_id)  VALUES " + 
-		 		"(0,0,'rotadilavssalc','com.vin.validatiorr.ClassValidator',999);"); 
+		 		"(0,0,'rotadilavssalc','com.vin.validatior.ClassValidator',999);"); 
+		 setUserDataStore(apiKey, "system","none").execute("INSERT INTO  VinValidation (id,uid,name,classname,attr_id)  VALUES " + 
+			 		"(1,0,'connectionValidator','com.vin.validatior.ConnectionValidator',999);"); 
 	 }
 		else if (tableName.getName().equalsIgnoreCase("Service")) {
 			String serviceattr = getTableName("service attr", "system", "system", "none");
