@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.logging.Logger;
-
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +17,7 @@ import org.springframework.boot.web.servlet.error.ErrorController;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Controller;
@@ -53,7 +54,7 @@ import com.vin.rest.service.EmployeeService;
 import com.vin.validation.ParamMapValidator;
 import com.vin.validation.ParamsValidator;
 import com.vin.validation.VinMap;
-
+import javax.servlet.http.HttpServletResponse;
 import vin.rest.common.Constant;
 
 import javax.validation.ConstraintViolation;
@@ -471,6 +472,19 @@ public class GenericController {
 			String value=params.get("value");
 			boolean validity=paramsValidator.validateSingleAttr(service, apiKey, dataStoreKey, params,validatorName, value);
 			return  new ResponseEntity<String>(String.valueOf(validity) ,new HttpHeaders(), HttpStatus.OK)	;
-		}
+        }
+        
+
+        @MethodName(MethodName="getDatumStream")
+	@CrossOrigin
+	public void getDatumStream(final HttpServletResponse response,@PathVariable("service") String service,
+			@RequestParam   Map<String, String> params,@PathVariable("apiKey") String apiKey,@PathVariable("dataStoreKey") String dataStoreKey,@RequestHeader(value="passToken", defaultValue = "none") String passToken,@RequestHeader Map<String,String> headers) throws Exception    {
+		params.put(Constant.REST_METHOD, Constant.GET_ALL_METHOD);
+		System.out.println(headers);
+		doValidation(service, apiKey, dataStoreKey, params);
+        params=doPreProcess(service, apiKey, dataStoreKey, params);
+        	String requestAccept = headers.get("accept");
+		employeeRepositaryImpl.getDataForParamsStream(response,service, params, apiKey, dataStoreKey,passToken,requestAccept);
+	 	}
 		
 }

@@ -4,6 +4,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.logging.Logger;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -141,7 +142,13 @@ public class Application {
 					RequestMappingInfo.paths("/" + appName + "/{"+apiKey+"}/{"+dataStoreKey+"}/{service}/postProcessData").methods(RequestMethod.GET)
 							.produces(MediaType.APPLICATION_JSON_VALUE).build(),
 					userController, userController.getClass().getMethod(GenericController.getMethodName("postProcessData"), String.class, Map.class, String.class, String.class, String.class));
-		
+        
+                    	handlerMapping.registerMapping(
+					RequestMappingInfo.paths("/" + appName + "/{"+apiKey+"}/{"+dataStoreKey+"}/{service}/"+getAllData+"/getDatumStream").methods(RequestMethod.GET)
+							.produces(MediaType.APPLICATION_JSON_VALUE,MediaType.APPLICATION_XML_VALUE).build(),
+					userController, userController.getClass().getMethod(GenericController.getMethodName("getDatumStream"), HttpServletResponse.class,String.class, Map.class, String.class, String.class, String.class,Map.class));
+        
+                    
 			
 			//handlerMapping
 			//.registerMapping(
