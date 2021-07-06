@@ -17,8 +17,8 @@ import { AppConstants } from "../../app-constants";
 })
 export class ServiceDataProcessingComponent implements OnInit {
 
- serviceName: string;
- serviceType:string;
+ serviceName: string ='service';
+ serviceType:string ='single';
  map = new Map<string, string>();
  data: any;
   constructor(private route: ActivatedRoute, public dialog: MatDialog, public formBuilder: FormBuilder, public authService: AuthService) {
@@ -47,14 +47,15 @@ export class ServiceDataProcessingComponent implements OnInit {
   ngOnInit(): void {
     this.route.queryParams.subscribe(
       params => {
-        this.serviceName = params['serviceName'];
-        this.serviceType = params['serviceType'];
+		  if(params['serviceName'])
+        {this.serviceName = params['serviceName'];
+        this.serviceType = params['serviceType'];}
         for (var key in params) {
           this.map[key] = params[key];
         }
       }
     );
-
+ 
 
   }
 
