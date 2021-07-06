@@ -20,6 +20,7 @@ import { ServiceattributeComponent } from '../../serviceattribute/serviceattribu
 import { MultiserviceComponent } from '../../multiservice/multiservice.component';
 import { ValidationComponent } from '../../validation/validation.component';
 import { ProcessorComponent } from '../../processor/processor.component';
+import { ServiceDataProcessingComponent } from '../../app/service-data-processing/service-data-processing.component';
 export const AdminLayoutRoutes: Routes = [
     { path: 'dashboard',      component: DashboardComponent,canActivate :[LoginGuard] },
     { path: 'user-profile',   component: UserProfileComponent ,canActivate :[LoginGuard]},
@@ -39,5 +40,6 @@ export const AdminLayoutRoutes: Routes = [
 	{ path: 'serviceattribute',        component: ServiceattributeComponent,canActivate :[LoginGuard] },
 	{ path: 'multiservice',        component: MultiserviceComponent,canActivate :[LoginGuard] },
 	{ path: 'validation',        component: ValidationComponent,canActivate :[LoginGuard] } ,
-	{ path: 'processor',        component: ProcessorComponent,canActivate :[LoginGuard] }
+  { path: 'processor',        component: ProcessorComponent,canActivate :[LoginGuard] },
+  { path: 'servicedataprocess',        component: ServiceDataProcessingComponent,canActivate :[LoginGuard] }
 ];

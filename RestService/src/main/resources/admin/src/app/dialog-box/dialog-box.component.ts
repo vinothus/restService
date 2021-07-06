@@ -497,7 +497,7 @@ get k() { return this.delMultisingleForm.controls;}
 				.set("passToken", btoa(this.putDbuserName + ':' + this.putDbpassword));
 			var data = document.getElementById("putText").innerHTML;
 			console.log('data:' + JSON.stringify(this.valueJsonStr));
-			const promise = this.httpClient.put(document.location.protocol + '//' + document.location.hostname + ':8080/' + this.myAppName + '/' + localStorage.getItem('access_token') + '/' + datasourceid + '/' + service + '/' + this.local_data.props.get(AppConstants.updateData), this.valueJsonStr, { headers: headers }).toPromise();
+			const promise = this.httpClient.put(document.location.protocol + '//' + document.location.hostname + ':'+document.location.port+'/'+ this.myAppName + '/' + localStorage.getItem('access_token') + '/' + datasourceid + '/' + service + '/' + this.local_data.props.get(AppConstants.updateData), this.valueJsonStr, { headers: headers }).toPromise();
 
 			promise.then((data) => {
 				console.log("Promise resolved with: " + JSON.stringify(data, undefined, 4));
@@ -523,7 +523,7 @@ get k() { return this.delMultisingleForm.controls;}
 				.set("apikey", localStorage.getItem('access_token'))
 				.set("passToken", btoa(this.postDbuserName + ':' + this.postDbpassword));
 			var data = document.getElementById("putText").innerHTML;
-			const promise = this.httpClient.post(document.location.protocol + '//' + document.location.hostname + ':8080/' + this.myAppName + '/' + localStorage.getItem('access_token') + '/' + datasourceid + '/' + service + '/' + this.local_data.props.get(AppConstants.createData), this.valueJsonStr, { headers: headers }).toPromise();
+			const promise = this.httpClient.post(document.location.protocol + '//' + document.location.hostname + ':'+document.location.port+'/' + this.myAppName + '/' + localStorage.getItem('access_token') + '/' + datasourceid + '/' + service + '/' + this.local_data.props.get(AppConstants.createData), this.valueJsonStr, { headers: headers }).toPromise();
 
 			promise.then((data) => {
 				console.log("Promise resolved with: " + JSON.stringify(data, undefined, 4));
@@ -552,7 +552,7 @@ get k() { return this.delMultisingleForm.controls;}
 				.set("apikey", localStorage.getItem('access_token'))
 				.set("passToken", btoa(this.getDbuserName + ':' + this.getDbpassword));
 			const control = this.getsingleForm.get('getsingleid').value;
-			var url = document.location.protocol + '//' + document.location.hostname + ':8080/' + this.myAppName + '/' + localStorage.getItem('access_token') + '/' + datasourceid + '/' + service + '/' + this.local_data.props.get(AppConstants.getOnedata) + '/' + control;
+			var url = document.location.protocol + '//' + document.location.hostname + ':'+document.location.port+'/' + this.myAppName + '/' + localStorage.getItem('access_token') + '/' + datasourceid + '/' + service + '/' + this.local_data.props.get(AppConstants.getOnedata) + '/' + control;
 			this.getdisurl = url;
 			const promise = this.httpClient.get(url, { headers: headers }).toPromise();
 
@@ -586,8 +586,8 @@ get k() { return this.delMultisingleForm.controls;}
 					paramStr = paramStr + key + '=' + this.getAllsingleForm.value[key] + '&';
 				}
 			}
-			this.getAlldisurl = document.location.protocol + '//' + document.location.hostname + ':8080/' + this.myAppName + '/' + localStorage.getItem('access_token') + '/' + datasourceid + '/' + service + '/' + this.local_data.props.get(AppConstants.getAllData);
-			const promise = this.httpClient.get(document.location.protocol + '//' + document.location.hostname + ':8080/' + this.myAppName + '/' + localStorage.getItem('access_token') + '/' + datasourceid + '/' + service + '/' + this.local_data.props.get(AppConstants.getAllData) + paramStr, { headers: headers }).toPromise();
+			this.getAlldisurl = document.location.protocol + '//' + document.location.hostname + ':'+document.location.port+'/' + this.myAppName + '/' + localStorage.getItem('access_token') + '/' + datasourceid + '/' + service + '/' + this.local_data.props.get(AppConstants.getAllData);
+			const promise = this.httpClient.get(document.location.protocol + '//' + document.location.hostname + ':'+document.location.port+'/' + this.myAppName + '/' + localStorage.getItem('access_token') + '/' + datasourceid + '/' + service + '/' + this.local_data.props.get(AppConstants.getAllData) + paramStr, { headers: headers }).toPromise();
 
 			promise.then((data) => {
 				console.log("Promise resolved with: " + JSON.stringify(data, undefined, 4));
@@ -619,7 +619,7 @@ get k() { return this.delMultisingleForm.controls;}
 				.set("apikey", localStorage.getItem('access_token'))
 				.set("passToken", btoa(this.delAllDbuserName + ':' + this.delAllDbpassword));
 			const control = this.delsingleForm.get('delsingleid').value;
-			var url = document.location.protocol + '//' + document.location.hostname + ':8080/' + this.myAppName + '/' + localStorage.getItem('access_token') + '/' + datasourceid + '/' + service + '/' + this.local_data.props.get(AppConstants.delete) + '/' + control;
+			var url = document.location.protocol + '//' + document.location.hostname + ':'+document.location.port+'/' + this.myAppName + '/' + localStorage.getItem('access_token') + '/' + datasourceid + '/' + service + '/' + this.local_data.props.get(AppConstants.delete) + '/' + control;
 			this.deldisurl = url;
 			const promise = this.httpClient.delete(url, { headers: headers }).toPromise();
 
@@ -657,7 +657,7 @@ get k() { return this.delMultisingleForm.controls;}
 				.set("Authorization", "Basic YW5ndWxhcjphbmd1bGFy")
 				.set("apikey", localStorage.getItem('access_token'))
 				.set("passToken", poassToken);
-		var url=	document.location.protocol + '//' + document.location.hostname + ':8080/' + this.myAppName +	 '/' + localStorage.getItem('access_token') + '/' + this.local_data.dsname + '/' + this.local_data.props.get(AppConstants.multiService)+'/' +this.local_data.service + '/' + this.local_data.props.get(AppConstants.createMultipleData);
+		var url=	document.location.protocol + '//' + document.location.hostname +':'+document.location.port+'/'+ this.myAppName +	 '/' + localStorage.getItem('access_token') + '/' + this.local_data.dsname + '/' + this.local_data.props.get(AppConstants.multiService)+'/' +this.local_data.service + '/' + this.local_data.props.get(AppConstants.createMultipleData);
 		this.multipostdisurl=url;
 		const promise = this.httpClient.post(url, this.multivalueJsonStr, { headers: headers }).toPromise();
 	     promise.then((data) => {
@@ -694,7 +694,7 @@ get k() { return this.delMultisingleForm.controls;}
 				.set("Authorization", "Basic YW5ndWxhcjphbmd1bGFy")
 				.set("apikey", localStorage.getItem('access_token'))
 				.set("passToken", poassToken);
-				var url=	document.location.protocol + '//' + document.location.hostname + ':8080/' + this.myAppName +	 '/' + localStorage.getItem('access_token') + '/' + this.local_data.dsname + '/' + this.local_data.props.get(AppConstants.multiService)+'/' +this.local_data.service + '/' + this.local_data.props.get(AppConstants.updateMultipleData);
+				var url=	document.location.protocol + '//' + document.location.hostname + ':'+document.location.port+'/' + this.myAppName +	 '/' + localStorage.getItem('access_token') + '/' + this.local_data.dsname + '/' + this.local_data.props.get(AppConstants.multiService)+'/' +this.local_data.service + '/' + this.local_data.props.get(AppConstants.updateMultipleData);
 
 				this.multiputdisurl=url;
 					const promise = this.httpClient.put(url, this.multivalueJsonStr, { headers: headers }).toPromise();
@@ -740,7 +740,7 @@ get k() { return this.delMultisingleForm.controls;}
 				.set("apikey", localStorage.getItem('access_token'))
 				.set("passToken", poassToken);
 				const control = this.multigetsingleForm.get('getsingleid').value;
-			var url = document.location.protocol + '//' + document.location.hostname + ':8080/' + this.myAppName +	 '/' + localStorage.getItem('access_token') + '/' + this.local_data.dsname + '/' + this.local_data.props.get(AppConstants.multiService)+'/' +this.local_data.service + '/' + this.local_data.props.get(AppConstants.getMultipleOnedata)+'/'+control;
+			var url = document.location.protocol + '//' + document.location.hostname + ':'+document.location.port+'/' + this.myAppName +	 '/' + localStorage.getItem('access_token') + '/' + this.local_data.dsname + '/' + this.local_data.props.get(AppConstants.multiService)+'/' +this.local_data.service + '/' + this.local_data.props.get(AppConstants.getMultipleOnedata)+'/'+control;
 			 this.multigetdisurl=url;
 			const promise = this.httpClient.get(url, { headers: headers }).toPromise();
 
@@ -787,7 +787,7 @@ get k() { return this.delMultisingleForm.controls;}
 				}
 			}
 
-				var url = document.location.protocol + '//' + document.location.hostname + ':8080/' + this.myAppName +	 '/' + localStorage.getItem('access_token') + '/' + this.local_data.dsname + '/' + this.local_data.props.get(AppConstants.multiService)+'/' +this.local_data.service + '/' + this.local_data.props.get(AppConstants.getMultipleAllData);
+				var url = document.location.protocol + '//' + document.location.hostname + ':'+document.location.port+'/' + this.myAppName +	 '/' + localStorage.getItem('access_token') + '/' + this.local_data.dsname + '/' + this.local_data.props.get(AppConstants.multiService)+'/' +this.local_data.service + '/' + this.local_data.props.get(AppConstants.getMultipleAllData);
 			 this.multigetAlldisurl=url;
 			const promise = this.httpClient.get(url+paramStr, { headers: headers }).toPromise();
 
@@ -833,7 +833,7 @@ get k() { return this.delMultisingleForm.controls;}
 
 
 			const control = this.delMultisingleForm.get('delsingleid').value;
-			var url = document.location.protocol + '//' + document.location.hostname + ':8080/' + this.myAppName +	 '/' + localStorage.getItem('access_token') + '/' + this.local_data.dsname + '/' + this.local_data.props.get(AppConstants.multiService)+'/' +this.local_data.service + '/' + this.local_data.props.get(AppConstants.deleteMultiple)+'/'+control;
+			var url = document.location.protocol + '//' + document.location.hostname + ':'+document.location.port+'/'+ this.myAppName +	 '/' + localStorage.getItem('access_token') + '/' + this.local_data.dsname + '/' + this.local_data.props.get(AppConstants.multiService)+'/' +this.local_data.service + '/' + this.local_data.props.get(AppConstants.deleteMultiple)+'/'+control;
 			this.multideldisurl = url;
 			const promise = this.httpClient.delete(url, { headers: headers }).toPromise();
 

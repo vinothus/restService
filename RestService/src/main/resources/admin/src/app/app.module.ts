@@ -74,6 +74,7 @@ import {OverlayModule} from '@angular/cdk/overlay';
 import { DialogBoxComponent } from './dialog-box/dialog-box.component';
 import { DatePipe } from '@angular/common';
 import{ NavbarComponent }from"./components/navbar/navbar.component";
+import { ServiceDataProcessingComponent } from './app/service-data-processing/service-data-processing.component';
 @NgModule({
   imports: [
 
@@ -148,7 +149,8 @@ import{ NavbarComponent }from"./components/navbar/navbar.component";
     MultiserviceComponent,
     ValidationComponent,
     ProcessorComponent,
-    DialogBoxComponent
+    DialogBoxComponent,
+    ServiceDataProcessingComponent
 
   ],
   providers: [

@@ -25,7 +25,8 @@ export const ROUTES: RouteInfo[] = [
 	{ path: '/serviceattribute', title: 'Rest Service Attribute',  icon:'objects_support-17', class: '' },
 	{ path: '/multiservice', title: 'Multi Rest Service ',  icon:'files_paper', class: '' },
 	{ path: '/validation', title: 'Validation Config ',  icon:'ui-1_check', class: '' },
-	{ path: '/processor', title: 'Processor Config ',  icon:'education_atom', class: '' }
+  { path: '/processor', title: 'Processor Config ',  icon:'education_atom', class: '' },
+{ path: '/servicedataprocess?serviceName=service&serviceType=single', title: 'Data Manupulation ',  icon:'education_atom', class: '' }
 
 ];
 
